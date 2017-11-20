@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-
-namespace Sierra.Api
+﻿namespace Sierra.Api
 {
+    using System.IO;
+    using Autofac.Extensions.DependencyInjection;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
+
     public class Program
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
-        }
+            var host = new WebHostBuilder().UseKestrel()
+                                           .UseContentRoot(Directory.GetCurrentDirectory())
+                                           .ConfigureAppConfiguration((context, config) =>
+                                           {
+                                               config.AddJsonFile("appsettings.json")
+                                                     .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true);
+                                           })
+                                           .UseAzureAppServices()
+                                           .ConfigureServices(services => services.AddAutofac())
+                                           .UseStartup<Startup>()
+                                           .Build();
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
+            host.Run();
+        }
     }
 }
