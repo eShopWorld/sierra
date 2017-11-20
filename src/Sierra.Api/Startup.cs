@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Api
 {
+    using Autofac;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -20,14 +21,14 @@
             services.AddMvc();
         }
 
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            // autofac stuff
+        }
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
             app.UseMvc();
         }
     }
