@@ -6,7 +6,7 @@ In [eShopWorld](https://www.eshopworld.com/) we often face one of the oldest pro
 
 On one side we have those projects, where a sales pitch get's done using a timeline that's not realistic. These *Spanish Conquistador* (where the crew of the boat was given unrealistic bonus goals to push for overtime and still fail the bonus goals, saving money to the organizers of the expedition) type of projects have the usual high skill developer dodge, leaving the teams that implement it, under pressure, even more undermined.
 
-On the other side we have team building exercises gone wrong, where there are agressive goals to hire or build teams and the folks that are hiring start bypassing processes so the organization end up recruiting the wrong folks, which either don't have the technical skillset or aren't aligned with the type of code being writen for the platform. *"They will eventually pick it up"* can be valid to a given extend, but simply false for the majority of real life cases.
+On the other side we have team building exercises gone wrong, where there are agressive goals to hire or build teams and the folks that are hiring start bypassing processes so the organization ends up recruiting the wrong folks, which either don't have the technical skillset or aren't aligned with the type of code being writen for the platform.
 To add to this, high scale spikes will often resort to [Body Shop consultancy](http://unstoppablesoftware.com/body-shop-consulting-dying-model/) houses and these developers will most likely not be aligned with the current technology stack and principles despite *everyone's best efforts*.
 
 In either of these scenarios we have folks coming into code bases and causing damage to them, either disregarding design principles, bypassing technology choices or even putting in their _own thing_ because they *don't have time*.
@@ -27,4 +27,4 @@ There is an extension to the second concept where we allow UI components to have
 
 ## Where does Sierra fit in
 
-TBD :)
+Sierra is the tool that will orchestrate tenants in environments, repositories and the respective CI/CD pipelines. After just a few tenants, the number of moving parts will be already too high to manage manually, so the need to do all this through code is implicit in our solution.
