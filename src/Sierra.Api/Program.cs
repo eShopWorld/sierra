@@ -9,17 +9,18 @@
     {
         public static void Main(string[] args)
         {
-            var host = new WebHostBuilder().UseKestrel()
-                                           .UseContentRoot(Directory.GetCurrentDirectory())
-                                           .ConfigureAppConfiguration((context, config) =>
-                                           {
-                                               config.AddJsonFile("appsettings.json")
-                                                     .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true);
-                                           })
-                                           .UseAzureAppServices()
-                                           .ConfigureServices(services => services.AddAutofac())
-                                           .UseStartup<Startup>()
-                                           .Build();
+            var host =
+                new WebHostBuilder().UseKestrel()
+                                    .UseContentRoot(Directory.GetCurrentDirectory())
+                                    .ConfigureAppConfiguration((context, config) =>
+                                    {
+                                        config.AddJsonFile("appsettings.json")
+                                              .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true);
+                                    })
+                                    .UseAzureAppServices()
+                                    .ConfigureServices(services => services.AddAutofac())
+                                    .UseStartup<Startup>()
+                                    .Build();
 
             host.Run();
         }

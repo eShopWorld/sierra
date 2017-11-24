@@ -19,6 +19,7 @@
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddApplicationInsightsTelemetry(Configuration);
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
