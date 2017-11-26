@@ -1,28 +1,25 @@
 ﻿namespace Sierra.Api
 {
-    using System.IO;
-    using Autofac.Extensions.DependencyInjection;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.Configuration;
+    using System.Threading;
+    using Microsoft.ServiceFabric.Services.Runtime;
 
-    public class Program
+    internal static class Program
     {
-        public static void Main(string[] args)
+        /// <summary>
+        /// This is the entry point of the service host process.
+        /// </summary>
+        private static void Main()
         {
-            var host =
-                new WebHostBuilder().UseKestrel()
-                                    .UseContentRoot(Directory.GetCurrentDirectory())
-                                    .ConfigureAppConfiguration((context, config) =>
-                                    {
-                                        config.AddJsonFile("appsettings.json")
-                                              .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true);
-                                    })
-                                    .UseAzureAppServices()
-                                    .ConfigureServices(services => services.AddAutofac())
-                                    .UseStartup<Startup>()
-                                    .Build();
+                // The ServiceManifest.XML file defines one or more service type names.
+                // Registering a service maps a service type name to a .NET type.
+                // When Api Fabric creates an instance of this service type,
+                // an instance of the class is created in this host process.
 
-            host.Run();
+                ServiceRuntime.RegisterServiceAsync("SierraType",
+                    context => new Api(context)).GetAwaiter().GetResult();
+
+                // Prevents this host process from terminating so services keeps running. 
+                Thread.Sleep(Timeout.Infinite);
         }
     }
 }
