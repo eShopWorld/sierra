@@ -2,10 +2,16 @@
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="Sierra.FabricType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="Sierra_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="SierraActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="SierraActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="SierraActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="Sierra.ActorPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="SierraPkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
@@ -20,6 +26,11 @@
       <StatelessService ServiceTypeName="SierraType" InstanceCount="[Sierra_InstanceCount]">
         <SingletonPartition />
       </StatelessService>
+    </Service>
+    <Service Name="SierraActorService" GeneratedIdRef="d2d06b95-5bcf-460f-ae5c-e6706971ae58|Persisted">
+      <StatefulService ServiceTypeName="SierraActorServiceType" TargetReplicaSetSize="[SierraActorService_TargetReplicaSetSize]" MinReplicaSetSize="[SierraActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[SierraActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
     </Service>
   </DefaultServices>
 </ApplicationManifest>

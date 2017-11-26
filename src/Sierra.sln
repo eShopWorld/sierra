@@ -5,7 +5,17 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Sierra.Fabric", "Sierra.Fabric\Sierra.Fabric.sfproj", "{17909DD2-D384-4E32-9904-1387B726B2D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sierra.Api", "Sierra.Api\Sierra.Api.csproj", "{D0FC4E35-7650-49AD-B5A8-67539A936712}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Api", "Sierra.Api\Sierra.Api.csproj", "{D0FC4E35-7650-49AD-B5A8-67539A936712}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sierra.Actor", "Sierra.Actor\Sierra.Actor.csproj", "{75105951-3034-4B77-8845-6AC4D2FAFD87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sierra.Actor.Interfaces", "Sierra.Actor.Interfaces\Sierra.Actor.Interfaces.csproj", "{88F35AE9-9157-4EB7-A873-9AA687263FA8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{960E1F52-FF65-4F52-870F-A0CA22D26475}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sierra.Model", "Sierra.Model\Sierra.Model.csproj", "{6F357D26-DB46-4232-B5A8-6007764C0CF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sierra.PowerShell", "Sierra.PowerShell\Sierra.PowerShell.csproj", "{AA24BBB9-A514-4162-AEDB-3B66032E2A81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +41,34 @@ Global
 		{D0FC4E35-7650-49AD-B5A8-67539A936712}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D0FC4E35-7650-49AD-B5A8-67539A936712}.Release|x64.ActiveCfg = Release|Any CPU
 		{D0FC4E35-7650-49AD-B5A8-67539A936712}.Release|x64.Build.0 = Release|Any CPU
+		{75105951-3034-4B77-8845-6AC4D2FAFD87}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{75105951-3034-4B77-8845-6AC4D2FAFD87}.Debug|x64.ActiveCfg = Debug|x64
+		{75105951-3034-4B77-8845-6AC4D2FAFD87}.Debug|x64.Build.0 = Debug|x64
+		{75105951-3034-4B77-8845-6AC4D2FAFD87}.Release|Any CPU.ActiveCfg = Release|x64
+		{75105951-3034-4B77-8845-6AC4D2FAFD87}.Release|x64.ActiveCfg = Release|x64
+		{75105951-3034-4B77-8845-6AC4D2FAFD87}.Release|x64.Build.0 = Release|x64
+		{88F35AE9-9157-4EB7-A873-9AA687263FA8}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{88F35AE9-9157-4EB7-A873-9AA687263FA8}.Debug|x64.ActiveCfg = Debug|x64
+		{88F35AE9-9157-4EB7-A873-9AA687263FA8}.Debug|x64.Build.0 = Debug|x64
+		{88F35AE9-9157-4EB7-A873-9AA687263FA8}.Release|Any CPU.ActiveCfg = Release|x64
+		{88F35AE9-9157-4EB7-A873-9AA687263FA8}.Release|x64.ActiveCfg = Release|x64
+		{88F35AE9-9157-4EB7-A873-9AA687263FA8}.Release|x64.Build.0 = Release|x64
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Debug|x64.Build.0 = Debug|Any CPU
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Release|x64.ActiveCfg = Release|Any CPU
+		{6F357D26-DB46-4232-B5A8-6007764C0CF4}.Release|x64.Build.0 = Release|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Debug|x64.Build.0 = Debug|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Release|x64.ActiveCfg = Release|Any CPU
+		{AA24BBB9-A514-4162-AEDB-3B66032E2A81}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
