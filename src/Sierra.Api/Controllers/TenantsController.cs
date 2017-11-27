@@ -2,39 +2,42 @@
 {
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Mvc;
+    using Model;
 
     [Route("/v1/tenants")]
     public class TenantsController : Controller
     {
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        [ProducesResponseType(typeof(IEnumerable<Tenant>), 200)]
+        public IEnumerable<Tenant> Get()
         {
-            return new[] {"value1", "value2"};
+            return new Tenant[] {};
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        [ProducesResponseType(typeof(Tenant), 200)]
+        public Tenant Get(int id)
         {
-            return "value";
+            return new Tenant();
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public void Post([FromBody]Tenant tenant)
         {
         }
 
         // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        [HttpPut]
+        public void Put([FromBody]Tenant tenant)
         {
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void Delete(string id)
         {
         }
     }
