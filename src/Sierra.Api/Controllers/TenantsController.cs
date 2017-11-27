@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Mvc;
 
-    [Route("api/v1/tenants")]
+    [Route("/v1/tenants")]
     public class TenantsController : Controller
     {
         // GET api/values
