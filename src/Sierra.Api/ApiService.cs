@@ -13,9 +13,9 @@
     /// <summary>
     /// The FabricRuntime creates an instance of this class for each service type instance. 
     /// </summary>
-    internal sealed class Api : StatelessService
+    internal sealed class ApiService : StatelessService
     {
-        public Api(StatelessServiceContext context)
+        public ApiService(StatelessServiceContext context)
             : base(context)
         { }
 
@@ -28,7 +28,7 @@
             return new[]
             {
                 new ServiceInstanceListener(serviceContext =>
-                    new KestrelCommunicationListener(serviceContext, "ServiceEndpoint", (url, listener) =>
+                    new KestrelCommunicationListener(serviceContext, "SierraApiEndpoint", (url, listener) =>
                     {
                         return new WebHostBuilder()
                                     .UseKestrel()

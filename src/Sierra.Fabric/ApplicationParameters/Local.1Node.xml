@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/Sierra.Fabric" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
-    <Parameter Name="Sierra_InstanceCount" Value="1" />
+    <Parameter Name="SierraApi_InstanceCount" Value="1" />
     <Parameter Name="SierraActorService_PartitionCount" Value="1" />
     <Parameter Name="SierraActorService_TargetReplicaSetSize" Value="1" />
     <Parameter Name="SierraActorService_MinReplicaSetSize" Value="1" />

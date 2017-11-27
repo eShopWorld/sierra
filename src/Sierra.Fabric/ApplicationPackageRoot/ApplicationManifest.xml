@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="Sierra.FabricType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
-    <Parameter Name="Sierra_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="SierraApi_InstanceCount" DefaultValue="-1" />
     <Parameter Name="SierraActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="SierraActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="SierraActorService_TargetReplicaSetSize" DefaultValue="3" />
@@ -10,11 +10,11 @@
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="Sierra.ActorPkg" ServiceManifestVersion="1.0.0" />
+    <ServiceManifestRef ServiceManifestName="SierraApiPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
   </ServiceManifestImport>
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="SierraPkg" ServiceManifestVersion="1.0.0" />
-    <ConfigOverrides />
+    <ServiceManifestRef ServiceManifestName="Sierra.ActorPkg" ServiceManifestVersion="1.0.0" />
   </ServiceManifestImport>
   <DefaultServices>
     <!-- The section below creates instances of service types, when an instance of this 
@@ -22,12 +22,12 @@
          ServiceFabric PowerShell module.
          
          The attribute ServiceTypeName below must match the name defined in the imported ServiceManifest.xml file. -->
-    <Service Name="Sierra" ServicePackageActivationMode="ExclusiveProcess">
-      <StatelessService ServiceTypeName="SierraType" InstanceCount="[Sierra_InstanceCount]">
+    <Service Name="SierraApi" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="SierraApiType" InstanceCount="[SierraApi_InstanceCount]">
         <SingletonPartition />
       </StatelessService>
     </Service>
-    <Service Name="SierraActorService" GeneratedIdRef="d2d06b95-5bcf-460f-ae5c-e6706971ae58|Persisted">
+    <Service Name="SierraActorService" GeneratedIdRef="f1544a07-5f11-4f71-9e20-4e9671b1f6a1|Persisted">
       <StatefulService ServiceTypeName="SierraActorServiceType" TargetReplicaSetSize="[SierraActorService_TargetReplicaSetSize]" MinReplicaSetSize="[SierraActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[SierraActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>

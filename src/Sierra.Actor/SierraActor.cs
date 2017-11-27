@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Actors;
-using Microsoft.ServiceFabric.Actors.Runtime;
-using Microsoft.ServiceFabric.Actors.Client;
-using Sierra.Actor.Interfaces;
-
-namespace Sierra.Actor
+﻿namespace Sierra.Actor
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Interfaces;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Actor = Microsoft.ServiceFabric.Actors.Runtime.Actor;
 
     /// <remarks>
