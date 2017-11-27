@@ -15,6 +15,10 @@
     /// </summary>
     internal sealed class ApiService : StatelessService
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="ApiService"/>.
+        /// </summary>
+        /// <param name="context"></param>
         public ApiService(StatelessServiceContext context)
             : base(context)
         { }

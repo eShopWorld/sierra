@@ -11,16 +11,30 @@
     using Model;
     using Swashbuckle.AspNetCore.Swagger;
 
+    /// <summary>
+    /// Startup entry point for the Sierra.Api fabric service.
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="Startup"/>.
+        /// </summary>
+        /// <param name="configuration">[Injected] The set of key/value application configuration properties.</param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Gets and sets the set of key/value application configuration properties.
+        /// </summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// The framework service configuration entry point.
+        ///     Do not use this to setup anything without a <see cref="IServiceCollection"/> extension method!
+        /// </summary>
+        /// <param name="services">The contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
@@ -45,12 +59,21 @@
             });
         }
 
+        /// <summary>
+        /// The framework DI container configuration entry point.
+        ///     Use this to setup specific autofac dependencies that don't have <see cref="IServiceCollection"/> extension methods.
+        /// </summary>
+        /// <param name="builder">The builder for an <see cref="T:Autofac.IContainer" /> from component registrations.</param>
         public void ConfigureContainer(ContainerBuilder builder)
         {
             // autofac stuff
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// The framework HTTP request pipeline configuration entry point.
+        /// </summary>
+        /// <param name="app">The mechanisms to configure an application's request pipeline.</param>
+        /// <param name="env">The information about the web hosting environment an application is running in.</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseMvc();
