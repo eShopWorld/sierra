@@ -28,22 +28,25 @@
             return new[]
             {
                 new ServiceInstanceListener(serviceContext =>
-                    new KestrelCommunicationListener(serviceContext, "SierraApiEndpoint", (url, listener) =>
-                    {
-                        return new WebHostBuilder()
-                                    .UseKestrel()
-                                    .ConfigureServices(
-                                        services =>
-                                        {
-                                            services.AddAutofac();
-                                            services.AddSingleton(serviceContext);
-                                        })
-                                    .UseContentRoot(Directory.GetCurrentDirectory())
-                                    .UseStartup<Startup>()
-                                    .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
-                                    .UseUrls(url)
-                                    .Build();
-                    }))
+                    new KestrelCommunicationListener(
+                        serviceContext,
+                        "SierraApiEndpoint",
+                        (url, listener) =>
+                        {
+                            return new WebHostBuilder()
+                                .UseKestrel()
+                                .ConfigureServices(
+                                    services =>
+                                    {
+                                        services.AddAutofac();
+                                        services.AddSingleton(serviceContext);
+                                    })
+                                .UseContentRoot(Directory.GetCurrentDirectory())
+                                .UseStartup<Startup>()
+                                .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
+                                .UseUrls(url)
+                                .Build();
+                        }))
             };
         }
     }
