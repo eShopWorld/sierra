@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Api
 {
+    using System;
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
@@ -42,7 +43,9 @@
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(SierraVersion.LatestApi, new Info { Title = "Sierra Api", Version = SierraVersion.Sierra });
-                var filePath = Path.Combine(Assembly.GetExecutingAssembly().Location, "Sierra.Api.xml");
+                var filePath = Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException("Wrong check for the swagger XML file!"),
+                    "Sierra.Api.xml");
 
                 if (File.Exists(filePath))
                 {
