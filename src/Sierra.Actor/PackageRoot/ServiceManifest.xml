@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="Sierra.ActorPkg" Version="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <ServiceTypes>
-    <StatefulServiceType ServiceTypeName="TenantType">
+    <StatefulServiceType ServiceTypeName="TenantActorServiceType">
       <Extensions>
-        <Extension Name="__GeneratedServiceType__" GeneratedId="8f540dfa-b91b-4bc2-91fc-a6f3e4c3fe08|Volatile">
+        <Extension Name="__GeneratedServiceType__" GeneratedId="3690a6c7-52eb-4a95-8104-b5b27947cdd2|Volatile">
           <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
-            <DefaultService Name="Tenant" />
-            <ReplicatorEndpoint Name="TenantReplicatorEndpoint" />
-            <ReplicatorConfigSection Name="TenantReplicatorConfig" />
-            <ReplicatorSecurityConfigSection Name="TenantReplicatorSecurityConfig" />
-            <StoreConfigSection Name="TenantLocalStoreConfig" />
-            <ServiceEndpointV2 Name="TenantEndpointV2" />
+            <DefaultService Name="TenantActorService" />
+            <ReplicatorEndpoint Name="TenantActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="TenantActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="TenantActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="TenantActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="TenantActorServiceEndpointV2" />
           </GeneratedNames>
         </Extension>
       </Extensions>
@@ -30,7 +30,8 @@
       <Endpoint Name="SierraActorServiceEndpointV2" />
       <Endpoint Name="TenantActorServiceEndpointV2" />
       <Endpoint Name="TenantEndpointV2" />
-      <Endpoint Name="TenantReplicatorEndpoint" />
+      <Endpoint Name="TenantActorEndpointV2" />
+      <Endpoint Name="TenantActorServiceReplicatorEndpoint" />
     </Endpoints>
   </Resources>
   <!-- The content will be generated during build -->

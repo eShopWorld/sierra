@@ -11,7 +11,6 @@
     /// This guy handles the full tenant change workflow, maps to the API verb usage and keeps track of all internal state.
     /// </summary>
     [StatePersistence(StatePersistence.Volatile)]
-    [ActorService(Name = nameof(TenantActor))]
     internal class TenantActor : SierraActor, ITenantActor
     {
         /// <summary>
@@ -24,12 +23,32 @@
         {
         }
 
+        /// <summary>
+        /// Adds a tenant to the platform.
+        /// </summary>
+        /// <param name="tenant"></param>
+        /// <returns>The async <see cref="T:System.Threading.Tasks.Task" /> wrapper.</returns>
         public override async Task Add(Tenant tenant)
         {
             await Task.Yield(); // todo: temporary
         }
 
+        /// <summary>
+        /// Removes a tenant from the platform.
+        /// </summary>
+        /// <param name="tenant"></param>
+        /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public override async Task Remove(Tenant tenant)
+        {
+            await Task.Yield(); // todo: temporary
+        }
+
+        /// <summary>
+        /// Changes a tenant in the platform.
+        /// </summary>
+        /// <param name="tenant"></param>
+        /// <returns>The async <see cref="Task"/> wrapper.</returns>
+        public async Task Edit(Tenant tenant)
         {
             await Task.Yield(); // todo: temporary
         }

@@ -2,9 +2,9 @@
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="Sierra.FabricType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="SierraApi_InstanceCount" DefaultValue="-1" />
-    <Parameter Name="Tenant_PartitionCount" DefaultValue="10" />
-    <Parameter Name="Tenant_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="Tenant_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="TenantActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="TenantActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="TenantActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -27,9 +27,9 @@
         <SingletonPartition />
       </StatelessService>
     </Service>
-    <Service Name="Tenant" GeneratedIdRef="8f540dfa-b91b-4bc2-91fc-a6f3e4c3fe08|Volatile">
-      <StatefulService ServiceTypeName="TenantType" TargetReplicaSetSize="[Tenant_TargetReplicaSetSize]" MinReplicaSetSize="[Tenant_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[Tenant_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+    <Service Name="TenantActorService" GeneratedIdRef="3690a6c7-52eb-4a95-8104-b5b27947cdd2|Volatile">
+      <StatefulService ServiceTypeName="TenantActorServiceType" TargetReplicaSetSize="[TenantActorService_TargetReplicaSetSize]" MinReplicaSetSize="[TenantActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[TenantActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>

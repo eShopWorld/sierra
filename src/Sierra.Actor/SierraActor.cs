@@ -1,12 +1,11 @@
 ﻿namespace Sierra.Actor
 {
     using System.Threading.Tasks;
-    using Interfaces;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Model;
 
-    abstract class SierraActor : Actor, ISierraActor
+    abstract class SierraActor : Actor
     {
         /// <summary>
         /// Initializes a new instance of <see cref="SierraActor"/>.
