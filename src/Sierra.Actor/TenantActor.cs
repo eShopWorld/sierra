@@ -31,6 +31,19 @@
         public override async Task Add(Tenant tenant)
         {
             await Task.Yield(); // todo: temporary
+
+            // Flow
+
+            // #1 Fork anything that needs to be forked
+            // #2 Create CI builds for each new fork created for the tenant
+            // #3 Build the tenant test resources
+            // #4 Build the tenant production resources
+            // #5 Release definition
+                // #5a Create a release definition from dev
+                // #5a If there are forks, create a release definition from master
+                // #5b If there are no forks, put the tenant into a ring on the global master release definition
+            // #6 Create the tenant Azure AD application for test and prod
+            // #7 Map the tenant KeyVault for all test environments and prod
         }
 
         /// <summary>
