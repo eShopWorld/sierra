@@ -1,12 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Fabric;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Actors.Runtime;
-
-namespace Sierra.Actor
+﻿namespace Sierra.Actor
 {
+    using System;
+    using System.Threading;
+    using Microsoft.ServiceFabric.Actors.Runtime;
+
     internal static class Program
     {
         /// <summary>
@@ -21,7 +18,7 @@ namespace Sierra.Actor
                 // are automatically populated when you build this project.
                 // For more information, see https://aka.ms/servicefabricactorsplatform
 
-                ActorRuntime.RegisterActorAsync<SierraActor>(
+                ActorRuntime.RegisterActorAsync<TenantActor>(
                    (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
 
                 Thread.Sleep(Timeout.Infinite);

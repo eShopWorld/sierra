@@ -21,7 +21,7 @@
 
                 ServiceRuntime.RegisterServiceAsync("SierraApiType", context => new ApiService(context)).GetAwaiter().GetResult();
 
-                // Prevents this host process from terminating so services keeps running. 
+                // Prevents this host process from terminating so services keeps running.
                 Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception ex)

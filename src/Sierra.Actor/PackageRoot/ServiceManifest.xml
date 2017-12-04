@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="Sierra.ActorPkg" Version="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <ServiceTypes>
-    <StatefulServiceType ServiceTypeName="SierraActorServiceType" HasPersistedState="true">
+    <StatefulServiceType ServiceTypeName="TenantType">
       <Extensions>
-        <Extension Name="__GeneratedServiceType__" GeneratedId="f1544a07-5f11-4f71-9e20-4e9671b1f6a1|Persisted">
+        <Extension Name="__GeneratedServiceType__" GeneratedId="8f540dfa-b91b-4bc2-91fc-a6f3e4c3fe08|Volatile">
           <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
-            <DefaultService Name="SierraActorService" />
-            <ReplicatorEndpoint Name="SierraActorServiceReplicatorEndpoint" />
-            <ReplicatorConfigSection Name="SierraActorServiceReplicatorConfig" />
-            <ReplicatorSecurityConfigSection Name="SierraActorServiceReplicatorSecurityConfig" />
-            <StoreConfigSection Name="SierraActorServiceLocalStoreConfig" />
-            <ServiceEndpointV2 Name="SierraActorServiceEndpointV2" />
+            <DefaultService Name="Tenant" />
+            <ReplicatorEndpoint Name="TenantReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="TenantReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="TenantReplicatorSecurityConfig" />
+            <StoreConfigSection Name="TenantLocalStoreConfig" />
+            <ServiceEndpointV2 Name="TenantEndpointV2" />
           </GeneratedNames>
         </Extension>
       </Extensions>
@@ -28,7 +28,9 @@
     <Endpoints>
       <Endpoint Name="SierraActorEndpointV2" />
       <Endpoint Name="SierraActorServiceEndpointV2" />
-      <Endpoint Name="SierraActorServiceReplicatorEndpoint" />
+      <Endpoint Name="TenantActorServiceEndpointV2" />
+      <Endpoint Name="TenantEndpointV2" />
+      <Endpoint Name="TenantReplicatorEndpoint" />
     </Endpoints>
   </Resources>
   <!-- The content will be generated during build -->
