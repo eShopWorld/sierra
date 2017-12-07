@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Sierra.Fabric", "Sierra.Fabric\Sierra.Fabric.sfproj", "{17909DD2-D384-4E32-9904-1387B726B2D2}"
 EndProject
@@ -22,6 +22,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sierra.Actor.Tests", "Tests\Sierra.Actor.Tests\Sierra.Actor.Tests.csproj", "{CBEDA926-EBBD-4F8C-80A3-7ADBCACC85B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sierra.PowerShell.Tests", "Tests\Sierra.PowerShell.Tests\Sierra.PowerShell.Tests.csproj", "{8288264A-4D7C-443E-A38E-41553670ED22}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{418494EB-C2C7-4F03-B565-2AFEBBFC5A38}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
