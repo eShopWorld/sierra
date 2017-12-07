@@ -28,3 +28,25 @@ There is an extension to the second concept where we allow UI components to have
 ## Where does Sierra fit in
 
 Sierra is the tool that will orchestrate tenants in environments, repositories and the respective CI/CD pipelines. After just a few tenants, the number of moving parts will be already too high to manage manually, so the need to do all this through code is implicit in our solution.
+
+## Continuous Integration pipelines
+
+Each core repo or any fork of a core repo will have his own CI pipeline. Forks get an aditional task that will attempt to merge back from the core origin on each CI build and check for conflicts, if there are any, CI will break because it highlights the fact that the fork is using the wrong extensability model.
+
+## Continuous Deployment pipelines
+
+The hard boundary between core and forks is the VSTS project. So forks will live in a seperate VSTS project that the original core repos. This means that we can achieve security rules at the project level, so that Sierra doesn't have to deal with setting up the proper fork permissions during creation.
+
+All release pipelines will be driven from the core VSTS project, but they may collect CI artefacts from the forks VSTS project. Here's an example of the artefact list of a Tenant build:
+
+![](docs/images/tenant_artefacts.png)
+
+The first set of artefacts is a fork, while the 2nd and 3rd are core repos, so this tenant has a customized fork of component-a that's being collected from the forks VSTS project while the others are core repos collected from the same VSTS project where the release definition is located.
+
+Because a lot of focus is going into customization through code and settings injections, we don't expect to have a high number of forks in the entire platform. For each tenant that has no forks we are doing ring deployments where the number of the ring matches the tier of the tenant, so a release pipeline will look like this (where EU is a region in Europe and US a region in the United States):
+
+![](docs/images/rings.png)
+
+Each ring will be gated by an API that monitors application insights feeds and by the Azure monitor alert level, so if there's something wrong with the previous ring deployment it won't be allowed to go any further. An example of the proposed gates:
+
+![](docs/images/ring_gates.png)
