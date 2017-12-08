@@ -5,33 +5,45 @@
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     /// <summary>
-    /// The base actor class for Sierra, every actor should inherit from this directly or indirectly.
+    /// The base class for any actor that is locked (unique) in the scope of any resource.
     /// </summary>
     /// <typeparam name="T">The root of the model that the actor deals with.</typeparam>
-    public abstract class SierraActor<T> : Actor
+    public abstract class UniqueResourceActor<T> : SierraActor<T>
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="SierraActor{T}"/>.
+        /// Initializes a new instance of <see cref="UniqueResourceActor{T}"/>.
         /// </summary>
         /// <param name="actorService">The <see cref="ActorService"/> that will host this actor instance.</param>
         /// <param name="actorId">The <see cref="ActorId"/> for this actor instance.</param>
-        protected SierraActor(ActorService actorService, ActorId actorId)
+        protected UniqueResourceActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
         }
 
+        /// <inheritdoc />
+        public override Task Add(T model)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override Task Remove(T model)
+        {
+            throw new System.NotImplementedException();
+        }
+
         /// <summary>
-        /// Adds <see cref="T"/> to the Sierra platform.
+        /// Internal call back used to run the Add action, assuming the Add can be queued based on a given resource.
         /// </summary>
         /// <param name="model">The model of type <see cref="T"/> that we want to add.</param>
         /// <returns>The <see cref="Task"/> wrapper.</returns>
-        public abstract Task Add(T model);
+        internal abstract Task AddAction(T model);
 
         /// <summary>
-        /// Removes <see cref="T"/> to the Sierra platform.
+        /// Internal call back used to run the Remove action, assuming the Remove can be queued based on a given resource.
         /// </summary>
         /// <param name="model">The model of type <see cref="T"/> that we want to remove.</param>
         /// <returns>The <see cref="Task"/> wrapper.</returns>
-        public abstract Task Remove(T model);
+        internal abstract Task RemoveAction(T model);
     }
 }

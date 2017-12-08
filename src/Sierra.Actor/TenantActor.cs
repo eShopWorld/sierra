@@ -11,7 +11,7 @@
     /// This guy handles the full tenant change workflow, maps to the API verb usage and keeps track of all internal state.
     /// </summary>
     [StatePersistence(StatePersistence.Volatile)]
-    internal class TenantActor : SierraActor, ITenantActor
+    internal class TenantActor : SierraActor<Tenant>, ITenantActor
     {
         /// <summary>
         /// Initializes a new instance of <see cref="TenantActor"/>.
