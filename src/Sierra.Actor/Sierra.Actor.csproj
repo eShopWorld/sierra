@@ -97,6 +97,7 @@
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LockerActor.cs" />
     <Compile Include="UniqueResourceActor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SierraActor.cs" />

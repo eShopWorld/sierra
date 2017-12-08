@@ -5,5 +5,8 @@
     <Parameter Name="TenantActorService_PartitionCount" Value="1" />
     <Parameter Name="TenantActorService_TargetReplicaSetSize" Value="1" />
     <Parameter Name="TenantActorService_MinReplicaSetSize" Value="1" />
+    <Parameter Name="LockerActorService_PartitionCount" Value="1" />
+    <Parameter Name="LockerActorService_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="LockerActorService_MinReplicaSetSize" Value="1" />
   </Parameters>
 </Application>
