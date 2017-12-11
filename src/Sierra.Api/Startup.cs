@@ -11,6 +11,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Model;
     using Swashbuckle.AspNetCore.Swagger;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
 
     /// <summary>
     /// Startup entry point for the Sierra.Api fabric service.
@@ -38,11 +39,18 @@
         /// <param name="services">The contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
             services.AddApplicationInsightsTelemetry(Configuration);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(SierraVersion.LatestApi, new Info { Title = "Sierra Api", Version = SierraVersion.Sierra });
+                c.AddSecurityDefinition("Bearer",
+                    new ApiKeyScheme
+                    {
+                        In = "header",
+                        Description = "Please insert JWT with Bearer into field",
+                        Name = "Authorization",
+                        Type = "apiKey"
+                    });
                 var filePath = Path.Combine(
                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException("Wrong check for the swagger XML file! 'Assembly.GetExecutingAssembly().Location' came back null!"),
                     "Sierra.Api.xml");
@@ -60,6 +68,23 @@
                     }
                 }
             });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AssertScope", policy =>
+                    policy.RequireClaim("scope", "esw.sierra.api"));
+            });
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(x =>
+            {
+                x.ApiName = Configuration["STSConfig:ApiName"];
+                x.Authority = Configuration["STSConfig:Authority"];
+                x.RequireHttpsMetadata = !string.IsNullOrWhiteSpace(Configuration["STSConfig:Authority"]) && Configuration["STSConfig:Authority"].StartsWith("https");
+
+            });
+
+            services.AddMvc();
         }
 
         /// <summary>
@@ -79,13 +104,16 @@
         /// <param name="env">The information about the web hosting environment an application is running in.</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseMvc();
+
             if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint($"/swagger/{SierraVersion.LatestApi}/swagger.json", $"Sierra Api {SierraVersion.LatestApi}");
             });
+
+            app.UseAuthentication();
+            app.UseMvc();
         }
     }
 }

@@ -3,11 +3,13 @@
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Mvc;
     using Model;
+    using Microsoft.AspNetCore.Authorization;
 
     /// <summary>
     /// Manages tenants in the platform.
     /// </summary>
     [Route("/v1/tenants")]
+    [Authorize(Policy = "AssertScope")]
     public class TenantsController : Controller
     {
         /// <summary>
