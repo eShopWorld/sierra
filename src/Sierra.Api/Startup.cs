@@ -106,14 +106,17 @@
         {
 
             if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
+
+            app.UseAuthentication();
+            app.UseMvc();
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint($"/swagger/{SierraVersion.LatestApi}/swagger.json", $"Sierra Api {SierraVersion.LatestApi}");
             });
 
-            app.UseAuthentication();
-            app.UseMvc();
+        
         }
     }
 }
