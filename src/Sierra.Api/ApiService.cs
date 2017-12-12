@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Api
 {
+    using Microsoft.Extensions.Configuration;
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;
@@ -46,9 +47,10 @@
                                         services.AddSingleton(serviceContext);
                                     })
                                 .UseContentRoot(Directory.GetCurrentDirectory())
-                                .UseStartup<Startup>()
+                                .ConfigureAppConfiguration(ctx=> ctx.AddJsonFile("appsettings.json").Build())
+                                .UseStartup<Startup>()                               
                                 .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
-                                .UseUrls(url)
+                                .UseUrls(url)               
                                 .Build();
                         }))
             };
