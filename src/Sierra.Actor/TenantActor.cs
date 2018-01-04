@@ -10,7 +10,7 @@
     /// The main tenant orchestration actor.
     /// This guy handles the full tenant change workflow, maps to the API verb usage and keeps track of all internal state.
     /// </summary>
-    [StatePersistence(StatePersistence.Volatile)]
+    [StatePersistence(StatePersistence.Persisted)]
     internal class TenantActor : SierraActor<Tenant>, ITenantActor
     {
         /// <summary>

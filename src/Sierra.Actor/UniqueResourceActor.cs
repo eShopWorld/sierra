@@ -23,12 +23,14 @@
         /// <inheritdoc />
         public override Task Add(T model)
         {
+            // Queue work in the locker
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
         public override Task Remove(T model)
         {
+            // Queue work in the locker
             throw new System.NotImplementedException();
         }
 

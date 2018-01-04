@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="FabricOptions.cs" />
     <Compile Include="ILockerActor.cs" />
+    <Compile Include="ITenantActor - Copy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ITenantActor.cs" />
   </ItemGroup>
