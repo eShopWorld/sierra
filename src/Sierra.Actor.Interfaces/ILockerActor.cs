@@ -1,6 +1,5 @@
 ﻿namespace Sierra.Actor.Interfaces
 {
-    using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
 
@@ -9,8 +8,8 @@
     /// </summary>
     public interface ILockerActor : IActor
     {
-        Task QueueAdd(Type type, ActorId id);
+        Task QueueAdd(string type, ActorId id);
 
-        Task QueueRemove(Type type, ActorId id);
+        Task QueueRemove(string type, ActorId id);
     }
 }

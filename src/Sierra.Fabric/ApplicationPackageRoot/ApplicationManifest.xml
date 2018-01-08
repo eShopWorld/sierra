@@ -6,8 +6,8 @@
     <Parameter Name="TenantActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="TenantActorService_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="LockerActorService_PartitionCount" DefaultValue="10" />
-    <Parameter Name="LockerActorService_MinReplicaSetSize" DefaultValue="1" />
-    <Parameter Name="LockerActorService_TargetReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="LockerActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="LockerActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -30,12 +30,12 @@
         <SingletonPartition />
       </StatelessService>
     </Service>
-    <Service Name="TenantActorService" GeneratedIdRef="3690a6c7-52eb-4a95-8104-b5b27947cdd2|Volatile">
+    <Service Name="TenantActorService" GeneratedIdRef="574f55a8-0058-4366-abd7-fb62de4d64e7|Persisted">
       <StatefulService ServiceTypeName="TenantActorServiceType" TargetReplicaSetSize="[TenantActorService_TargetReplicaSetSize]" MinReplicaSetSize="[TenantActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[TenantActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
-    <Service Name="LockerActorService" GeneratedIdRef="a1ac8b7c-37fc-4628-af4c-3324c3038138|None">
+    <Service Name="LockerActorService" GeneratedIdRef="65e9732c-e1bc-483f-b92b-85ca949d3916|Persisted">
       <StatefulService ServiceTypeName="LockerActorServiceType" TargetReplicaSetSize="[LockerActorService_TargetReplicaSetSize]" MinReplicaSetSize="[LockerActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[LockerActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>

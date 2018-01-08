@@ -1,9 +1,13 @@
 ﻿namespace Sierra.Api.Controllers
 {
+    using System;
     using System.Collections.Generic;
+    using Actor.Interfaces;
     using Microsoft.AspNetCore.Mvc;
     using Model;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
 
     /// <summary>
     /// Manages tenants in the platform.
@@ -32,6 +36,9 @@
         [ProducesResponseType(typeof(Tenant), 200)]
         public Tenant Get(int id)
         {
+            // PROTO code
+            var actor = ActorProxy.Create<ITenantActor>(new ActorId("foo"), new Uri("fabric:/MyApp/MyActorService"));
+
             return new Tenant();
         }
 
