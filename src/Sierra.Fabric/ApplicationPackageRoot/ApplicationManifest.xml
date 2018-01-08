@@ -8,6 +8,9 @@
     <Parameter Name="LockerActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="LockerActorService_MinReplicaSetSize" DefaultValue="1" />
     <Parameter Name="LockerActorService_TargetReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="ForkActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="ForkActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ForkActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -38,6 +41,11 @@
     <Service Name="LockerActorService" GeneratedIdRef="a1ac8b7c-37fc-4628-af4c-3324c3038138|None">
       <StatefulService ServiceTypeName="LockerActorServiceType" TargetReplicaSetSize="[LockerActorService_TargetReplicaSetSize]" MinReplicaSetSize="[LockerActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[LockerActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="ForkActorService" GeneratedIdRef="12ea800e-ead5-47af-af5f-c64263fc789e|Volatile">
+      <StatefulService ServiceTypeName="ForkActorServiceType" TargetReplicaSetSize="[ForkActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ForkActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ForkActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>
