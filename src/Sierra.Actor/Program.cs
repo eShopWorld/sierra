@@ -21,6 +21,12 @@
                 ActorRuntime.RegisterActorAsync<TenantActor>(
                    (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
 
+                ActorRuntime.RegisterActorAsync<LockerActor>(
+                    (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
+
+                ActorRuntime.RegisterActorAsync<ForkActor>(
+                    (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
+
                 Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception e)

@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FabricOptions.cs" />
+    <Compile Include="IForkActor.cs" />
     <Compile Include="ILockerActor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ITenantActor.cs" />
