@@ -33,7 +33,17 @@
     <ProjectReference Include="..\Sierra.Api\Sierra.Api.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ApplicationParameters\CI.xml" />
+    <Content Include="ApplicationParameters\PREPROD.xml" />
+    <Content Include="ApplicationParameters\PROD.xml" />
+    <Content Include="ApplicationParameters\SAND.xml" />
+    <Content Include="ApplicationParameters\TEST.xml" />
     <Content Include="packages.config" />
+    <Content Include="PublishProfiles\CI.xml" />
+    <Content Include="PublishProfiles\PREPROD.xml" />
+    <Content Include="PublishProfiles\PROD.xml" />
+    <Content Include="PublishProfiles\SAND.xml" />
+    <Content Include="PublishProfiles\TEST.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <PropertyGroup>
