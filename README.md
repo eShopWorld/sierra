@@ -29,7 +29,7 @@ There is an extension to the second concept where we allow UI components to have
 
 Sierra is the tool that will orchestrate tenants in environments, repositories and the respective CI/CD pipelines. After just a few tenants, the number of moving parts will be already too high to manage manually, so the need to do all this through code is implicit in our solution.
 
-What Sierra doesn't do:
+**What Sierra doesn't do:**
 - Deployments. It will create and manage the Build definitions and Release definitions in VSTS, but not trigger them.
 - Manage resources outside infrastructure orchestration. A good example is user management in API Manager.
 - Manage infrastructure access rights. Anything RBAC related is outside the scope of Sierra.
