@@ -39,6 +39,8 @@
         /// <param name="services">The contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services)
         {
+            throw new Exception();
+
             services.AddApplicationInsightsTelemetry(Configuration);
             services.AddSwaggerGen(c =>
             {
