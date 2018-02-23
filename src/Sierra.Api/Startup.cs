@@ -10,8 +10,8 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Model;
-    using Swashbuckle.AspNetCore.Swagger;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Swashbuckle.AspNetCore.Swagger;
 
     /// <summary>
     /// Startup entry point for the Sierra.Api fabric service.
@@ -75,13 +75,14 @@
                     policy.RequireClaim("scope", "esw.sierra.api"));
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(x =>
+            services.AddAuthentication(options =>
             {
-                x.ApiName = Configuration["STSConfig:ApiName"];
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
                 x.Authority = Configuration["STSConfig:Authority"];
                 x.RequireHttpsMetadata = !string.IsNullOrWhiteSpace(Configuration["STSConfig:Authority"]) && Configuration["STSConfig:Authority"].StartsWith("https");
-
             });
 
             services.AddMvc();
