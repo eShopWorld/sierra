@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Api
 {
+    using System;
     using Microsoft.Extensions.Configuration;
     using System.Collections.Generic;
     using System.Fabric;
@@ -38,20 +39,30 @@
                         "SierraApiEndpoint",
                         (url, listener) =>
                         {
-                            return new WebHostBuilder()
-                                .UseKestrel()
-                                .ConfigureServices(
-                                    services =>
-                                    {
-                                        services.AddAutofac();
-                                        services.AddSingleton(serviceContext);
-                                    })
-                                .UseContentRoot(Directory.GetCurrentDirectory())
-                                .ConfigureAppConfiguration(ctx=> ctx.AddJsonFile("appsettings.json").Build())
-                                .UseStartup<Startup>()                               
-                                .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
-                                .UseUrls(url)               
-                                .Build();
+                            try
+                            {
+                                return new WebHostBuilder()
+                                       .UseKestrel()
+                                       .ConfigureServices(
+                                           services =>
+                                           {
+                                               services.AddAutofac();
+                                               services.AddSingleton(serviceContext);
+                                           })
+                                       .UseContentRoot(Directory.GetCurrentDirectory())
+                                       .ConfigureAppConfiguration(ctx => ctx.AddJsonFile("appsettings.json").Build())
+                                       .UseStartup<Startup>()
+                                       .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
+                                       .UseUrls(url)
+                                       .Build();
+                            }
+                            catch (Exception ex)
+                            {
+                                // TODO: LOG
+
+                                Program.ResetEvent.Set();
+                                return null;
+                            }
                         }))
             };
         }

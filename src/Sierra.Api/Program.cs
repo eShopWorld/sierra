@@ -7,6 +7,8 @@
 
     internal static class Program
     {
+        internal static readonly ManualResetEventSlim ResetEvent = new ManualResetEventSlim(false);
+
         /// <summary>
         /// This is the entry point of the service host process.
         /// </summary>
@@ -21,8 +23,9 @@
 
                 ServiceRuntime.RegisterServiceAsync("SierraApiType", context => new ApiService(context)).GetAwaiter().GetResult();
 
+                ResetEvent.Wait();
                 // Prevents this host process from terminating so services keeps running.
-                Thread.Sleep(Timeout.Infinite);
+                //Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception ex)
             {
