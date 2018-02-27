@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-
-namespace Sierra.Api.Controllers
+﻿namespace Sierra.Api.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
-    using Model;
-    using Actor.Interfaces;
+    using System.Threading.Tasks;
+    using Sierra.Model;
+    using Sierra.Actor.Interfaces;
 
     /// <summary>
     /// manages forks in the system
