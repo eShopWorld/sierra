@@ -3,7 +3,6 @@
     using Model;
     using Microsoft.ServiceFabric.Actors;
     using System.Threading.Tasks;
-    using Sierra.Model;
 
     /// <summary>
     /// fork actor interface
