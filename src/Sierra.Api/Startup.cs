@@ -9,7 +9,7 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Sierra.Model;
+    using Model;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Swashbuckle.AspNetCore.Swagger;
 

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Mvc;
-    using Sierra.Model;
+    using Model;
     using Microsoft.AspNetCore.Authorization;
 
     /// <summary>

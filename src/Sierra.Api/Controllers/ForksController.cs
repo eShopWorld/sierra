@@ -2,8 +2,8 @@
 {
     using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
-    using Sierra.Model;
-    using Sierra.Actor.Interfaces;
+    using Model;
+    using Actor.Interfaces;
 
     /// <summary>
     /// manages forks in the system
