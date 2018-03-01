@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-
-namespace Sierra.Api.Controllers
+﻿namespace Sierra.Api.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
+    using System.Threading.Tasks;
     using Model;
     using Actor.Interfaces;
 
