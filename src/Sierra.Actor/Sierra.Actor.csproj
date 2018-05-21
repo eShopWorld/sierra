@@ -11,6 +11,8 @@
     <FabActUtilWorkingDir>$(BaseIntermediateOutputPath)\FabActUtilTemp</FabActUtilWorkingDir>
     <Company>eShopWorld</Company>
     <Authors>eShopWorld</Authors>
+    <Platform>x64</Platform>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

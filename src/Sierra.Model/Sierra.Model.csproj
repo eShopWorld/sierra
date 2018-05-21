@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Company>eShopWorld</Company>
     <Authors>eShopWorld</Authors>
+    <Platform>x64</Platform>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
