@@ -2,13 +2,10 @@
 namespace Sierra.Actor
 {
     using System;
-    using System.IO;
     using System.Net;
     using System.Linq;
     using System.Text;
     using System.Net.Http;
-    using System.Net.Http.Headers;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
     using Newtonsoft.Json;
     using System.Threading.Tasks;
     using Interfaces;
@@ -18,12 +15,13 @@ namespace Sierra.Actor
     using System.Fabric;
     using System.Collections.ObjectModel;
     using System.Fabric.Description;
-    using Microsoft.Azure.KeyVault;
 
     [StatePersistence(StatePersistence.Volatile)]
     internal class ForkActor : Actor, IForkActor
     {
         private Config _config;
+
+        private const string ApiVersion = "5.0-preview.1";
 
         public ForkActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
         {
@@ -39,7 +37,17 @@ namespace Sierra.Actor
             if (!ValidateRequest(fork))
                 throw new ForkingException("Invalid message received");
 
-            var accessToken = await ObtainVstsAccessToken();
+            var accessToken = await Utilities.ObtainVstsAccessToken(
+                new Utilities.AuthConfig //TODO: consider using "auto mapper"
+                {
+                    KeyVaultUrl = _config.KeyVaultUrl,
+                    VstsTokenEndpoint = _config.VstsTokenEndpoint,
+                    KeyVaultClientId =  _config.KeyVaultUClientId,
+                    KeyVaultClientSecret = _config.KeyVaultClientSecret,
+                    VstsAppSecret =  _config.VstsAppSecret,
+                    VstsOAuthCallbackUrl = _config.VstsOAuthCallbackUrl
+                });
+
             var repos = await ListRepos(accessToken);
             var sourceRepo = repos.Value.FirstOrDefault(i => i.Name == fork.SourceRepositoryName);
             if (sourceRepo == null)
@@ -68,8 +76,8 @@ namespace Sierra.Actor
                 }
             };
 
-            var client = GetHttpClient(accessToken);
-            var response = await client.PostAsync($"{_config.VstsApiBaseUrl}/git/repositories?api-version=4.1-preview",
+            var client = Utilities.GetHttpClient(accessToken);
+            var response = await client.PostAsync($"{_config.VstsApiBaseUrl}/git/repositories?api-version={ApiVersion}",
                 new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
 
             if (!response.IsSuccessStatusCode)
@@ -87,83 +95,13 @@ namespace Sierra.Actor
             return Task.CompletedTask;
         }
 
-        // ReSharper disable once InconsistentNaming
-        private async Task<string> GetKVAccessToken(string authority, string resource, string scope)
-        {
-            var authContext = new AuthenticationContext(authority);
-            ClientCredential clientCred = new ClientCredential(_config.KeyVaultUClientId,
-                _config.KeyVaultClientSecret);
-            AuthenticationResult result = await authContext.AcquireTokenAsync(resource, clientCred);
-
-            if (result == null)
-                throw new InvalidOperationException("Failed to obtain the JWT token");
-
-            return result.AccessToken;
-        }
-
-        private async Task<string> ObtainVstsAccessToken()
-        {
-            //obtain refresh token from KV
-            var kvClient = new KeyVaultClient(new KeyVaultCredential(GetKVAccessToken), new HttpClient());
-            var vstsRefreshToken = await kvClient.GetSecretAsync(_config.KeyVaultUrl, "RefreshToken");
-            //issue request to Vsts Token endpoint
-            var newToken = await PerformTokenRequest(GenerateRefreshPostData(vstsRefreshToken.Value),
-                _config.VstsTokenEndpoint);
-            if (!String.IsNullOrWhiteSpace(newToken.RefreshToken) && !string.IsNullOrWhiteSpace(newToken.AccessToken))
-            {
-                //update KV with new refresh token       
-                await kvClient.SetSecretAsync(_config.KeyVaultUrl, "RefreshToken", newToken.RefreshToken);
-                return newToken.AccessToken;
-            }
-
-            throw new ForkingException("Missing access/refresh token from vsts endpoint");
-        }
-
-
-        private async Task<TokenModel> PerformTokenRequest(String postData, string tokenUrl)
-        {
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(
-                tokenUrl
-            );
-
-            webRequest.Method = "POST";
-            webRequest.ContentLength = postData.Length;
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-
-            using (StreamWriter swRequestWriter = new StreamWriter(webRequest.GetRequestStream()))
-            {
-                swRequestWriter.Write(postData);
-            }
-
-            try
-            {
-                HttpWebResponse hwrWebResponse = (HttpWebResponse)await webRequest.GetResponseAsync();
-
-                if (hwrWebResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    string strResponseData;
-                    using (StreamReader srResponseReader = new StreamReader(hwrWebResponse.GetResponseStream() ?? throw new ForkingException("Unexpected vsts response stream")))
-                    {
-                        strResponseData = srResponseReader.ReadToEnd();
-                    }
-
-                    return JsonConvert.DeserializeObject<TokenModel>(strResponseData);
-                }
-
-                throw new ForkingException($"token vsts endpoint returned {hwrWebResponse.StatusCode.ToString()}");
-            }
-            catch (Exception ex)
-            {
-                return await Task.FromException<TokenModel>(ex);
-            }
-        }
 
         private async Task<ListRepoResponse> ListRepos(string accessToken)
         {
-            var client = GetHttpClient(accessToken);
+            var client = Utilities.GetHttpClient(accessToken);
             ListRepoResponse repos = null;
 
-            var response = await client.GetAsync($"{_config.VstsApiBaseUrl}/git/repositories?api-version=4.1-preview");
+            var response = await client.GetAsync($"{_config.VstsApiBaseUrl}/git/repositories?api-version={ApiVersion}");
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 repos = JsonConvert.DeserializeObject<ListRepoResponse>(await response.Content.ReadAsStringAsync());
@@ -172,37 +110,22 @@ namespace Sierra.Actor
 
         }
 
-        private HttpClient GetHttpClient(string accessToken)
-        {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            return client;
-        }
-
-        private string GenerateRefreshPostData(string refreshToken)
-        {
-            return string.Format("client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={0}&grant_type=refresh_token&assertion={1}&redirect_uri={2}",
-                WebUtility.UrlEncode(_config.VstsAppSecret),
-                WebUtility.UrlEncode(refreshToken),
-                _config.VstsOAuthCallbackUrl
-            );
-
-        }
-
         private void LoadConfiguration()
         {
             ConfigurationPackage configPackage = ActorService.Context.CodePackageActivationContext.GetConfigurationPackageObject("Config");
             KeyedCollection<string, ConfigurationProperty> forkSettings = configPackage.Settings.Sections["ForkActorAppConfigSection"].Parameters;
-            Config newConfig = new Config();
-            newConfig.VstsTokenEndpoint = forkSettings["VstsTokenEndpoint"].Value;
-            newConfig.KeyVaultUrl = forkSettings["KeyVaultUrl"].Value;
-            newConfig.KeyVaultUClientId = forkSettings["KeyVaultUClientId"].Value;
-            newConfig.KeyVaultClientSecret = forkSettings["KeyVaultClientSecret"].Value;
-            newConfig.VstsAppSecret = forkSettings["VstsAppSecret"].Value;
-            newConfig.VstsOAuthCallbackUrl = forkSettings["VstsOAuthCallbackUrl"].Value;
-            newConfig.VstsCollectionId = forkSettings["VstsCollectionId"].Value;
-            newConfig.VstsTargetProjectId = forkSettings["VstsTargetProjectId"].Value;
-            newConfig.VstsApiBaseUrl = forkSettings["VstsApiBaseUrl"].Value;
+            Config newConfig = new Config
+            {
+                VstsTokenEndpoint = forkSettings["VstsTokenEndpoint"].Value,
+                KeyVaultUrl = forkSettings["KeyVaultUrl"].Value,
+                KeyVaultUClientId = forkSettings["KeyVaultClientId"].Value,
+                KeyVaultClientSecret = forkSettings["KeyVaultClientSecret"].Value,
+                VstsAppSecret = forkSettings["VstsAppSecret"].Value,
+                VstsOAuthCallbackUrl = forkSettings["VstsOAuthCallbackUrl"].Value,
+                VstsCollectionId = forkSettings["VstsCollectionId"].Value,
+                VstsTargetProjectId = forkSettings["VstsTargetProjectId"].Value,
+                VstsApiBaseUrl = forkSettings["VstsApiBaseUrl"].Value
+            };
 
             _config = newConfig;
         }
@@ -220,23 +143,7 @@ namespace Sierra.Actor
             internal string VstsApiBaseUrl { get; set; }
         }
 
-        /// to be replaced once vsts client package is available under .net core
-        private class TokenModel
-        {
-
-            [JsonProperty(PropertyName = "access_token")]
-            internal String AccessToken { get; set; }
-
-            [JsonProperty(PropertyName = "token_type")]
-            internal String TokenType { get; set; }
-
-            [JsonProperty(PropertyName = "expires_in")]
-            internal String ExpiresIn { get; set; }
-
-            [JsonProperty(PropertyName = "refresh_token")]
-            internal String RefreshToken { get; set; }
-
-        }
+      
 
         /// to be replaced once vsts client package is available under .net core
         private class ListRepoResponse
