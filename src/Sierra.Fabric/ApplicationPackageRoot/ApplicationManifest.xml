@@ -15,11 +15,6 @@
     <Parameter Name="ForkActorService_KeyVaultUrl" DefaultValue="TBA" />
     <Parameter Name="ForkActorService_KeyVaultClientId" DefaultValue="TBA" />
     <Parameter Name="ForkActorService_KeyVaultClientSecret" DefaultValue="TBA" />
-    <Parameter Name="ForkActorService_VstsAppSecret" DefaultValue="TBA" />
-    <Parameter Name="ForkActorService_VstsOAuthCallbackUrl" DefaultValue="TBA" />
-    <Parameter Name="ForkActorService_VstsCollectionId" DefaultValue="TBA" />
-    <Parameter Name="ForkActorService_VstsTargetProjectId" DefaultValue="TBA" />
-    <Parameter Name="ForkActorService_VstsApiBaseUrl" DefaultValue="TBA" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -36,11 +31,6 @@
             <Parameter Name="KeyVaultUrl" Value="[ForkActorService_KeyVaultUrl]" />
             <Parameter Name="KeyVaultClientId" Value="[ForkActorService_KeyVaultClientId]" />
             <Parameter Name="KeyVaultClientSecret" Value="[ForkActorService_KeyVaultClientSecret]" />
-            <Parameter Name="VstsAppSecret" Value="[ForkActorService_VstsAppSecret]" />
-            <Parameter Name="VstsOAuthCallbackUrl" Value="[ForkActorService_VstsOAuthCallbackUrl]" />
-            <Parameter Name="VstsCollectionId" Value="[ForkActorService_VstsCollectionId]" />
-            <Parameter Name="VstsTargetProjectId" Value="[ForkActorService_VstsTargetProjectId]" />
-            <Parameter Name="VstsApiBaseUrl" Value="[ForkActorService_VstsApiBaseUrl]" />
           </Section>
         </Settings>
       </ConfigOverride>

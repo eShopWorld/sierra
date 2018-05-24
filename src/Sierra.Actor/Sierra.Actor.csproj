@@ -19,7 +19,7 @@
     <PackageReference Include="IdentityModel" Version="3.6.1" />
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="2.3.2" />
     <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />
-    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.5" />
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.6" />
     <PackageReference Include="Microsoft.ServiceFabric" Version="6.2.274" />
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.1.274" />
     <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.1.274" />
@@ -28,6 +28,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sierra.Actor.Interfaces\Sierra.Actor.Interfaces.csproj" />
+    <ProjectReference Include="..\Sierra.SDK\Sierra.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>System</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
