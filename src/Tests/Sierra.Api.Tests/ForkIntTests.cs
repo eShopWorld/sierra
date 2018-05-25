@@ -15,7 +15,7 @@ namespace Sierra.Api.Tests
     public class ForkIntTests
     {
         private Settings Settings { get; set; }
-        private ForkUtilities.VstsConfiguration VstsConfig { get; set; }
+        private VstsConfiguration VstsConfig { get; set; }
 
         [Fact, IsIntegration]
         public async void CreateForkTest()
@@ -40,7 +40,7 @@ namespace Sierra.Api.Tests
             var repoName = $"ForkIntTestSourceRepo-{suffix}";
 
             var repos = await ForkUtilities.ListRepos(accessToken, vstsConfig);
-            var repo = repos.Value.FirstOrDefault(i => i.Name == repoName);
+            var repo = repos.FirstOrDefault(i => i.Name == repoName);
             repo.Should().NotBeNull();
 
             //delete the repo

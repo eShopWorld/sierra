@@ -36,7 +36,7 @@
 
             var repos = await ForkUtilities.ListRepos(accessToken, _config.VstsConfiguration);
 
-            var sourceRepo = repos.Value.FirstOrDefault(i => i.Name == fork.SourceRepositoryName);
+            var sourceRepo = repos.FirstOrDefault(i => i.Name == fork.SourceRepositoryName);
             if (sourceRepo == null)
                 throw new Exception($"Repository {fork.SourceRepositoryName} not found");
 
@@ -75,7 +75,7 @@
             internal string KeyVaultUrl { get; set; }
             internal string KeyVaultClientId { get; set; }
             internal string KeyVaultClientSecret { get; set; }
-            internal ForkUtilities.VstsConfiguration VstsConfiguration { get; set; }
+            internal VstsConfiguration VstsConfiguration { get; set; }
         }
     }
 }

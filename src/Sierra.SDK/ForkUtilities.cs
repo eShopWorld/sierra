@@ -4,16 +4,20 @@
     using System.IO;
     using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Text;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
     using Microsoft.Azure.KeyVault;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using Microsoft.TeamFoundation.Core.WebApi;
+    using Microsoft.TeamFoundation.SourceControl.WebApi;
+    using Microsoft.VisualStudio.Services.Common;
+    using Microsoft.VisualStudio.Services.OAuth;
+    using Microsoft.VisualStudio.Services.WebApi;
     using Newtonsoft.Json;
 
     public static class ForkUtilities
     {
-        private const string ApiVersion = "5.0-preview.1";
+        private const string RefreshTokenSecretName = "RefreshToken";
 
         internal static async Task<VstsConfiguration> LoadVstsConfiguration(string keyVaultUrl, string clientId, string clientSecret)
         {
@@ -21,7 +25,7 @@
             //TODO:there does not seem to be KV API to read all secrets WITH values (last version), review this
             var kvClient = GetKeyVaultClient(clientId, clientSecret);
             var vstsTokenEndpointSecret = await kvClient.GetSecretAsync(keyVaultUrl, "VstsTokenEndpoint");
-            var vstsApiBaseUrlSecret = await kvClient.GetSecretAsync(keyVaultUrl, "VstsApiBaseUrl");
+            var vstsBaseUrlSecret = await kvClient.GetSecretAsync(keyVaultUrl, "VstsBaseUrl");
             var vstsOAuthCallbackUrlSecret = await kvClient.GetSecretAsync(keyVaultUrl, "VstsOAuthCallbackUrl");
             var vstsCollectionIdSecret = await kvClient.GetSecretAsync(keyVaultUrl, "VstsCollectionId");
             var vstsTargetProjectIdSecret = await kvClient.GetSecretAsync(keyVaultUrl, "VstsTargetProjectId");
@@ -30,7 +34,7 @@
             return new VstsConfiguration
             {
                 VstsTokenEndpoint = vstsTokenEndpointSecret.Value,
-                VstsApiBaseUrl = vstsApiBaseUrlSecret.Value,
+                VstsBaseUrl = vstsBaseUrlSecret.Value,
                 VstsAppSecret = vstsAppSecretSecret.Value,
                 VstsCollectionId = vstsCollectionIdSecret.Value,
                 VstsOAuthCallbackUrl = vstsOAuthCallbackUrlSecret.Value,
@@ -43,7 +47,7 @@
             //obtain refresh token from KV
             var kvClient = GetKeyVaultClient(keyVaultClientId, keyVaultClientSecret);
 
-            var vstsRefreshToken = await kvClient.GetSecretAsync(keyVaultUrl, "RefreshToken");
+            var vstsRefreshToken = await kvClient.GetSecretAsync(keyVaultUrl, RefreshTokenSecretName);
             //issue request to Vsts Token endpoint
             var newToken = await PerformTokenRequest(GenerateRefreshPostData(vstsRefreshToken.Value, vstsConfiguration),
                 vstsConfiguration.VstsTokenEndpoint);
@@ -51,7 +55,7 @@
             if (!string.IsNullOrWhiteSpace(newToken.RefreshToken) && !string.IsNullOrWhiteSpace(newToken.AccessToken))
             {
                 //update KV with new refresh token       
-                await kvClient.SetSecretAsync(keyVaultUrl, "RefreshToken", newToken.RefreshToken);
+                await kvClient.SetSecretAsync(keyVaultUrl, RefreshTokenSecretName, newToken.RefreshToken);
                 return newToken.AccessToken;
             }
 
@@ -59,56 +63,34 @@
         }
 
 
-        internal static async Task<ListRepoResponse> ListRepos(string accessToken, VstsConfiguration vstsConfig)
+        internal static async Task<List<GitRepository>> ListRepos(string accessToken, VstsConfiguration vstsConfig)
         {
-            var client = GetHttpClient(accessToken);
-            ListRepoResponse repos = null;
+            var client = GetHttpClient(accessToken, vstsConfig.VstsBaseUrl);
 
-            var response = await client.GetAsync($"{vstsConfig.VstsApiBaseUrl}/git/repositories?api-version={ApiVersion}");
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                repos = JsonConvert.DeserializeObject<ListRepoResponse>(await response.Content.ReadAsStringAsync());
-            }
-            return repos;
+            return await client.GetRepositoriesAsync();
         }
 
-        internal static async Task DeleteRepo(string accessToken, string repoName, VstsConfiguration vstsConfig)
+        internal static async Task DeleteRepo(string accessToken, Guid repoId, VstsConfiguration vstsConfig)
         {
-            var client = GetHttpClient(accessToken);
-            var response =
-                await client.DeleteAsync(
-                    $"{vstsConfig.VstsApiBaseUrl}/git/repositories/{repoName}?api-version={ApiVersion}");
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"Failed to delete repository - {repoName}");
+            var client = GetHttpClient(accessToken, vstsConfig.VstsBaseUrl);
+            await client.DeleteRepositoryAsync(repoId);
         }
 
-        internal static async Task CreateFork(string forkSuffix, ListRepoResponseSingleRepo sourceRepo, string accessToken, VstsConfiguration vstsConfig)
+        internal static async Task CreateFork(string forkSuffix, GitRepository sourceRepo, string accessToken, VstsConfiguration vstsConfig)
         {
-            var request = new ForkRequest
+            var client = GetHttpClient(accessToken, vstsConfig.VstsBaseUrl);
+            await client.CreateRepositoryAsync(new GitRepositoryCreateOptions
             {
                 Name = $"{sourceRepo.Name}-{forkSuffix}",
-                Project = new IdVstsWrapper { Id = vstsConfig.VstsTargetProjectId },
-                ParentRepository = new ForkRequestParentRepository
+                ProjectReference = new TeamProjectReference { Id = Guid.Parse(vstsConfig.VstsTargetProjectId) },
+                ParentRepository = new GitRepositoryRef
                 {
                     Id = sourceRepo.Id,
-                    Project = new IdVstsWrapper
-                    {
-                        Id = sourceRepo.Project.Id
-                    },
-                    Collection = new IdVstsWrapper
-                    {
-                        Id = vstsConfig.VstsCollectionId
-                    }
+                    ProjectReference = new TeamProjectReference { Id = Guid.Parse(vstsConfig.VstsTargetProjectId) },
+                    Collection = new TeamProjectCollectionReference { Id = Guid.Parse(vstsConfig.VstsCollectionId) }
                 }
-            };
-
-            var client = GetHttpClient(accessToken);
-            var response = await client.PostAsync($"{vstsConfig.VstsApiBaseUrl}/git/repositories?api-version={ApiVersion}",
-                new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"Failed to fork a repo - response code - {response.StatusCode.ToString()}");
+            });
+          
         }
 
         private static KeyVaultClient GetKeyVaultClient(string clientId, string clientSecret)
@@ -177,32 +159,12 @@
             }
         }
 
-        internal static HttpClient GetHttpClient(string accessToken)
+        private static GitHttpClient GetHttpClient(string accessToken, string vstsBaseUrl)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            return client;
-        }
+            var connection = new VssConnection(new Uri($"{vstsBaseUrl}/DefaultCollection"), new VssCredentials(new VssOAuthAccessTokenCredential(accessToken)));
 
-        /// to be replaced once vsts client package is available under .net core
-        internal class ForkRequest
-        {
-            [JsonProperty(PropertyName = "name")]
-            internal string Name { get; set; }
-            [JsonProperty(PropertyName = "project")]
-            internal IdVstsWrapper Project { get; set; }
-            [JsonProperty(PropertyName = "parentRepository")]
-            internal ForkRequestParentRepository ParentRepository { get; set; }
-        }
-
-        /// to be replaced once vsts client package is available under .net core
-        internal class ForkRequestParentRepository : IdVstsWrapper
-        {
-            [JsonProperty(PropertyName = "collection")]
-            internal IdVstsWrapper Collection { get; set; }
-            [JsonProperty(PropertyName = "project")]
-            internal IdVstsWrapper Project { get; set; }
-        }
+            return connection.GetClient<GitHttpClient>();
+        }     
 
         /// to be replaced once vsts client package is available under .net core
         internal class TokenModel
@@ -220,46 +182,6 @@
             [JsonProperty(PropertyName = "refresh_token")]
             internal String RefreshToken { get; set; }
 
-        }
-
-        internal class VstsConfiguration
-        {
-            public string VstsTokenEndpoint { get; set; }
-            public string VstsAppSecret { get; set; }
-            public string VstsOAuthCallbackUrl { get; set; }
-            public string VstsCollectionId { get; set; }
-            public string VstsTargetProjectId { get; set; }
-            public string VstsApiBaseUrl { get; set; }
-        }
-
-        /// to be replaced once vsts client package is available under .net core
-        internal class ListRepoResponse
-        {
-            [JsonProperty(PropertyName = "value")]
-            internal ListRepoResponseSingleRepo[] Value { get; set; }
-        }
-
-        /// to be replaced once vsts client package is available under .net core
-        internal class ListRepoResponseSingleRepo : IdVstsWrapper
-        {
-            [JsonProperty(PropertyName = "name")]
-            internal string Name { get; set; }
-            [JsonProperty(PropertyName = "project")]
-            internal ListRepoResponseProjectRef Project { get; set; }
-        }
-
-        /// to be replaced once vsts client package is available under .net core
-        internal class ListRepoResponseProjectRef : IdVstsWrapper
-        {
-            [JsonProperty(PropertyName = "name")]
-            internal string Name { get; set; }
-        }
-
-        /// to be replaced once vsts client package is available under .net core
-        internal class IdVstsWrapper
-        {
-            [JsonProperty(PropertyName = "id")]
-            internal string Id { get; set; }
-        }
+        }     
     }
 }
