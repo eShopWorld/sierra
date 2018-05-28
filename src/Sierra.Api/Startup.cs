@@ -1,4 +1,7 @@
-﻿namespace Sierra.Api
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+
+namespace Sierra.Api
 {
     using System;
     using System.Diagnostics;
@@ -72,20 +75,22 @@
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("AssertScope", policy =>
-                    policy.RequireClaim("scope", "esw.sierra.api"));
+                    policy.RequireClaim("scope", "esw.sierra.api.all"));
             });
 
-            services.AddAuthentication(options =>
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddIdentityServerAuthentication(x =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
+                x.ApiName = Configuration["STSConfig:ApiName"]; ;              
                 x.Authority = Configuration["STSConfig:Authority"];
-                x.RequireHttpsMetadata = !string.IsNullOrWhiteSpace(Configuration["STSConfig:Authority"]) && Configuration["STSConfig:Authority"].StartsWith("https");
+                //x.AddJwtBearerEventsTelemetry(bb);
             });
 
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                var policy = ScopePolicy.Create("esw.sierra.api.all");
+                options.Filters.Add(new AuthorizeFilter(policy));
+            });
+
         }
 
         /// <summary>
