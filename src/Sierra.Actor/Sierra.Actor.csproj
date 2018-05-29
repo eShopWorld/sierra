@@ -1,21 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    <Platform>x64</Platform>
+
     <UpdateServiceFabricManifestEnabled>True</UpdateServiceFabricManifestEnabled>
     <ServicePackagePath>PackageRoot</ServicePackagePath>
     <ServicePackagePrefix>$(MSBuildProjectName)</ServicePackagePrefix>
     <FabActUtilWorkingDir>$(BaseIntermediateOutputPath)\FabActUtilTemp</FabActUtilWorkingDir>
-    <Company>eShopWorld</Company>
-    <Authors>eShopWorld</Authors>
-    <Platform>x64</Platform>
-    <Platforms>x64</Platforms>
+
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac.ServiceFabric" Version="2.0.0" />
     <PackageReference Include="IdentityModel" Version="3.6.1" />
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="2.3.2" />
     <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />

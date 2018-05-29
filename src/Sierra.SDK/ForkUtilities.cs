@@ -48,6 +48,7 @@
             var kvClient = GetKeyVaultClient(keyVaultClientId, keyVaultClientSecret);
 
             var vstsRefreshToken = await kvClient.GetSecretAsync(keyVaultUrl, RefreshTokenSecretName);
+
             //issue request to Vsts Token endpoint
             var newToken = await PerformTokenRequest(GenerateRefreshPostData(vstsRefreshToken.Value, vstsConfiguration),
                 vstsConfiguration.VstsTokenEndpoint);
@@ -90,7 +91,7 @@
                     Collection = new TeamProjectCollectionReference { Id = Guid.Parse(vstsConfig.VstsCollectionId) }
                 }
             });
-          
+
         }
 
         private static KeyVaultClient GetKeyVaultClient(string clientId, string clientSecret)
@@ -113,12 +114,7 @@
 
         private static string GenerateRefreshPostData(string refreshToken, VstsConfiguration vstsConfiguration)
         {
-            return string.Format("client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={0}&grant_type=refresh_token&assertion={1}&redirect_uri={2}",
-                WebUtility.UrlEncode(vstsConfiguration.VstsAppSecret),
-                WebUtility.UrlEncode(refreshToken),
-                vstsConfiguration.VstsOAuthCallbackUrl
-            );
-
+            return $"client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={WebUtility.UrlEncode(vstsConfiguration.VstsAppSecret)}&grant_type=refresh_token&assertion={WebUtility.UrlEncode(refreshToken)}&redirect_uri={vstsConfiguration.VstsOAuthCallbackUrl}";
         }
 
         private static async Task<TokenModel> PerformTokenRequest(String postData, string tokenUrl)
@@ -136,27 +132,18 @@
                 swRequestWriter.Write(postData);
             }
 
-            try
-            {
-                HttpWebResponse hwrWebResponse = (HttpWebResponse)await webRequest.GetResponseAsync();
+            HttpWebResponse hwrWebResponse = (HttpWebResponse)await webRequest.GetResponseAsync();
 
-                if (hwrWebResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    string strResponseData;
-                    using (StreamReader srResponseReader = new StreamReader(hwrWebResponse.GetResponseStream() ?? throw new Exception("Unexpected vsts response stream")))
-                    {
-                        strResponseData = srResponseReader.ReadToEnd();
-                    }
-
-                    return JsonConvert.DeserializeObject<TokenModel>(strResponseData);
-                }
-
+            if (hwrWebResponse.StatusCode != HttpStatusCode.OK)
                 throw new Exception($"token vsts endpoint returned {hwrWebResponse.StatusCode.ToString()}");
-            }
-            catch (Exception ex)
+
+            string strResponseData;
+            using (StreamReader srResponseReader = new StreamReader(hwrWebResponse.GetResponseStream() ?? throw new Exception("Unexpected vsts response stream")))
             {
-                return await Task.FromException<TokenModel>(ex);
+                strResponseData = srResponseReader.ReadToEnd();
             }
+
+            return JsonConvert.DeserializeObject<TokenModel>(strResponseData);
         }
 
         private static GitHttpClient GetHttpClient(string accessToken, string vstsBaseUrl)
@@ -164,7 +151,7 @@
             var connection = new VssConnection(new Uri($"{vstsBaseUrl}/DefaultCollection"), new VssCredentials(new VssOAuthAccessTokenCredential(accessToken)));
 
             return connection.GetClient<GitHttpClient>();
-        }     
+        }
 
         /// to be replaced once vsts client package is available under .net core
         internal class TokenModel
@@ -181,7 +168,6 @@
 
             [JsonProperty(PropertyName = "refresh_token")]
             internal String RefreshToken { get; set; }
-
-        }     
+        }
     }
 }
