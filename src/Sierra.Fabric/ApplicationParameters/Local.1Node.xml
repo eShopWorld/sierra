@@ -2,9 +2,7 @@
 <Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/Sierra.Fabric" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="AspNetCore_Environment" Value="Development" />
-    <Parameter Name="ForkActorService_KeyVaultUrl" Value="_" />
-    <Parameter Name="ForkActorService_KeyVaultClientId" Value="_" />
-    <Parameter Name="ForkActorService_KeyVaultClientSecret" Value="_" />
+    <Parameter Name="KeyVaultUrl" Value="esw-tooling-ci" />
     <Parameter Name="ForkActorService_PartitionCount" Value="1" />
     <Parameter Name="ForkActorService_TargetReplicaSetSize" Value="1" />
     <Parameter Name="ForkActorService_MinReplicaSetSize" Value="1" />

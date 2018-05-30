@@ -50,7 +50,8 @@
             var vstsRefreshToken = await kvClient.GetSecretAsync(keyVaultUrl, RefreshTokenSecretName);
 
             //issue request to Vsts Token endpoint
-            var newToken = await PerformTokenRequest(GenerateRefreshPostData(vstsRefreshToken.Value, vstsConfiguration),
+            var newToken = await PerformTokenRequest(
+                $"client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={WebUtility.UrlEncode(vstsConfiguration.VstsAppSecret)}&grant_type=refresh_token&assertion={WebUtility.UrlEncode(vstsRefreshToken.Value)}&redirect_uri={vstsConfiguration.VstsOAuthCallbackUrl}",
                 vstsConfiguration.VstsTokenEndpoint);
 
             if (!string.IsNullOrWhiteSpace(newToken.RefreshToken) && !string.IsNullOrWhiteSpace(newToken.AccessToken))
@@ -110,11 +111,6 @@
                 return result.AccessToken;
             }), new HttpClient());
             return kvClient;
-        }
-
-        private static string GenerateRefreshPostData(string refreshToken, VstsConfiguration vstsConfiguration)
-        {
-            return $"client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={WebUtility.UrlEncode(vstsConfiguration.VstsAppSecret)}&grant_type=refresh_token&assertion={WebUtility.UrlEncode(refreshToken)}&redirect_uri={vstsConfiguration.VstsOAuthCallbackUrl}";
         }
 
         private static async Task<TokenModel> PerformTokenRequest(String postData, string tokenUrl)

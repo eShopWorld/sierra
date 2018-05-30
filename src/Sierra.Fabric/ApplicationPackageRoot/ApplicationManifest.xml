@@ -2,9 +2,7 @@
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="Sierra.FabricType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="AspNetCore_Environment" DefaultValue="Development" />
-    <Parameter Name="ForkActorService_KeyVaultUrl" DefaultValue="_" />
-    <Parameter Name="ForkActorService_KeyVaultClientId" DefaultValue="_" />
-    <Parameter Name="ForkActorService_KeyVaultClientSecret" DefaultValue="_" />
+    <Parameter Name="KeyVaultUrl" DefaultValue="_" />
     <Parameter Name="SierraApi_InstanceCount" DefaultValue="-1" />
     <Parameter Name="TenantActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="TenantActorService_MinReplicaSetSize" DefaultValue="3" />
@@ -28,9 +26,7 @@
       <ConfigOverride Name="Config">
         <Settings>
           <Section Name="ForkActorAppConfigSection">
-            <Parameter Name="KeyVaultUrl" Value="[ForkActorService_KeyVaultUrl]" />
-            <Parameter Name="KeyVaultClientId" Value="[ForkActorService_KeyVaultClientId]" />
-            <Parameter Name="KeyVaultClientSecret" Value="[ForkActorService_KeyVaultClientSecret]" />
+            <Parameter Name="KeyVaultUrl" Value="[KeyVaultUrl]" />
           </Section>
         </Settings>
       </ConfigOverride>

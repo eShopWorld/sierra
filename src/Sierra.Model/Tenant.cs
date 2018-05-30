@@ -7,7 +7,7 @@
     public class Tenant
     {
         [DataMember]
-        [Key, Required, MaxLength(4)]
+        [Key, Required, MaxLength(6)]
         public string Id { get; set; }
 
         [DataMember]
