@@ -16,7 +16,8 @@
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
 
-        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration) : base(actorService, actorId)
+        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration)
+            : base(actorService, actorId)
         {
             _gitClient = gitClient;
             _vstsConfiguration = vstsConfiguration;
@@ -33,7 +34,7 @@
 
             var sourceRepo = repos.SingleOrDefault(r => r.Name == fork.SourceRepositoryName);
             if (sourceRepo == null)
-                throw new Exception($"Repository {fork.SourceRepositoryName} not found");
+                throw new ArgumentException($"Repository {fork.SourceRepositoryName} not found");
 
             await _gitClient.CreateFork(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, sourceRepo, fork.ForkSuffix);
         }     
