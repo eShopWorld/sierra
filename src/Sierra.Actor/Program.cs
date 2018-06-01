@@ -7,7 +7,6 @@
     using Autofac.Integration.ServiceFabric;
     using Common.DependencyInjection;
     using Eshopworld.Telemetry;
-    using Microsoft.TeamFoundation.SourceControl.WebApi;
 
     internal static class Program
     {
@@ -27,15 +26,10 @@
                 builder.RegisterActor<LockerActor>();
                 builder.RegisterActor<ForkActor>();
 
-                //using (builder.Build())
-                //{
-                //    await Task.Delay(Timeout.Infinite);
-                //}
-
-                var ctx = builder.Build();
-                var foo = ctx.Resolve<GitHttpClient>();
-
-                await Task.Delay(Timeout.Infinite);
+                using (builder.Build())
+                {
+                    await Task.Delay(Timeout.Infinite);
+                }
             }
             catch (Exception e)
             {

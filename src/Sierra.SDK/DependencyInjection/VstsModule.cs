@@ -15,6 +15,9 @@
     /// </summary>
     public class VstsModule : Module
     {
+        /// <summary>
+        /// Get and sets the full URI for the keyvault to use in this module.
+        /// </summary>
         public string Vault { get; set; }
 
         /// <summary>

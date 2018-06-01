@@ -10,12 +10,22 @@
     using Common;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
 
-    [StatePersistence(StatePersistence.Volatile)]
-    internal class ForkActor : Actor, IForkActor
+    /// <summary>
+    /// Manages Forks on behalf of tenant operations.
+    /// </summary>
+    [StatePersistence(StatePersistence.Persisted)]
+    public class ForkActor : Actor, IForkActor
     {
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="ForkActor"/>.
+        /// </summary>
+        /// <param name="actorService">The ActorService context.</param>
+        /// <param name="actorId">The Actor ID.</param>
+        /// <param name="gitClient">The <see cref="GitHttpClient"/> to use on repo operations.</param>
+        /// <param name="vstsConfiguration">The VSTS configuration payload.</param>
         public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration)
             : base(actorService, actorId)
         {
@@ -24,10 +34,10 @@
         }
 
         /// <summary>
-        /// for the source repository
+        /// Forks a source repository in VSTS.
         /// </summary>
-        /// <param name="fork">request payload</param>
-        /// <returns>Task instance</returns>
+        /// <param name="fork">The Fork payload containing all necessary information.</param>
+        /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public async Task ForkRepo(Fork fork)
         {
             var repo = (await _gitClient.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == fork.SourceRepositoryName);
