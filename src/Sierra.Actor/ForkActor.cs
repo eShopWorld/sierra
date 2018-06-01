@@ -30,13 +30,10 @@
         /// <returns>Task instance</returns>
         public async Task ForkRepo(Fork fork)
         {
-            var repos = await _gitClient.GetRepositoriesAsync();
+            var repo = (await _gitClient.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == fork.SourceRepositoryName);
+            if (repo == null) throw new ArgumentException($"Repository {fork.SourceRepositoryName} not found");
 
-            var sourceRepo = repos.SingleOrDefault(r => r.Name == fork.SourceRepositoryName);
-            if (sourceRepo == null)
-                throw new ArgumentException($"Repository {fork.SourceRepositoryName} not found");
-
-            await _gitClient.CreateFork(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, sourceRepo, fork.ForkSuffix);
+            await _gitClient.CreateFork(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, repo, fork.ForkSuffix);
         }     
     }
 }
