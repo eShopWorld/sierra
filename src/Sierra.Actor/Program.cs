@@ -2,36 +2,38 @@
 {
     using System;
     using System.Threading;
-    using Microsoft.ServiceFabric.Actors.Runtime;
+    using System.Threading.Tasks;
+    using Autofac;
+    using Autofac.Integration.ServiceFabric;
+    using Common.DependencyInjection;
+    using Eshopworld.Telemetry;
 
     internal static class Program
     {
         /// <summary>
-        /// This is the entry point of the service host process.
+        /// The entry point of the service host process.
         /// </summary>
-        private static void Main()
+        private static async Task Main()
         {
             try
             {
-                // This line registers an Actor Service to host your actor class with the Service Fabric runtime.
-                // The contents of your ServiceManifest.xml and ApplicationManifest.xml files
-                // are automatically populated when you build this project.
-                // For more information, see https://aka.ms/servicefabricactorsplatform
+                var builder = new ContainerBuilder();
+                builder.RegisterModule(new VstsModule {Vault = @"https://esw-tooling-ci.vault.azure.net/"});
 
-                ActorRuntime.RegisterActorAsync<TenantActor>(
-                   (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
+                builder.RegisterServiceFabricSupport();
 
-                ActorRuntime.RegisterActorAsync<LockerActor>(
-                    (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
+                builder.RegisterActor<TenantActor>();
+                builder.RegisterActor<LockerActor>();
+                builder.RegisterActor<ForkActor>();
 
-                ActorRuntime.RegisterActorAsync<ForkActor>(
-                    (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
-
-                Thread.Sleep(Timeout.Infinite);
+                using (builder.Build())
+                {
+                    await Task.Delay(Timeout.Infinite);
+                }
             }
             catch (Exception e)
             {
-                ActorEventSource.Current.ActorHostInitializationFailed(e.ToString());
+                BigBrother.Write(e);
                 throw;
             }
         }

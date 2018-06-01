@@ -22,15 +22,9 @@
     <Parameter Name="CredentialType" Value="None" />
   </Section>
   <Section Name="ForkActorAppConfigSection">
-    <Parameter Name="VstsTokenEndpoint" Value="https://app.vssps.visualstudio.com/oauth2/token" />
     <Parameter Name="KeyVaultUrl" Value="https://{tba}.vault.azure.net/" />
-    <Parameter Name="KeyVaultUClientId" Value="to_be_added_during_deploy" />
+    <Parameter Name="KeyVaultClientId" Value="to_be_added_during_deploy" />
     <Parameter Name="KeyVaultClientSecret" Value="to_be_added_during_deploy" />
-    <Parameter Name="VstsAppSecret" Value="to_be_added_during_deploy" />
-    <Parameter Name="VstsOAuthCallbackUrl" Value="to_be_added_during_deploy" />
-    <Parameter Name="VstsCollectionId" Value="to_be_added_during_deploy" />
-    <Parameter Name="VstsTargetProjectId" Value="to_be_added_during_deploy" />
-    <Parameter Name="VstsApiBaseUrl" Value="https://{TBA}.visualstudio.com/_apis" />
   </Section>
   <!-- The content will be generated during build -->
 </Settings>
