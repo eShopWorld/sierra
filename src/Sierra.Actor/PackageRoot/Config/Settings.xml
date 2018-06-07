@@ -22,9 +22,7 @@
     <Parameter Name="CredentialType" Value="None" />
   </Section>
   <Section Name="ForkActorAppConfigSection">
-    <Parameter Name="KeyVaultUrl" Value="https://{tba}.vault.azure.net/" />
-    <Parameter Name="KeyVaultClientId" Value="to_be_added_during_deploy" />
-    <Parameter Name="KeyVaultClientSecret" Value="to_be_added_during_deploy" />
+    <Parameter Name="KeyVaultUrl" Value="https://{tba}.vault.azure.net/" />   
   </Section>
   <!-- The content will be generated during build -->
 </Settings>
