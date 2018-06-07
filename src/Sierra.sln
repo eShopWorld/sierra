@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Actor", "Sierra.Acto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Api", "Sierra.Api\Sierra.Api.csproj", "{1927AA99-99B0-46F3-A3C7-782C3BCFCFC9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Common", "Sierra.SDK\Sierra.Common.csproj", "{42FA08D7-3F84-4E8E-86A8-3D0985774772}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Common", "Sierra.Common\Sierra.Common.csproj", "{7FAAC37E-3084-485E-B8E7-643EB34AF62C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,14 +111,14 @@ Global
 		{1927AA99-99B0-46F3-A3C7-782C3BCFCFC9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1927AA99-99B0-46F3-A3C7-782C3BCFCFC9}.Release|x64.ActiveCfg = Release|Any CPU
 		{1927AA99-99B0-46F3-A3C7-782C3BCFCFC9}.Release|x64.Build.0 = Release|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Debug|x64.Build.0 = Debug|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Release|Any CPU.Build.0 = Release|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Release|x64.ActiveCfg = Release|Any CPU
-		{42FA08D7-3F84-4E8E-86A8-3D0985774772}.Release|x64.Build.0 = Release|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Debug|x64.Build.0 = Debug|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Release|x64.ActiveCfg = Release|Any CPU
+		{7FAAC37E-3084-485E-B8E7-643EB34AF62C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

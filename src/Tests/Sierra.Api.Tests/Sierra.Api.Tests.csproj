@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Sierra.SDK\Sierra.Common.csproj" />
+    <ProjectReference Include="..\..\Sierra.Common\Sierra.Common.csproj" />
   </ItemGroup>
 
 </Project>

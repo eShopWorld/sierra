@@ -39,7 +39,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sierra.Actor.Interfaces\Sierra.Actor.Interfaces.csproj" />
-    <ProjectReference Include="..\Sierra.SDK\Sierra.Common.csproj" />
+    <ProjectReference Include="..\Sierra.Common\Sierra.Common.csproj" />
   </ItemGroup>
 
 </Project>
