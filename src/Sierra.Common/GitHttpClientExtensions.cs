@@ -1,9 +1,12 @@
 ﻿namespace Sierra.Common
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Eshopworld.Telemetry;
     using Microsoft.TeamFoundation.Core.WebApi;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
+    using Events;
 
     /// <summary>
     /// Contains Sierra extensions methods to the <see cref="GitHttpClient"/> part of the VSTS SDK.
@@ -19,15 +22,25 @@
         /// <param name="sourceRepo">The origin repo for the Fork.</param>
         /// <param name="forkSuffix">The fork suffix that we want to give to the Fork name.</param>
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
-        /// <remarks>
-        /// TODO: Currently missing the IDEMPOTENCY check -> Rename to CreateForkIfNotExists afterwards
-        /// </remarks>
-        internal static async Task CreateFork(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, GitRepository sourceRepo, string forkSuffix)
+        internal static async Task CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, GitRepository sourceRepo, string forkSuffix, BigBrother bigBrother)
         {
+            var desiredName = $"{sourceRepo.Name}-{forkSuffix}";
+            var repo = (await client.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == desiredName);
+            if (repo!=null)
+            {
+                if (!repo.IsFork || !repo.ProjectReference.Id.Equals(sourceRepo.ProjectReference.Id))
+                    bigBrother.Publish(new ForkBbEvent {
+                        ForkName = desiredName,
+                        Message =$"Repository already exists but is not a fork or is a fork of another project"
+                    });
+
+                return;
+            }
+
             await client.CreateRepositoryAsync(
                 new GitRepositoryCreateOptions
                 {
-                    Name = $"{sourceRepo.Name}-{forkSuffix}",
+                    Name = desiredName,
                     ProjectReference = new TeamProjectReference {Id = Guid.Parse(vstsTargetProjectId)},
                     ParentRepository = new GitRepositoryRef
                     {
@@ -36,6 +49,8 @@
                         Collection = new TeamProjectCollectionReference {Id = Guid.Parse(vstsCollectionId)}
                     }
                 });
+
+            bigBrother.Publish(new ForkBbEvent { ForkName = desiredName, Success = true });
         }
     }
 }

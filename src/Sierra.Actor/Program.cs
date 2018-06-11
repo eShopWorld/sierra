@@ -7,6 +7,7 @@
     using Autofac.Integration.ServiceFabric;
     using Common.DependencyInjection;
     using Eshopworld.Telemetry;
+    using Microsoft.Extensions.Configuration;
 
     internal static class Program
     {
@@ -21,6 +22,13 @@
                 builder.RegisterModule(new VstsModule {Vault = @"https://esw-tooling-ci.vault.azure.net/"});
 
                 builder.RegisterServiceFabricSupport();
+
+                builder.Register(c =>
+                {
+                    var insKey = c.Resolve<IConfigurationRoot>()["BBInstrumentationKey"];
+                    return new BigBrother(insKey, insKey);
+                })
+                .SingleInstance();
 
                 builder.RegisterActor<TenantActor>();
                 builder.RegisterActor<LockerActor>();

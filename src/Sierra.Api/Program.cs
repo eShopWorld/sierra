@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading;
-    using DevOpsFlex.Telemetry;
+    using Eshopworld.Telemetry;
     using Microsoft.ServiceFabric.Services.Runtime;
 
     internal static class Program
