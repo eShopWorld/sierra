@@ -30,7 +30,7 @@ public class ForkTests
     }
 
     [Fact, IsIntegration]
-    public async void Create_Simple_Fork()
+    public async void Create_Fork_API()
     {
         HttpClient client = new HttpClient();
         var suffix = Guid.NewGuid().ToString();
@@ -43,6 +43,13 @@ public class ForkTests
         var respo = await client.PostAsync(
             Config.ApiUrl,
             new StringContent($"{{\"sourceRepositoryName\": \"ForkIntTestSourceRepo\",\"forkSuffix\": \"{suffix}\"}}", Encoding.UTF8, "application/json"));
+
+        respo.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        //idempotency check
+        respo = await client.PostAsync(
+          Config.ApiUrl,
+          new StringContent($"{{\"sourceRepositoryName\": \"ForkIntTestSourceRepo\",\"forkSuffix\": \"{suffix}\"}}", Encoding.UTF8, "application/json"));
 
         respo.StatusCode.Should().Be(HttpStatusCode.OK);
 
