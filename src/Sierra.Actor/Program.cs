@@ -19,16 +19,10 @@
             try
             {
                 var builder = new ContainerBuilder();
-                builder.RegisterModule(new VstsModule {Vault = @"https://esw-tooling-ci.vault.azure.net/"});
+                builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });
+                builder.RegisterModule(new VstsModule());
 
-                builder.RegisterServiceFabricSupport();
-
-                builder.Register(c =>
-                {
-                    var insKey = c.Resolve<IConfigurationRoot>()["BBInstrumentationKey"];
-                    return new BigBrother(insKey, insKey);
-                })
-                .SingleInstance();
+                builder.RegisterServiceFabricSupport();               
 
                 builder.RegisterActor<TenantActor>();
                 builder.RegisterActor<LockerActor>();

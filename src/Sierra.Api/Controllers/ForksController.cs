@@ -9,6 +9,7 @@
     /// manages forks in the system
     /// </summary>
     [Route("/v1/forks")]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
     //todo: temporary testing controller
     public class ForksController : Controller
     {       

@@ -12,7 +12,8 @@
         public ActorContainerFixture()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule(new VstsModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });
+            builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });
+            builder.RegisterModule(new VstsModule());
 
             Container = builder.Build();
         }

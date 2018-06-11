@@ -2,10 +2,7 @@
 {
     using System;
     using Autofac;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Microsoft.VisualStudio.Services.Common;
     using Microsoft.VisualStudio.Services.WebApi;
@@ -14,12 +11,7 @@
     /// Sierra autofac module to setup all the Vsts DI chain.
     /// </summary>
     public class VstsModule : Module
-    {
-        /// <summary>
-        /// Get and sets the full URI for the keyvault to use in this module.
-        /// </summary>
-        public string Vault { get; set; }
-
+    {      
         /// <summary>
         /// Adds registrations to the container.
         /// </summary>
@@ -29,22 +21,12 @@
         /// </remarks>
         protected override void Load(ContainerBuilder builder)
         {
-            var configBuilder = new ConfigurationBuilder().AddAzureKeyVault(
-                Vault,
-                new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback)),
-                new DefaultKeyVaultSecretManager());
-
-            var config = configBuilder.Build();
-
-            builder.RegisterInstance(config)
-                   .As<IConfigurationRoot>()
-                   .SingleInstance();
-
-            var vstsConfig = new VstsConfiguration();
-            config.Bind(vstsConfig);
-
-            builder.RegisterInstance(vstsConfig)
-                   .SingleInstance();
+            builder.Register(c=> {
+                var vstsConfig = new VstsConfiguration();
+                c.Resolve<IConfigurationRoot>().Bind(vstsConfig);
+                return vstsConfig;
+            })
+            .SingleInstance();
 
             builder.Register(c => new VssBasicCredential(string.Empty, c.Resolve<VstsConfiguration>().VstsPat))
                    .SingleInstance();
