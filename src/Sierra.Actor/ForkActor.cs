@@ -10,6 +10,7 @@
     using Common;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Eshopworld.Telemetry;
+    using Common.Events;
 
     /// <summary>
     /// Manages Forks on behalf of tenant operations.
@@ -43,11 +44,19 @@
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public async Task ForkRepo(Fork fork)
         {           
-            var repo = (await _gitClient.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == fork.SourceRepositoryName);
-            if (repo == null) throw new ArgumentException($"Repository {fork.SourceRepositoryName} not found");
-               
+            var sourceRepo = (await _gitClient.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == fork.SourceRepositoryName);
+            if (sourceRepo == null) throw new ArgumentException($"Repository {fork.SourceRepositoryName} not found");               
 
-            await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, repo, fork.ForkSuffix, _bigBrother);           
+            var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, sourceRepo, fork.ForkSuffix);
+
+            if (!repo.IsFork || !repo.ProjectReference.Id.Equals(sourceRepo.ProjectReference.Id))
+                _bigBrother.Publish(new ForkRequestFailed
+                {
+                    ForkName = repo.Name,
+                    Message = $"Repository already exists but is not a fork or is a fork of another project"
+                });
+            else         
+                _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
         }     
     }
 }
