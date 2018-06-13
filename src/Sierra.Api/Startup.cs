@@ -81,7 +81,7 @@
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddIdentityServerAuthentication(x =>
             {
-                x.ApiName = Configuration["STSConfig:ApiName"]; ;              
+                x.ApiName = Configuration["STSConfig:ApiName"];            
                 x.Authority = Configuration["STSConfig:Authority"];
                 //x.AddJwtBearerEventsTelemetry(bb);
             });

@@ -19,8 +19,11 @@
         /// <returns>proxy instance</returns>
         internal static T GetActorRef<T>(this SierraControllerBase ctrl, string serviceName) where T:IActor
         {
+            var actorUri = new Uri($"fabric:/Sierra.Fabric{DeriveEnvironmentSuffix(ctrl.HostingEnvironment)}/{serviceName}");
+
+            ctrl.BigBrother.Publish(new { Message = $"Attempting to locate {actorUri.ToString()}" });
             //todo: add support for explicit actor id            
-            return ActorProxy.Create<T>(ActorId.CreateRandom(), new Uri($"fabric:/Sierra.Fabric{DeriveEnvironmentSuffix(ctrl.HostingEnvironment)}/{serviceName}")); 
+            return ActorProxy.Create<T>(ActorId.CreateRandom(), actorUri); 
         }
 
         private static object DeriveEnvironmentSuffix(IHostingEnvironment hostingEnvironment)
