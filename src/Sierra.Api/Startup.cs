@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
-
-namespace Sierra.Api
+﻿namespace Sierra.Api
 {
     using System;
     using System.Diagnostics;
@@ -15,6 +12,10 @@ namespace Sierra.Api
     using Model;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Swashbuckle.AspNetCore.Swagger;
+    using Eshopworld.Web;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc.Authorization;
+    using Sierra.Common.DependencyInjection;
 
     /// <summary>
     /// Startup entry point for the Sierra.Api fabric service.
@@ -101,6 +102,7 @@ namespace Sierra.Api
         public void ConfigureContainer(ContainerBuilder builder)
         {
             // autofac stuff
+            builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });           
         }
 
         /// <summary>
@@ -112,7 +114,7 @@ namespace Sierra.Api
         {
 
             if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
-
+            app.UseBigBrotherExceptionHandler();
             app.UseAuthentication();
             app.UseMvc();
 

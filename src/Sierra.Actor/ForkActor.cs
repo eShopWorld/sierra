@@ -1,7 +1,6 @@
 ﻿namespace Sierra.Actor
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using Interfaces;
     using Microsoft.ServiceFabric.Actors;
@@ -11,6 +10,7 @@
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Eshopworld.Telemetry;
     using Common.Events;
+    using Eshopworld.Core;
 
     /// <summary>
     /// Manages Forks on behalf of tenant operations.
@@ -20,7 +20,7 @@
     {
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
-        private readonly BigBrother _bigBrother;
+        private readonly IBigBrother _bigBrother;
 
         /// <summary>
         /// Initializes a new instance of <see cref="ForkActor"/>.
@@ -29,7 +29,7 @@
         /// <param name="actorId">The Actor ID.</param>
         /// <param name="gitClient">The <see cref="GitHttpClient"/> to use on repo operations.</param>
         /// <param name="vstsConfiguration">The VSTS configuration payload.</param>
-        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration, BigBrother bb)
+        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration, IBigBrother bb)
             : base(actorService, actorId)
         {
             _gitClient = gitClient;
@@ -43,7 +43,7 @@
         /// <param name="fork">The Fork payload containing all necessary information.</param>
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public async Task ForkRepo(Fork fork)
-        {                    
+        {
             var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork.SourceRepositoryName, fork.ForkSuffix);
 
             if (!repo.IsFork)

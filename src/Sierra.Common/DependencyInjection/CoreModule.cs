@@ -1,6 +1,7 @@
 ﻿namespace Sierra.Common.DependencyInjection
 {
     using Autofac;
+    using Eshopworld.Core;
     using Eshopworld.Telemetry;
     using Microsoft.Azure.KeyVault;
     using Microsoft.Azure.Services.AppAuthentication;
@@ -30,7 +31,7 @@
                    .As<IConfigurationRoot>()
                    .SingleInstance();
 
-            builder.Register(c =>
+            builder.Register<IBigBrother>(c =>
             {
                 var insKey = c.Resolve<IConfigurationRoot>()["BBInstrumentationKey"];
                 return new BigBrother(insKey, insKey);
