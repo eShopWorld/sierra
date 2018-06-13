@@ -39,7 +39,26 @@
                         ProjectReference = new TeamProjectReference { Id = Guid.Parse(vstsTargetProjectId) },
                         Collection = new TeamProjectCollectionReference { Id = Guid.Parse(vstsCollectionId) }
                     }
-                });            
+                });
         }
-    }
+
+        /// <summary>
+        /// Creates a repository Fork through the VSTS <see cref="GitHttpClient"/>.
+        /// </summary>
+        /// <param name="client">The <see cref="GitHttpClient"/> used to create the Fork.</param>
+        /// <param name="vstsCollectionId">The target collection ID where we are creating the fork on.</param>
+        /// <param name="vstsTargetProjectId">The target project ID where we are creating the fork on.</param>
+        /// <param name="sourceRepoName">The name of the origin repo for the Fork.</param>
+        /// <param name="forkSuffix">The fork suffix that we want to give to the Fork name.</param>
+        /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
+        internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, string sourceRepoName, string forkSuffix)
+        {
+            var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == sourceRepoName);
+
+            if (sourceRepo == null)
+                throw new ArgumentException($"Repository {sourceRepoName} not found");
+
+            return await CreateForkIfNotExists(client, vstsCollectionId, vstsTargetProjectId, sourceRepo, forkSuffix);
+        }
+    }        
 }
