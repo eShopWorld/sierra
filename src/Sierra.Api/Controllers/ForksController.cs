@@ -4,15 +4,21 @@
     using System.Threading.Tasks;
     using Model;
     using Actor.Interfaces;
+    using Microsoft.AspNetCore.Hosting;
 
     /// <summary>
     /// manages forks in the system
     /// </summary>
     [Route("/v1/forks")]
-    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    //[Microsoft.AspNetCore.Authorization.AllowAnonymous]
     //todo: temporary testing controller
-    public class ForksController : Controller
-    {       
+    public class ForksController : SierraControllerBase
+    {
+        /// <inheritdoc/>
+        public ForksController(IHostingEnvironment hostingEnvironment) : base(hostingEnvironment)
+        {
+        }
+
         /// <summary>
         /// creates a fork
         /// </summary>

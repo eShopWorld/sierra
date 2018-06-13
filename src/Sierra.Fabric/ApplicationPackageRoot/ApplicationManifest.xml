@@ -19,6 +19,9 @@
        ServiceManifest.xml file. -->
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="SierraApiPkg" ServiceManifestVersion="1.0.0" />
+    <EnvironmentOverrides CodePackageRef="Code">
+      <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[AspNetCore_Environment]" />
+    </EnvironmentOverrides>
   </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="Sierra.ActorPkg" ServiceManifestVersion="1.0.0" />
