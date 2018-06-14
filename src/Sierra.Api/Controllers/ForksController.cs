@@ -6,6 +6,7 @@
     using Actor.Interfaces;
     using Microsoft.AspNetCore.Hosting;
     using Eshopworld.Core;
+    using System.Fabric;
 
     /// <summary>
     /// manages forks in the system
@@ -16,7 +17,7 @@
     public class ForksController : SierraControllerBase
     {
         /// <inheritdoc/>
-        public ForksController(IHostingEnvironment hostingEnvironment, IBigBrother bigBrother) : base(hostingEnvironment, bigBrother)
+        public ForksController(IHostingEnvironment hostingEnvironment, IBigBrother bigBrother, StatelessServiceContext sfContext) : base(hostingEnvironment, bigBrother, sfContext)
         {
         }
 
