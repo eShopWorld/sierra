@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
-    <PackageReference Include="Eshopworld.Tests.Core" Version="1.0.2" />
+    <PackageReference Include="Eshopworld.Tests.Core" Version="1.0.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0-preview-20180610-02" />
     <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="15.134.0-preview" />
     <PackageReference Include="xunit" Version="2.3.1" />
