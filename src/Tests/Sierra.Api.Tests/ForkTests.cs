@@ -29,7 +29,7 @@ public class ForkTests
         config.GetSection("TestConfig").Bind(Config);
     }
 
-    [Fact, IsIntegration]
+    [Fact, IsLayer2]
     public async void Create_Fork_API()
     {
         HttpClient client = new HttpClient();

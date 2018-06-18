@@ -19,7 +19,7 @@ public class GitClientExtensionsTests
         ContainerFixture = container;
     }
 
-    [Fact, IsIntegration]
+    [Fact, IsLayer1]
     public async Task CreateForkIfNotExists_()
     {
         using (var scope = ContainerFixture.Container.BeginLifetimeScope())
