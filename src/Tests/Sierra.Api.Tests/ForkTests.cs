@@ -12,6 +12,7 @@ using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Sierra.Api.Tests;
+using Sierra.Common;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -30,7 +31,7 @@ public class ForkTests
     }
 
     [Fact, IsLayer2]
-    public async void Create_Fork_API()
+    public async void AddFork_API()
     {
         HttpClient client = new HttpClient();
         var suffix = Guid.NewGuid().ToString();
@@ -60,6 +61,31 @@ public class ForkTests
             repo.Should().NotBeNull();
 
             await gitClient.DeleteRepositoryAsync(repo.Id);
+        }
+    }
+
+    [Fact, IsLayer2]
+    public async Task RemoveFork_API()
+    {
+        HttpClient client = new HttpClient();
+        var suffix = Guid.NewGuid().ToString();
+        var vstsConfig = ContainerFixture.Container.Resolve<VstsConfiguration>();
+
+        //obtain access token
+        var stsAccessToken = await ObtainSTSAccessToken();
+        client.SetBearerToken(stsAccessToken);
+
+        using (var gitClient = ContainerFixture.Container.Resolve<GitHttpClient>())
+        {
+            //locate source repo
+            var repo = (await gitClient.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == "ForkIntTestSourceRepo");
+            repo.Should().NotBeNull();
+            //fork
+            repo = await gitClient.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, repo, suffix);
+            //issue request for delete
+            var resp = await client.DeleteAsync(Uri.EscapeUriString(Config.ApiUrl+"/"+repo.Name));
+
+            (await gitClient.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == repo.Name).Should().BeNull();
         }
     }
 

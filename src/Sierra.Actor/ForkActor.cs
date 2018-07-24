@@ -1,6 +1,5 @@
 ﻿namespace Sierra.Actor
 {
-    using System;
     using System.Threading.Tasks;
     using Interfaces;
     using Microsoft.ServiceFabric.Actors;
@@ -8,7 +7,6 @@
     using Model;
     using Common;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
-    using Eshopworld.Telemetry;
     using Common.Events;
     using Eshopworld.Core;
 
@@ -42,7 +40,7 @@
         /// </summary>
         /// <param name="fork">The Fork payload containing all necessary information.</param>
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
-        public async Task ForkRepo(Fork fork)
+        public async Task AddFork(Fork fork)
         {
             var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork.SourceRepositoryName, fork.ForkSuffix);
 
@@ -54,6 +52,20 @@
                 });
             else         
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
-        }     
+        }
+
+        /// <summary>
+        /// remove an existing repo (if exists)
+        /// </summary>
+        /// <param name="forkName">name of the repo to remove</param>
+        /// <returns>task instance</returns>
+        public async Task RemoveFork(string forkName)
+        {           
+            var forkRemoved = await _gitClient.DeleteForkIfExists(forkName);
+
+            if (forkRemoved)
+                _bigBrother.Publish(new ForkDeleted { ForkName = forkName });
+            
+        }
     }
 }
