@@ -20,7 +20,7 @@ public class GitClientExtensionsTests
     }
 
     [Fact, IsLayer1]
-    public async Task CreateForkIfNotExists_()
+    public async Task CreateForkIfNotExists_SuccessFlow()
     {
         using (var scope = ContainerFixture.Container.BeginLifetimeScope())
         {
@@ -31,6 +31,21 @@ public class GitClientExtensionsTests
             var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");
             repo.Should().NotBeNull();
             await sut.DeleteRepositoryAsync(repo.Id);
+        }
+    }
+
+    [Fact, IsLayer1]
+    public async Task DeleteForkIfExists_SuccessFlow()
+    {
+        using (var scope = ContainerFixture.Container.BeginLifetimeScope())
+        {
+            var sut = scope.Resolve<GitHttpClient>();
+            var vstsConfig = scope.Resolve<VstsConfiguration>();
+            var suffix = Guid.NewGuid().ToString();
+            await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, "ForkIntTestSourceRepo", suffix);
+            var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");          
+            await sut.DeleteForkIfExists(repo.Name);
+            (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}").Should().BeNull();
         }
     }
 }

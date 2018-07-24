@@ -14,6 +14,13 @@
         /// </summary>
         /// <param name="fork">payload to describe requested fork</param>
         /// <returns>task instance</returns>
-        Task ForkRepo(Fork fork);
+        Task AddFork(Fork fork);
+
+        /// <summary>
+        /// remove an existing repo (if exists)
+        /// </summary>
+        /// <param name="forkName">name of the repo to remove</param>
+        /// <returns>task instance</returns>
+        Task RemoveFork(string forkName);
     }
 }

@@ -60,5 +60,25 @@
 
             return await CreateForkIfNotExists(client, vstsCollectionId, vstsTargetProjectId, sourceRepo, forkSuffix);
         }
+
+        /// <summary>
+        /// delete fork if exists
+        /// 
+        /// if repo does not exist, just return gracefully
+        /// </summary>
+        /// <param name="client">extension target</param>
+        /// <param name="forkName">name of the fork to remove</param>
+        /// <returns>fork deletion result</returns>
+        internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
+        {
+            var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == forkName);
+
+            if (repo == null)
+                return false;
+
+            await client.DeleteRepositoryAsync(repo.Id);
+
+            return true;
+        }        
     }        
 }
