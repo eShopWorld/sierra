@@ -29,7 +29,7 @@
         public async Task Post([FromBody]Fork fork)
         {
             var actor = GetActorRef<IForkActor>("ForkActorService");
-            await actor.AddFork(fork);
+            await actor.Add(fork);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@
         public async Task Delete(string forkName)
         {
             var actor = GetActorRef<IForkActor>("ForkActorService");
-            await actor.RemoveFork(forkName);
+            await actor.Remove(forkName);
         }
     }
 }

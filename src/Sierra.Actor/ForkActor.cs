@@ -40,7 +40,7 @@
         /// </summary>
         /// <param name="fork">The Fork payload containing all necessary information.</param>
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
-        public async Task AddFork(Fork fork)
+        public async Task Add(Fork fork)
         {
             var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork.SourceRepositoryName, fork.ForkSuffix);
 
@@ -59,7 +59,7 @@
         /// </summary>
         /// <param name="forkName">name of the repo to remove</param>
         /// <returns>task instance</returns>
-        public async Task RemoveFork(string forkName)
+        public async Task Remove(string forkName)
         {           
             var forkRemoved = await _gitClient.DeleteForkIfExists(forkName);
 
