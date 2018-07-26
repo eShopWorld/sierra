@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Actor
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using Interfaces;
     using Microsoft.ServiceFabric.Actors;
@@ -9,6 +10,7 @@
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Common.Events;
     using Eshopworld.Core;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Manages Forks on behalf of tenant operations.
@@ -35,14 +37,10 @@
             _bigBrother = bb;
         }
 
-        /// <summary>
-        /// Forks a source repository in VSTS.
-        /// </summary>
-        /// <param name="fork">The Fork payload containing all necessary information.</param>
-        /// <returns>The async <see cref="Task"/> wrapper.</returns>
+        /// <inheridoc/>
         public async Task Add(Fork fork)
         {
-            var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork.SourceRepositoryName, fork.ForkSuffix);
+            var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork);
 
             if (!repo.IsFork)
                 _bigBrother.Publish(new ForkRequestFailed
@@ -54,18 +52,25 @@
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
         }
 
-        /// <summary>
-        /// remove an existing repo (if exists)
-        /// </summary>
-        /// <param name="forkName">name of the repo to remove</param>
-        /// <returns>task instance</returns>
-        public async Task Remove(string forkName)
+        /// <inheridoc/>
+        public async Task Remove(string fork)
         {           
-            var forkRemoved = await _gitClient.DeleteForkIfExists(forkName);
+            var forkRemoved = await _gitClient.DeleteForkIfExists(fork);
 
             if (forkRemoved)
-                _bigBrother.Publish(new ForkDeleted { ForkName = forkName });
+                _bigBrother.Publish(new ForkDeleted { ForkName = fork });
             
+        }
+
+        /// <inheridoc/>
+        public async Task<IEnumerable<string>> QueryTenantRepos(string tenantName)
+        {
+            if (string.IsNullOrWhiteSpace(tenantName))
+                return null;
+
+            return (await _gitClient.GetRepositoriesAsync())
+                .Where(r => r.IsFork && r.Name.EndsWith(tenantName))
+                .Select(t => t.Name);
         }
     }
 }

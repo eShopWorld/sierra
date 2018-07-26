@@ -3,6 +3,7 @@
     using Model;
     using Microsoft.ServiceFabric.Actors;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
 
     /// <summary>
     /// fork actor interface
@@ -19,8 +20,17 @@
         /// <summary>
         /// remove an existing repo (if exists)
         /// </summary>
-        /// <param name="forkName">name of the repo to remove</param>
+        /// <param name="fork">repo to remove</param>
         /// <returns>task instance</returns>
-        Task Remove(string forkName);
+        Task Remove(string fork);
+
+        /// <summary>
+        /// retrieve a list of existing forks that have been created for a given tenant
+        /// 
+        /// this follows tenant fork naming conventions
+        /// </summary>
+        /// <param name="tenantName">tenant name</param>
+        /// <returns>list of tenanted/forked repos</returns>
+        Task<IEnumerable<string>> QueryTenantRepos(string tenantName);
     }
 }

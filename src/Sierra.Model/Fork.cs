@@ -21,6 +21,15 @@
         /// </summary>
         [DataMember]
         [Required, MinLength(2)]
-        public string ForkSuffix { get; set; }
+        public string TenantName { get; set; }
+
+        /// <summary>
+        /// encapsulate fork naming strategy
+        /// </summary>
+        /// <returns>desired fork name</returns>
+        public override string ToString()
+        {
+            return $"{SourceRepositoryName}-{TenantName}";
+        }
     }
 }

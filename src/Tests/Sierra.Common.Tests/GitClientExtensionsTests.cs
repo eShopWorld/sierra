@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Sierra.Common;
 using Sierra.Common.Tests;
+using Sierra.Model;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,9 +28,11 @@ public class GitClientExtensionsTests
             var sut = scope.Resolve<GitHttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var suffix = Guid.NewGuid().ToString();
-            await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, "ForkIntTestSourceRepo", suffix);
+            //create test repo
+            await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, new Fork { SourceRepositoryName = "ForkIntTestSourceRepo", TenantName = suffix });
             var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");
             repo.Should().NotBeNull();
+            //clean up
             await sut.DeleteRepositoryAsync(repo.Id);
         }
     }
@@ -42,9 +45,13 @@ public class GitClientExtensionsTests
             var sut = scope.Resolve<GitHttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var suffix = Guid.NewGuid().ToString();
-            await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, "ForkIntTestSourceRepo", suffix);
-            var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");          
-            await sut.DeleteForkIfExists(repo.Name);
+            var fork = new Fork { SourceRepositoryName = "ForkIntTestSourceRepo", TenantName = suffix };
+            //create target repo
+            await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, fork);
+            var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");
+            repo.Should().NotBeNull();
+            //delete target repo
+            await sut.DeleteForkIfExists($"ForkIntTestSourceRepo-{suffix}");
             (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}").Should().BeNull();
         }
     }

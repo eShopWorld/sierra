@@ -1,10 +1,13 @@
 ﻿namespace Sierra.Actor
 {
+    using System.Linq;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Interfaces;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Model;
+    using Microsoft.ServiceFabric.Actors.Client;
 
     /// <summary>
     /// The main tenant orchestration actor.
@@ -30,11 +33,12 @@
         /// <returns>The async <see cref="T:System.Threading.Tasks.Task" /> wrapper.</returns>
         public override async Task Add(Tenant tenant)
         {
-            await Task.Yield(); // todo: temporary
-
             // Flow
+            if (tenant == null)
+                return;
 
             // #1 Fork anything that needs to be forked
+            await ProcessForks(tenant.Name, tenant.CustomSourceRepos);
             // #2 Create CI builds for each new fork created for the tenant
             // #3 Build the tenant test resources
             // #4 Build the tenant production resources
@@ -46,22 +50,26 @@
             // #7 Map the tenant KeyVault for all test environments and prod
         }
 
+        private async Task ProcessForks(string tenantName, IEnumerable<string> forkRepos)
+        {
+            var forkActor = ActorProxy.Create<IForkActor>(ActorId.CreateRandom());
+
+            var existingTenantRepos = await forkActor.QueryTenantRepos(tenantName);
+            
+            //create repos with tenant name as suffix
+            var customForkList = forkRepos.Select(r => new Fork { SourceRepositoryName = r, TenantName = tenantName });
+            await Task.WhenAll(customForkList.Select(r => forkActor.Add(r)));
+            //delete orphaned forks
+            var orphanedList = existingTenantRepos.Except(customForkList.Select(r => r.ToString()));
+            await Task.WhenAll(orphanedList.Select(r => forkActor.Remove(r)));
+        }
+
         /// <summary>
         /// Removes a tenant from the platform.
         /// </summary>
         /// <param name="tenant"></param>
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public override async Task Remove(Tenant tenant)
-        {
-            await Task.Yield(); // todo: temporary
-        }
-
-        /// <summary>
-        /// Changes a tenant in the platform.
-        /// </summary>
-        /// <param name="tenant"></param>
-        /// <returns>The async <see cref="Task"/> wrapper.</returns>
-        public async Task Edit(Tenant tenant)
         {
             await Task.Yield(); // todo: temporary
         }

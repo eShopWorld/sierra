@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using Microsoft.TeamFoundation.Core.WebApi;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
+    using Sierra.Model;
 
     /// <summary>
     /// Contains Sierra extensions methods to the <see cref="GitHttpClient"/> part of the VSTS SDK.
@@ -18,12 +19,11 @@
         /// <param name="vstsCollectionId">The target collection ID where we are creating the fork on.</param>
         /// <param name="vstsTargetProjectId">The target project ID where we are creating the fork on.</param>
         /// <param name="sourceRepo">The origin repo for the Fork.</param>
-        /// <param name="forkSuffix">The fork suffix that we want to give to the Fork name.</param>
+        /// <param name="targetRepo">name of the tenant fork</param>
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
-        internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, GitRepository sourceRepo, string forkSuffix)
+        internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, GitRepository sourceRepo, string targetRepo)
         {
-            var desiredName = $"{sourceRepo.Name}-{forkSuffix}";
-            var repo = (await client.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == desiredName);
+            var repo = (await client.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == targetRepo);
 
             if (repo != null)
                 return repo;
@@ -31,7 +31,7 @@
             return await client.CreateRepositoryAsync(
                 new GitRepositoryCreateOptions
                 {
-                    Name = desiredName,
+                    Name = targetRepo,
                     ProjectReference = new TeamProjectReference { Id = Guid.Parse(vstsTargetProjectId) },
                     ParentRepository = new GitRepositoryRef
                     {
@@ -48,17 +48,16 @@
         /// <param name="client">The <see cref="GitHttpClient"/> used to create the Fork.</param>
         /// <param name="vstsCollectionId">The target collection ID where we are creating the fork on.</param>
         /// <param name="vstsTargetProjectId">The target project ID where we are creating the fork on.</param>
-        /// <param name="sourceRepoName">The name of the origin repo for the Fork.</param>
-        /// <param name="forkSuffix">The fork suffix that we want to give to the Fork name.</param>
+        /// <param name="fork">fork definition</param>
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
-        internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, string sourceRepoName, string forkSuffix)
+        internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, Fork fork)
         {
-            var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == sourceRepoName);
+            var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == fork.SourceRepositoryName);
 
             if (sourceRepo == null)
-                throw new ArgumentException($"Repository {sourceRepoName} not found");
+                throw new ArgumentException($"Repository {fork.SourceRepositoryName} not found");
 
-            return await CreateForkIfNotExists(client, vstsCollectionId, vstsTargetProjectId, sourceRepo, forkSuffix);
+            return await CreateForkIfNotExists(client, vstsCollectionId, vstsTargetProjectId, sourceRepo, fork.ToString());
         }
 
         /// <summary>
@@ -66,12 +65,14 @@
         /// 
         /// if repo does not exist, just return gracefully
         /// </summary>
-        /// <param name="client">extension target</param>
-        /// <param name="forkName">name of the fork to remove</param>
+        /// <param name="fork">fork definition</param>
         /// <returns>fork deletion result</returns>
-        internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
+        internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string fork )
         {
-            var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == forkName);
+            if (string.IsNullOrWhiteSpace(fork))
+                return false;
+         
+            var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == fork);
 
             if (repo == null)
                 return false;
@@ -79,6 +80,6 @@
             await client.DeleteRepositoryAsync(repo.Id);
 
             return true;
-        }        
+        }           
     }        
 }

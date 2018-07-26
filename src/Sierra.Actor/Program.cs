@@ -7,7 +7,6 @@
     using Autofac.Integration.ServiceFabric;
     using Common.DependencyInjection;
     using Eshopworld.Telemetry;
-    using Microsoft.Extensions.Configuration;
 
     internal static class Program
     {

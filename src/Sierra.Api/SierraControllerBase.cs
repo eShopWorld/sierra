@@ -38,9 +38,7 @@
         /// <returns>proxy instance</returns>
         internal  T GetActorRef<T>(string serviceName) where T : IActor
         {
-            var actorUri = new Uri($"{StatelessServiceContext.CodePackageActivationContext.ApplicationName}/{serviceName}");
-
-            BigBrother.Publish(new { Message = $"Attempting to locate {actorUri.ToString()}" });          
+            var actorUri = new Uri($"{StatelessServiceContext.CodePackageActivationContext.ApplicationName}/{serviceName}");                 
 
             return ActorProxy.Create<T>(ActorId.CreateRandom(), actorUri);
         }

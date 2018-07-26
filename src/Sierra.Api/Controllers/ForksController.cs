@@ -35,13 +35,13 @@
         /// <summary>
         /// delete a fork
         /// </summary>
-        /// <param name="forkName">name of the fork to delete</param>
+        /// <param name="fork">fork to delete</param>
         /// <returns>task instance</returns>       
-        [HttpDelete("{forkName}")]
-        public async Task Delete(string forkName)
+        [HttpDelete("{fork}")]
+        public async Task Delete(string fork)
         {
             var actor = GetActorRef<IForkActor>("ForkActorService");
-            await actor.Remove(forkName);
+            await actor.Remove(fork);
         }
     }
 }
