@@ -63,14 +63,15 @@
         }
 
         /// <inheridoc/>
-        public async Task<IEnumerable<string>> QueryTenantRepos(string tenantName)
+        public async Task<List<string>> QueryTenantRepos(string tenantName)
         {
             if (string.IsNullOrWhiteSpace(tenantName))
                 return null;
 
-            return (await _gitClient.GetRepositoriesAsync())
+            return
+                (await _gitClient.GetRepositoriesAsync())
                 .Where(r => r.IsFork && r.Name.EndsWith(tenantName))
-                .Select(t => t.Name);
+                .Select(t => t.Name).ToList();            
         }
     }
 }

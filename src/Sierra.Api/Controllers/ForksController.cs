@@ -1,6 +1,7 @@
 ﻿namespace Sierra.Api.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Authorization;
     using System.Threading.Tasks;
     using Model;
     using Actor.Interfaces;
@@ -12,7 +13,11 @@
     /// manages forks in the system
     /// </summary>
     [Route("/v1/forks")]
-    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+#if (OAUTH_OFF_MODE)
+    [AllowAnonymous]
+#else
+    [Authorize(Policy = "AssertScope")]
+#endif
     //todo: temporary testing controller
     public class ForksController : SierraControllerBase
     {

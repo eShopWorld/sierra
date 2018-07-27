@@ -4,14 +4,28 @@
     using Microsoft.AspNetCore.Mvc;
     using Model;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Hosting;
+    using Eshopworld.Core;
+    using System.Fabric;
+    using Sierra.Actor.Interfaces;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Manages tenants in the platform.
     /// </summary>
     [Route("/v1/tenants")]
+#if (OAUTH_OFF_MODE)
+    [AllowAnonymous]
+#else
     [Authorize(Policy = "AssertScope")]
-    public class TenantsController : Controller
+#endif
+    public class TenantsController : SierraControllerBase
     {
+        /// <inheritdoc/>
+        public TenantsController(IHostingEnvironment hostingEnvironment, IBigBrother bigBrother, StatelessServiceContext sfContext) : base(hostingEnvironment, bigBrother, sfContext)
+        {
+        }
+
         /// <summary>
         /// Gets all the tenant information from the platform.
         /// </summary>
@@ -40,8 +54,10 @@
         /// </summary>
         /// <param name="tenant">The tenant that we want to update.</param>
         [HttpPost]
-        public void Post([FromBody]Tenant tenant)
+        public async Task Post([FromBody]Tenant tenant)
         {
+            var actor = GetActorRef<ITenantActor>("TenantActorService");
+            await actor.Add(tenant);
         }
 
         /// <summary>

@@ -31,6 +31,7 @@
         /// </summary>
         /// <param name="tenantName">tenant name</param>
         /// <returns>list of tenanted/forked repos</returns>
-        Task<IEnumerable<string>> QueryTenantRepos(string tenantName);
+        // TODO: consider wrapping in a dedicated "message" to not rely on .net fw level known types
+        Task<List<string>> QueryTenantRepos(string tenantName);
     }
 }
