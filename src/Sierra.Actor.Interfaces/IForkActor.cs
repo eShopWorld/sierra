@@ -22,16 +22,6 @@
         /// </summary>
         /// <param name="fork">repo to remove</param>
         /// <returns>task instance</returns>
-        Task Remove(string fork);
-
-        /// <summary>
-        /// retrieve a list of existing forks that have been created for a given tenant
-        /// 
-        /// this follows tenant fork naming conventions
-        /// </summary>
-        /// <param name="tenantName">tenant name</param>
-        /// <returns>list of tenanted/forked repos</returns>
-        // TODO: consider wrapping in a dedicated "message" to not rely on .net fw level known types
-        Task<List<string>> QueryTenantRepos(string tenantName);
+        Task Remove(Fork fork);
     }
 }

@@ -46,7 +46,7 @@
         public async Task Delete(string fork)
         {
             var actor = GetActorRef<IForkActor>("ForkActorService");
-            await actor.Remove(fork);
+            await actor.Remove(Fork.Parse(fork));
         }
     }
 }

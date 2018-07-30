@@ -54,13 +54,13 @@
         {
             var forkActor = ActorProxy.Create<IForkActor>(ActorId.CreateRandom());
 
-            var existingTenantRepos = (await forkActor.QueryTenantRepos(tenantName));
+            var existingTenantRepos = new List<Fork>(); //TODO: plug into the state when available
             
             //create repos with tenant name as suffix
             var customForkList = customSourceRepos.Select(r => new Fork { SourceRepositoryName = r, TenantName = tenantName });
             await Task.WhenAll(customForkList.Select(r => forkActor.Add(r)));
             //delete orphaned forks
-            var orphanedList = existingTenantRepos.Except(customForkList.Select(r => r.ToString()));
+            var orphanedList = existingTenantRepos.Except(customForkList);
             await Task.WhenAll(orphanedList.Select(r => forkActor.Remove(r)));
         }
 

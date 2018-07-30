@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Model
 {
+    using System;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
 
@@ -9,6 +10,7 @@
     [DataContract]
     public class Fork
     {
+        private const string RepoTenantDelimiter = "-";
         /// <summary>
         /// source repository name (within singular collection)
         /// </summary>
@@ -29,7 +31,24 @@
         /// <returns>desired fork name</returns>
         public override string ToString()
         {
-            return $"{SourceRepositoryName}-{TenantName}";
+            return $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantName}";
+        }
+
+        /// <summary>
+        /// parses out fork object out of fork repo name
+        /// 
+        /// using naming structure
+        /// </summary>
+        /// <param name="repoName">repository name</param>
+        /// <returns></returns>
+        public static Fork Parse(string repoName)
+        {
+            if (string.IsNullOrWhiteSpace(repoName) || !repoName.Contains(RepoTenantDelimiter) || repoName.EndsWith(RepoTenantDelimiter))
+                throw new ArgumentException($"Unexpected fork repository name {repoName}");
+
+            var lastIndex = repoName.LastIndexOf(RepoTenantDelimiter);                
+
+            return new Fork { SourceRepositoryName = repoName.Substring(0, lastIndex), TenantName = repoName.Substring(++lastIndex) };            
         }
     }
 }

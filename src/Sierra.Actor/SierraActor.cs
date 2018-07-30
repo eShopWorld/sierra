@@ -34,10 +34,5 @@
         /// <param name="model">The model of type <see cref="T"/> that we want to remove.</param>
         /// <returns>The <see cref="Task"/> wrapper.</returns>
         public abstract Task Remove(T model);
-
-        internal Dep GetDependentActor<Dep>() where Dep: IActor
-        {
-            return ActorProxy.Create<Dep>(ActorId.CreateRandom());
-        }
     }
 }

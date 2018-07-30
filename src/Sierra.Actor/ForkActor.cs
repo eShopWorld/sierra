@@ -1,6 +1,5 @@
 ﻿namespace Sierra.Actor
 {
-    using System.Linq;
     using System.Threading.Tasks;
     using Interfaces;
     using Microsoft.ServiceFabric.Actors;
@@ -10,13 +9,12 @@
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Common.Events;
     using Eshopworld.Core;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Manages Forks on behalf of tenant operations.
     /// </summary>
     [StatePersistence(StatePersistence.Persisted)]
-    public class ForkActor : Actor, IForkActor
+    public class ForkActor : SierraActor<Fork>, IForkActor
     {
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
@@ -38,7 +36,7 @@
         }
 
         /// <inheridoc/>
-        public async Task Add(Fork fork)
+        public override async Task Add(Fork fork)
         {
             var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork);
 
@@ -53,25 +51,13 @@
         }
 
         /// <inheridoc/>
-        public async Task Remove(string fork)
+        public override async Task Remove(Fork fork)
         {           
-            var forkRemoved = await _gitClient.DeleteForkIfExists(fork);
+            var forkRemoved = await _gitClient.DeleteForkIfExists(fork.ToString());
 
             if (forkRemoved)
-                _bigBrother.Publish(new ForkDeleted { ForkName = fork });
+                _bigBrother.Publish(new ForkDeleted { ForkName = fork.ToString() });
             
-        }
-
-        /// <inheridoc/>
-        public async Task<List<string>> QueryTenantRepos(string tenantName)
-        {
-            if (string.IsNullOrWhiteSpace(tenantName))
-                return null;
-
-            return
-                (await _gitClient.GetRepositoriesAsync())
-                .Where(r => r.IsFork && r.Name.EndsWith(tenantName))
-                .Select(t => t.Name).ToList();            
-        }
+        }       
     }
 }
