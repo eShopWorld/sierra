@@ -14,7 +14,7 @@
     /// Manages Forks on behalf of tenant operations.
     /// </summary>
     [StatePersistence(StatePersistence.Persisted)]
-    public class ForkActor : Actor, IForkActor
+    public class ForkActor : SierraActor<Fork>, IForkActor
     {
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
@@ -35,14 +35,10 @@
             _bigBrother = bb;
         }
 
-        /// <summary>
-        /// Forks a source repository in VSTS.
-        /// </summary>
-        /// <param name="fork">The Fork payload containing all necessary information.</param>
-        /// <returns>The async <see cref="Task"/> wrapper.</returns>
-        public async Task AddFork(Fork fork)
+        /// <inheridoc/>
+        public override async Task Add(Fork fork)
         {
-            var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork.SourceRepositoryName, fork.ForkSuffix);
+            var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork);
 
             if (!repo.IsFork)
                 _bigBrother.Publish(new ForkRequestFailed
@@ -54,18 +50,14 @@
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
         }
 
-        /// <summary>
-        /// remove an existing repo (if exists)
-        /// </summary>
-        /// <param name="forkName">name of the repo to remove</param>
-        /// <returns>task instance</returns>
-        public async Task RemoveFork(string forkName)
+        /// <inheridoc/>
+        public override async Task Remove(Fork fork)
         {           
-            var forkRemoved = await _gitClient.DeleteForkIfExists(forkName);
+            var forkRemoved = await _gitClient.DeleteForkIfExists(fork.ToString());
 
             if (forkRemoved)
-                _bigBrother.Publish(new ForkDeleted { ForkName = forkName });
+                _bigBrother.Publish(new ForkDeleted { ForkName = fork.ToString() });
             
-        }
+        }       
     }
 }

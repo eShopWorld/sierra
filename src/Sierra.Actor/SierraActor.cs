@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     /// <summary>

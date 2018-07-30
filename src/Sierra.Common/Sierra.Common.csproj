@@ -9,14 +9,19 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
-    <PackageReference Include="Eshopworld.Telemetry" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Azure.KeyVault" Version="2.3.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.0" />
-    <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="15.134.0-preview" />
+    <PackageReference Include="Eshopworld.Telemetry" Version="1.0.1" />
+    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.1" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.2.162" />
+    <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="16.137.0-preview" />
 
     <!-- Force bump to contain NS2.0 targets - Remove when not needed anymore -->
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sierra.Model\Sierra.Model.csproj" />
   </ItemGroup>
 
 </Project>

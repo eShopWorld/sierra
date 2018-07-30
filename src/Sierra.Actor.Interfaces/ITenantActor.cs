@@ -22,12 +22,5 @@
         /// <param name="tenant"></param>
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
         Task Remove(Tenant tenant);
-
-        /// <summary>
-        /// Changes a tenant in the platform.
-        /// </summary>
-        /// <param name="tenant"></param>
-        /// <returns>The async <see cref="Task"/> wrapper.</returns>
-        Task Edit(Tenant tenant);
     }
 }

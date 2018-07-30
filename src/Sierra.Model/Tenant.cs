@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Model
 {
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
 
@@ -13,5 +14,8 @@
         [DataMember]
         [Required, MaxLength(100)]
         public string Name { get; set; }
+
+        [DataMember]
+        public IEnumerable<string> CustomSourceRepos { get; set; }
     }
 }
