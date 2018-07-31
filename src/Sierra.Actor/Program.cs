@@ -7,6 +7,9 @@
     using Autofac.Integration.ServiceFabric;
     using Common.DependencyInjection;
     using Eshopworld.Telemetry;
+    using Microsoft.Extensions.Configuration;
+    using Sierra.Model;
+    using Microsoft.EntityFrameworkCore;
 
     internal static class Program
     {
@@ -26,6 +29,13 @@
                 builder.RegisterActor<TenantActor>();
                 builder.RegisterActor<LockerActor>();
                 builder.RegisterActor<ForkActor>();
+
+                builder.Register(c => 
+                {
+                    var ctx = new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] };
+                    ctx.Database.Migrate(); //can also be used as fail-safe option if not running migrations within CD pipeline
+                    return ctx;
+                });
 
                 using (builder.Build())
                 {

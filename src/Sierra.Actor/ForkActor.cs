@@ -19,6 +19,7 @@
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
         private readonly IBigBrother _bigBrother;
+        private readonly SierraDbContext _dbCtx;
 
         /// <summary>
         /// Initializes a new instance of <see cref="ForkActor"/>.
@@ -27,12 +28,13 @@
         /// <param name="actorId">The Actor ID.</param>
         /// <param name="gitClient">The <see cref="GitHttpClient"/> to use on repo operations.</param>
         /// <param name="vstsConfiguration">The VSTS configuration payload.</param>
-        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration, IBigBrother bb)
+        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration, IBigBrother bb, SierraDbContext sierraDbCtx)
             : base(actorService, actorId)
         {
             _gitClient = gitClient;
             _vstsConfiguration = vstsConfiguration;
             _bigBrother = bb;
+            _dbCtx = sierraDbCtx;
         }
 
         /// <inheridoc/>
