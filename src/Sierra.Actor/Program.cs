@@ -30,15 +30,12 @@
                 builder.RegisterActor<LockerActor>();
                 builder.RegisterActor<ForkActor>();
 
-                builder.Register(c => 
-                {
-                    var ctx = new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] };
-                    ctx.Database.Migrate(); //can also be used as fail-safe option if not running migrations within CD pipeline
-                    return ctx;
-                });
+                builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });              
 
-                using (builder.Build())
+                using (var container = builder.Build())
                 {
+                    var dbCtx = container.Resolve<SierraDbContext>();
+                    dbCtx.Database.Migrate();
                     await Task.Delay(Timeout.Infinite);
                 }
             }
