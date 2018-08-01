@@ -40,7 +40,7 @@
         /// using naming structure
         /// </summary>
         /// <param name="repoName">repository name</param>
-        /// <returns></returns>
+        /// <returns>parsed out fork instance</returns>
         public static Fork Parse(string repoName)
         {
             if (string.IsNullOrWhiteSpace(repoName) || !repoName.Contains(RepoTenantDelimiter) || repoName.EndsWith(RepoTenantDelimiter))

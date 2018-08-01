@@ -7,6 +7,9 @@
     using Autofac.Integration.ServiceFabric;
     using Common.DependencyInjection;
     using Eshopworld.Telemetry;
+    using Microsoft.Extensions.Configuration;
+    using Sierra.Model;
+    using Microsoft.EntityFrameworkCore;
 
     internal static class Program
     {
@@ -27,8 +30,12 @@
                 builder.RegisterActor<LockerActor>();
                 builder.RegisterActor<ForkActor>();
 
-                using (builder.Build())
+                builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });              
+
+                using (var container = builder.Build())
                 {
+                    var dbCtx = container.Resolve<SierraDbContext>();
+                    dbCtx.Database.Migrate();
                     await Task.Delay(Timeout.Infinite);
                 }
             }

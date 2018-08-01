@@ -50,14 +50,14 @@
             // #7 Map the tenant KeyVault for all test environments and prod
         }
 
-        private async Task ProcessForks(string tenantName, IEnumerable<string> customSourceRepos)
+        private async Task ProcessForks(string tenantName, IEnumerable<Fork> customSourceRepos)
         {
             var forkActor = ActorProxy.Create<IForkActor>(ActorId.CreateRandom());
 
             var existingTenantRepos = new List<Fork>(); //TODO: plug into the state when available
             
             //create repos with tenant name as suffix
-            var customForkList = customSourceRepos.Select(r => new Fork { SourceRepositoryName = r, TenantName = tenantName });
+            var customForkList = customSourceRepos.Select(r => new Fork { SourceRepositoryName = r.SourceRepositoryName, TenantName = tenantName });
             await Task.WhenAll(customForkList.Select(r => forkActor.Add(r)));
             //delete orphaned forks
             var orphanedList = existingTenantRepos.Except(customForkList);
