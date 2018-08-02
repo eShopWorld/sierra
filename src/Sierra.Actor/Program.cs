@@ -10,6 +10,7 @@
     using Microsoft.Extensions.Configuration;
     using Sierra.Model;
     using Microsoft.EntityFrameworkCore;
+    using Eshopworld.Core;
 
     internal static class Program
     {
@@ -34,8 +35,16 @@
 
                 using (var container = builder.Build())
                 {
-                    var dbCtx = container.Resolve<SierraDbContext>();
-                    dbCtx.Database.Migrate();
+                    try
+                    {
+                        var dbCtx = container.Resolve<SierraDbContext>();
+                        dbCtx.Database.Migrate();
+                    }
+                    catch (Exception e)
+                    {
+                        container.Resolve<IBigBrother>().Publish(e.ToBbEvent());
+                    }                   
+                   
                     await Task.Delay(Timeout.Infinite);
                 }
             }
