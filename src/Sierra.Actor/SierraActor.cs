@@ -34,5 +34,10 @@
         /// <param name="model">The model of type <see cref="T"/> that we want to remove.</param>
         /// <returns>The <see cref="Task"/> wrapper.</returns>
         public abstract Task Remove(T model);
+
+        protected DepT GetActor<DepT>(string actorId) where DepT:IActor
+        {
+            return ActorProxy.Create<DepT>(new ActorId(actorId));
+        }
     }
 }

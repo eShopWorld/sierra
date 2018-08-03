@@ -9,6 +9,7 @@
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Common.Events;
     using Eshopworld.Core;
+    using System.Linq;
 
     /// <summary>
     /// Manages Forks on behalf of tenant operations.
@@ -19,7 +20,7 @@
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
         private readonly IBigBrother _bigBrother;
-        private readonly SierraDbContext _dbCtx;
+        private readonly SierraDbContext _dbContext;
 
         /// <summary>
         /// Initializes a new instance of <see cref="ForkActor"/>.
@@ -34,7 +35,7 @@
             _gitClient = gitClient;
             _vstsConfiguration = vstsConfiguration;
             _bigBrother = bb;
-            _dbCtx = sierraDbCtx;
+            _dbContext = sierraDbCtx;
         }
 
         /// <inheridoc/>
@@ -48,8 +49,16 @@
                     ForkName = repo.Name,
                     Message = $"Repository already exists but is not a fork"
                 });
-            else         
+            else
+            {
+                if ((await _dbContext.Forks.FindAsync(repo.Id))==null)
+                {
+                    fork.ForkVstsId = repo.Id;
+                    _dbContext.AttachSingular(fork);
+                    await _dbContext.SaveChangesAsync();
+                }
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
+            }
         }
 
         /// <inheridoc/>
@@ -58,7 +67,17 @@
             var forkRemoved = await _gitClient.DeleteForkIfExists(fork.ToString());
 
             if (forkRemoved)
+            {
+                var dbFork = _dbContext.Forks.First(f => f.SourceRepositoryName == fork.SourceRepositoryName && f.TenantName == fork.TenantName);
+
+                if (dbFork!=null)
+                {
+                    _dbContext.Forks.Remove(dbFork);
+                    await _dbContext.SaveChangesAsync();
+
+                }
                 _bigBrother.Publish(new ForkDeleted { ForkName = fork.ToString() });
+            }
             
         }       
     }

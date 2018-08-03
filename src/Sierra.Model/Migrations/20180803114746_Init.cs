@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Sierra.Model.Migrations
 {
@@ -7,7 +8,7 @@ namespace Sierra.Model.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Tenant",
+                name: "Tenants",
                 columns: table => new
                 {
                     Id = table.Column<string>(maxLength: 6, nullable: false),
@@ -15,41 +16,42 @@ namespace Sierra.Model.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tenant", x => x.Id);
+                    table.PrimaryKey("PK_Tenants", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Fork",
+                name: "Forks",
                 columns: table => new
                 {
+                    ForkVstsId = table.Column<Guid>(nullable: false),
                     SourceRepositoryName = table.Column<string>(nullable: false),
                     TenantName = table.Column<string>(nullable: false),
                     TenantId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Fork", x => new { x.SourceRepositoryName, x.TenantName });
+                    table.PrimaryKey("PK_Forks", x => x.ForkVstsId);
                     table.ForeignKey(
-                        name: "FK_Fork_Tenant_TenantId",
+                        name: "FK_Forks_Tenants_TenantId",
                         column: x => x.TenantId,
-                        principalTable: "Tenant",
+                        principalTable: "Tenants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Fork_TenantId",
-                table: "Fork",
+                name: "IX_Forks_TenantId",
+                table: "Forks",
                 column: "TenantId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Fork");
+                name: "Forks");
 
             migrationBuilder.DropTable(
-                name: "Tenant");
+                name: "Tenants");
         }
     }
 }

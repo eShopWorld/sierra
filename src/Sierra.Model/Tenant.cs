@@ -16,6 +16,6 @@
         public string Name { get; set; }
 
         [DataMember]
-        public IEnumerable<Fork> CustomSourceRepos { get; set; }
+        public List<Fork> CustomSourceRepos { get; set; }
     }
 }
