@@ -77,7 +77,7 @@
         public async Task Delete(string id)
         {
             var actor = GetActorRef<ITenantActor>("TenantActorService");
-            await actor.Remove(new Tenant { Id = id });
+            await actor.Remove(new Tenant { Code = id });
         }
     }
 }

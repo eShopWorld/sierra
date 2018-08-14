@@ -44,19 +44,19 @@
             var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork);
 
             if (!repo.IsFork)
+            {
                 _bigBrother.Publish(new ForkRequestFailed
                 {
                     ForkName = repo.Name,
                     Message = $"Repository already exists but is not a fork"
                 });
+            }
             else
             {
-                if ((await _dbContext.Forks.FindAsync(repo.Id))==null)
-                {
-                    fork.ForkVstsId = repo.Id;
-                    _dbContext.AttachSingular(fork);
-                    await _dbContext.SaveChangesAsync();
-                }
+                _dbContext.Attach(fork);
+                fork.UpdateWithVstsRepo(repo.Id);
+                await _dbContext.SaveChangesAsync();
+
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
             }
         }
@@ -66,16 +66,15 @@
         {           
             var forkRemoved = await _gitClient.DeleteForkIfExists(fork.ToString());
 
+            Fork dbFork = null;
+            if ((dbFork = _dbContext.Forks.FirstOrDefault(f => f.SourceRepositoryName == fork.SourceRepositoryName && f.TenantCode==fork.TenantCode))!=null)
+            {
+                _dbContext.Remove(dbFork);
+                await _dbContext.SaveChangesAsync();
+            }            
+
             if (forkRemoved)
             {
-                var dbFork = _dbContext.Forks.First(f => f.SourceRepositoryName == fork.SourceRepositoryName && f.TenantName == fork.TenantName);
-
-                if (dbFork!=null)
-                {
-                    _dbContext.Forks.Remove(dbFork);
-                    await _dbContext.SaveChangesAsync();
-
-                }
                 _bigBrother.Publish(new ForkDeleted { ForkName = fork.ToString() });
             }
             

@@ -1,6 +1,7 @@
 ﻿namespace Sierra.Model
 {
     using Microsoft.EntityFrameworkCore;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// EF.Core Db Context implementation for Sierra State Management
@@ -20,7 +21,8 @@
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>();
-            modelBuilder.Entity<Fork>();
+            modelBuilder.Entity<Fork>()
+                .HasKey(t => new { t.SourceRepositoryName, t.TenantCode });
         }    
     
         public void AttachSingular(object entity) 
@@ -32,6 +34,13 @@
                 else
                     node.Entry.State = EntityState.Added;
             });
+        }
+
+        public  async Task<Tenant> LoadCompleteTenant(string tenantCode)
+        {
+            return await Tenants
+                .Include(t=>t.CustomSourceRepos)
+                .FirstOrDefaultAsync(t => t.Code == tenantCode);
         }
     }
 }

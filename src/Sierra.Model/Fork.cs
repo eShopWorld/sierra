@@ -3,7 +3,6 @@
     using Newtonsoft.Json;
     using System;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
     using System.Runtime.Serialization;
 
     /// <summary>
@@ -12,11 +11,26 @@
     [DataContract]
     public class Fork
     {
+        public Fork()
+        {
+
+        }
+
+        public Fork(string sourceRepoName, string tenantCode)
+        {
+            SourceRepositoryName = sourceRepoName;
+            TenantCode = tenantCode;
+            State = NotCreatedState;
+        }
+
         private const string RepoTenantDelimiter = "-";
+
+        internal const string NotCreatedState = "NotCreated";
+        internal const string CreatedState = "Created";
+        internal const string ToBeDeletedState = "ToBeDeleted";
 
         [DataMember]
         [JsonIgnore]
-        [Key]
         public Guid ForkVstsId { get; set; }
 
         /// <summary>
@@ -30,12 +44,14 @@
         /// suffix to apply upon the original repo name for forking
         /// </summary>
         [DataMember]
-        [Required, MinLength(2)]
-        public string TenantName { get; set; }
+        [Required, MaxLength(6)]
+        [JsonIgnore]       
+        public string TenantCode { get; set; }
 
         [DataMember]
-        [JsonIgnore]       
-        public string TenantId { get; set; }
+        [JsonIgnore]
+        [Required, MaxLength(20)]
+        public string State { get; set; }
 
         /// <summary>
         /// encapsulate fork naming strategy
@@ -43,8 +59,8 @@
         /// <returns>desired fork name</returns>
         public override string ToString()
         {
-            return $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantName}";
-        }
+            return $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantCode}";
+        }       
 
         /// <summary>
         /// parses out fork object out of fork repo name
@@ -60,7 +76,7 @@
 
             var lastIndex = repoName.LastIndexOf(RepoTenantDelimiter);                
 
-            return new Fork { SourceRepositoryName = repoName.Substring(0, lastIndex), TenantName = repoName.Substring(++lastIndex) };            
+            return new Fork (repoName.Substring(0, lastIndex), repoName.Substring(++lastIndex));            
         }
 
         /// <summary>
@@ -74,7 +90,7 @@
                 return false;
 
             var objFork = (Fork)obj;
-            return String.Equals(objFork.ToString(), this.ToString(), StringComparison.OrdinalIgnoreCase);
+            return String.Equals(objFork.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
         }
         
         /// <summary>
@@ -84,6 +100,19 @@
         public override int GetHashCode()
         {
             return ToString().GetHashCode();
+        }
+
+        /// <summary>
+        /// link vsts repo guid to this model instance
+        /// </summary>
+        /// <param name="vstsRepo">vsts repository guid</param>
+        public void UpdateWithVstsRepo(Guid vstsRepo)
+        {
+            if (vstsRepo!=Guid.Empty)
+            {
+                ForkVstsId = vstsRepo;
+                State = CreatedState;
+            }
         }
     }
 }

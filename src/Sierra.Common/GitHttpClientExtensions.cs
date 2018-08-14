@@ -51,7 +51,7 @@
         /// <param name="fork">fork definition</param>
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
         internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, Fork fork)
-        {
+        {            
             var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == fork.SourceRepositoryName);
 
             if (sourceRepo == null)
@@ -67,12 +67,12 @@
         /// </summary>
         /// <param name="fork">fork definition</param>
         /// <returns>fork deletion result</returns>
-        internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string fork )
+        internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
         {
-            if (string.IsNullOrWhiteSpace(fork))
+            if (string.IsNullOrWhiteSpace(forkName))
                 return false;
          
-            var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == fork);
+            var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == forkName);
 
             if (repo == null)
                 return false;

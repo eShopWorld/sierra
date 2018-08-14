@@ -10,7 +10,7 @@ using Sierra.Model;
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    [Migration("20180803114746_Init")]
+    [Migration("20180814155634_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,27 +23,27 @@ namespace Sierra.Model.Migrations
 
             modelBuilder.Entity("Sierra.Model.Fork", b =>
                 {
-                    b.Property<Guid>("ForkVstsId")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("SourceRepositoryName");
 
-                    b.Property<string>("SourceRepositoryName")
-                        .IsRequired();
+                    b.Property<string>("TenantCode")
+                        .HasMaxLength(6);
 
-                    b.Property<string>("TenantId");
+                    b.Property<Guid>("ForkVstsId");
 
-                    b.Property<string>("TenantName")
-                        .IsRequired();
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(20);
 
-                    b.HasKey("ForkVstsId");
+                    b.HasKey("SourceRepositoryName", "TenantCode");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantCode");
 
                     b.ToTable("Forks");
                 });
 
             modelBuilder.Entity("Sierra.Model.Tenant", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("Code")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(6);
 
@@ -51,7 +51,7 @@ namespace Sierra.Model.Migrations
                         .IsRequired()
                         .HasMaxLength(100);
 
-                    b.HasKey("Id");
+                    b.HasKey("Code");
 
                     b.ToTable("Tenants");
                 });
@@ -60,7 +60,8 @@ namespace Sierra.Model.Migrations
                 {
                     b.HasOne("Sierra.Model.Tenant")
                         .WithMany("CustomSourceRepos")
-                        .HasForeignKey("TenantId");
+                        .HasForeignKey("TenantCode")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

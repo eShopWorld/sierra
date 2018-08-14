@@ -11,12 +11,12 @@ namespace Sierra.Model.Migrations
                 name: "Tenants",
                 columns: table => new
                 {
-                    Id = table.Column<string>(maxLength: 6, nullable: false),
+                    Code = table.Column<string>(maxLength: 6, nullable: false),
                     Name = table.Column<string>(maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tenants", x => x.Id);
+                    table.PrimaryKey("PK_Tenants", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -25,24 +25,24 @@ namespace Sierra.Model.Migrations
                 {
                     ForkVstsId = table.Column<Guid>(nullable: false),
                     SourceRepositoryName = table.Column<string>(nullable: false),
-                    TenantName = table.Column<string>(nullable: false),
-                    TenantId = table.Column<string>(nullable: true)
+                    TenantCode = table.Column<string>(maxLength: 6, nullable: false),
+                    State = table.Column<string>(maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Forks", x => x.ForkVstsId);
+                    table.PrimaryKey("PK_Forks", x => new { x.SourceRepositoryName, x.TenantCode });
                     table.ForeignKey(
-                        name: "FK_Forks_Tenants_TenantId",
-                        column: x => x.TenantId,
+                        name: "FK_Forks_Tenants_TenantCode",
+                        column: x => x.TenantCode,
                         principalTable: "Tenants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Forks_TenantId",
+                name: "IX_Forks_TenantCode",
                 table: "Forks",
-                column: "TenantId");
+                column: "TenantCode");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
