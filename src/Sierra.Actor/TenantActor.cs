@@ -80,13 +80,8 @@
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public override async Task Remove(Tenant tenant)
         {
-            //load tenant state
             tenant = await _dbContext.LoadCompleteTenant(tenant.Code);
-
             await RemoveForks(tenant.CustomSourceRepos);
-
-            //update state
-            //_dbContext.Entry(tenant).Collection(t => t.CustomSourceRepos).EntityEntry.State = EntityState.Detached;
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();
         }
