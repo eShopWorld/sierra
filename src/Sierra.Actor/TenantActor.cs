@@ -81,6 +81,9 @@
         public override async Task Remove(Tenant tenant)
         {
             tenant = await _dbContext.LoadCompleteTenant(tenant.Code);
+            if (tenant == null)
+                return;
+
             await RemoveForks(tenant.CustomSourceRepos);
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();
