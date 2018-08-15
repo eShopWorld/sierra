@@ -24,17 +24,6 @@
             modelBuilder.Entity<Fork>()
                 .HasKey(t => new { t.SourceRepositoryName, t.TenantCode });
         }    
-    
-        public void AttachSingular(object entity) 
-        {
-            ChangeTracker.TrackGraph(entity, (node) =>
-            {                
-                if (node.Entry.Entity != entity)
-                    node.Entry.State = EntityState.Detached;
-                else
-                    node.Entry.State = EntityState.Added;
-            });
-        }
 
         public  async Task<Tenant> LoadCompleteTenant(string tenantCode)
         {
