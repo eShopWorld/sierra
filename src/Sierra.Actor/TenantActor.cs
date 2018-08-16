@@ -42,7 +42,7 @@
                 return;
 
             Tenant dbTenant = null;
-            if ((dbTenant = await _dbContext.LoadCompleteTenant(tenant.Code)) == null) //new tenant
+            if ((dbTenant = await _dbContext.LoadCompleteTenantAsync(tenant.Code)) == null) //new tenant
             {
                 dbTenant = new Tenant(tenant.Code);
                 _dbContext.Tenants.Add(dbTenant);
@@ -80,7 +80,7 @@
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public override async Task Remove(Tenant tenant)
         {
-            tenant = await _dbContext.LoadCompleteTenant(tenant.Code);
+            tenant = await _dbContext.LoadCompleteTenantAsync(tenant.Code);
             if (tenant == null)
                 return;
 

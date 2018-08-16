@@ -25,7 +25,12 @@
                 .HasKey(t => new { t.SourceRepositoryName, t.TenantCode });
         }    
 
-        public  async Task<Tenant> LoadCompleteTenant(string tenantCode)
+        /// <summary>
+        /// loads complete tenant based on the tenant code with all dependent models
+        /// </summary>
+        /// <param name="tenantCode">tenant code</param>
+        /// <returns>tenant structure</returns>
+        public  async Task<Tenant> LoadCompleteTenantAsync(string tenantCode)
         {
             return await Tenants
                 .Include(t=>t.CustomSourceRepos)

@@ -3,6 +3,8 @@
     using System;
     using Autofac;
     using Common.DependencyInjection;
+    using Microsoft.Extensions.Configuration;
+    using Sierra.Model;
     using Xunit;
 
     public class ActorContainerFixture : IDisposable
@@ -14,6 +16,7 @@
             var builder = new ContainerBuilder();
             builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });
             builder.RegisterModule(new VstsModule());
+            builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });
 
             Container = builder.Build();
         }
