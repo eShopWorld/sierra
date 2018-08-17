@@ -26,7 +26,7 @@ namespace Sierra.Model.Migrations
                     ForkVstsId = table.Column<Guid>(nullable: false),
                     SourceRepositoryName = table.Column<string>(nullable: false),
                     TenantCode = table.Column<string>(maxLength: 6, nullable: false),
-                    State = table.Column<string>(maxLength: 20, nullable: false)
+                    State = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

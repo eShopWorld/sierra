@@ -28,9 +28,7 @@ namespace Sierra.Model.Migrations
 
                     b.Property<Guid>("ForkVstsId");
 
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasMaxLength(20);
+                    b.Property<int>("State");
 
                     b.HasKey("SourceRepositoryName", "TenantCode");
 

@@ -10,7 +10,7 @@ using Sierra.Model;
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    [Migration("20180814155634_Init")]
+    [Migration("20180817142946_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,9 +30,7 @@ namespace Sierra.Model.Migrations
 
                     b.Property<Guid>("ForkVstsId");
 
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasMaxLength(20);
+                    b.Property<int>("State");
 
                     b.HasKey("SourceRepositoryName", "TenantCode");
 
