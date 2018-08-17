@@ -54,13 +54,13 @@
 
             //forks to add = new forks + those in "not created" state (remember idenmpotency)
             ForksToAdd = newStateForks.Except(CustomSourceRepos, _forkEqComparer).ToList();
-            var forksNotCreated= CustomSourceRepos.Where(r => r.State == Fork.NotCreatedState).ToList();
+            var forksNotCreated= CustomSourceRepos.Where(r => r.State == ForkState.NotCreated).ToList();
 
             //forks to delete = forks not referred in target state + those in "to be deleted" state
-            var forksToBeDeleted = CustomSourceRepos.Where(r => r.State == Fork.ToBeDeletedState).ToList();
+            var forksToBeDeleted = CustomSourceRepos.Where(r => r.State == ForkState.ToBeDeleted).ToList();
             ForksToRemove = CustomSourceRepos.Except(newStateForks, _forkEqComparer).ToList();
             //mark them for deletion in DB
-            ForksToRemove.ForEach(f => f.State = Fork.ToBeDeletedState);
+            ForksToRemove.ForEach(f => f.State = ForkState.ToBeDeleted);
 
             Name = newState.Name;
             CustomSourceRepos.AddRange(ForksToAdd);
