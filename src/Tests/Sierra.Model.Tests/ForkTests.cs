@@ -12,7 +12,7 @@ namespace Sierra.Model.Tests
         {
             var fork = Fork.Parse("Repo-Tenant");
             fork.SourceRepositoryName.Should().Be("Repo");
-            fork.TenantName.Should().Be("Tenant");
+            fork.TenantCode.Should().Be("Tenant");
         }
 
         [Fact, IsUnit]
@@ -20,7 +20,7 @@ namespace Sierra.Model.Tests
         {
             var fork = Fork.Parse("Repo-Middle-Tenant");
             fork.SourceRepositoryName.Should().Be("Repo-Middle");
-            fork.TenantName.Should().Be("Tenant");
+            fork.TenantCode.Should().Be("Tenant");
         }
 
         [Theory, IsUnit]

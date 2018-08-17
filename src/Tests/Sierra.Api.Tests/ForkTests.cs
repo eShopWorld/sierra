@@ -23,11 +23,14 @@ public class ForkTests
 
     public readonly TestConfig Config = new TestConfig();
 
+    public readonly string ForksControllerUrl;
+
     public ForkTests(ActorContainerFixture containerFixture)
     {
         ContainerFixture = containerFixture;
         var config = EswDevOpsSdk.BuildConfiguration(true);
         config.GetSection("TestConfig").Bind(Config);
+        ForksControllerUrl = Config.ApiUrl + "forks";
     }
 
     [Fact, IsLayer2]
@@ -42,10 +45,10 @@ public class ForkTests
 
         //issue fork request
         var respo = await client.PostAsync(
-            Config.ApiUrl,
+            ForksControllerUrl,
             new StringContent($"{{\"sourceRepositoryName\": \"ForkIntTestSourceRepo\",\"forkSuffix\": \"{suffix}\"}}", Encoding.UTF8, "application/json"));
 
-        respo.StatusCode.Should().Be(HttpStatusCode.OK);
+        respo.EnsureSuccessStatusCode();
 
         //idempotency check
         respo = await client.PostAsync(
@@ -83,7 +86,7 @@ public class ForkTests
             //fork
             repo = await gitClient.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, repo, suffix);
             //issue request for delete
-            var resp = await client.DeleteAsync(Uri.EscapeUriString(Config.ApiUrl+"/"+repo.Name));
+            var resp = await client.DeleteAsync(Uri.EscapeUriString($"{ForksControllerUrl}/{repo.Name}"));
 
             (await gitClient.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == repo.Name).Should().BeNull();
         }
@@ -98,17 +101,4 @@ public class ForkTests
         var tokenResponse = await client.RequestClientCredentialsAsync(Config.STSScope);
         return tokenResponse.AccessToken;
     }
-}
-
-public class TestConfig
-{
-    public string ApiUrl { get; set; }
-
-    public string STSAuthority { get; set; }
-
-    public string STSClientId { get; set; }
-
-    public string STSClientSecret { get; set; }
-
-    public string STSScope { get; set; }
 }

@@ -74,8 +74,10 @@
         /// </summary>
         /// <param name="id">The ID of the tenant that we want to remove.</param>
         [HttpDelete("{id}")]
-        public void Delete(string id)
+        public async Task Delete(string id)
         {
+            var actor = GetActorRef<ITenantActor>("TenantActorService");
+            await actor.Remove(new Tenant { Code = id });
         }
     }
 }
