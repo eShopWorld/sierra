@@ -14,7 +14,7 @@ namespace Sierra.Model.Tests
             {
                 Code = "TenantA",
                 Name = "oldName",
-                CustomSourceRepos = new List<Fork>(new [] { new Fork { SourceRepositoryName="AlreadyThere", State=Fork.CreatedState, TenantCode="TenantA"} })
+                CustomSourceRepos = new List<Fork>(new [] { new Fork { SourceRepositoryName="AlreadyThere", State=ForkState.Created, TenantCode="TenantA"} })
             };
 
             var tenantRequest = new Tenant
@@ -29,8 +29,8 @@ namespace Sierra.Model.Tests
             currentTenant.ForksToAdd.Should().ContainSingle(f => f.SourceRepositoryName == "A" && f.TenantCode == "TenantA");
          
             currentTenant.CustomSourceRepos.Count.Should().Be(2);
-            currentTenant.CustomSourceRepos.Should().Contain(f => f.SourceRepositoryName == "AlreadyThere" && f.State == Fork.CreatedState && f.TenantCode == "TenantA");
-            currentTenant.CustomSourceRepos.Should().Contain(f => f.SourceRepositoryName == "A" && f.State == Fork.NotCreatedState && f.TenantCode == "TenantA");
+            currentTenant.CustomSourceRepos.Should().Contain(f => f.SourceRepositoryName == "AlreadyThere" && f.State == ForkState.Created && f.TenantCode == "TenantA");
+            currentTenant.CustomSourceRepos.Should().Contain(f => f.SourceRepositoryName == "A" && f.State == ForkState.NotCreated && f.TenantCode == "TenantA");
         }
 
         [Fact, IsUnit]
@@ -52,7 +52,7 @@ namespace Sierra.Model.Tests
 
             currentTenant.ForksToAdd.Should().ContainSingle(f => f.SourceRepositoryName == "RepoB" && f.TenantCode == "TenantA");
   
-            currentTenant.CustomSourceRepos.Should().ContainSingle(f => f.SourceRepositoryName == "RepoB" && f.TenantCode == "TenantA" && f.State==Fork.NotCreatedState);            
+            currentTenant.CustomSourceRepos.Should().ContainSingle(f => f.SourceRepositoryName == "RepoB" && f.TenantCode == "TenantA" && f.State==ForkState.NotCreated);            
         }
 
         [Fact, IsUnit]
@@ -64,8 +64,8 @@ namespace Sierra.Model.Tests
                 Name = "oldName",
                 CustomSourceRepos = new List<Fork>(new[] 
                 {
-                    new Fork { State = Fork.CreatedState, SourceRepositoryName = "RepoA", TenantCode="TenantA" },
-                    new Fork { State = Fork.CreatedState, SourceRepositoryName = "RepoB", TenantCode="TenantA" }
+                    new Fork { State = ForkState.Created, SourceRepositoryName = "RepoA", TenantCode="TenantA" },
+                    new Fork { State = ForkState.Created, SourceRepositoryName = "RepoB", TenantCode="TenantA" }
                 })
             };
 
