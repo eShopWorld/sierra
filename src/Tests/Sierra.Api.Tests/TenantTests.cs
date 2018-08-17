@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
+using IdentityModel.Client;
 
 namespace Sierra.Api.Tests
 {
@@ -41,6 +42,10 @@ namespace Sierra.Api.Tests
             };
 
             HttpClient client = new HttpClient();
+            //obtain access token
+            var stsAccessToken = await ObtainSTSAccessToken();
+            client.SetBearerToken(stsAccessToken);
+
             var resp = await client.PostAsJsonAsync(TenantsControllerUrl, newTenant);
             resp.EnsureSuccessStatusCode();
             using (var dbContext = ContainerFixture.Container.Resolve<SierraDbContext>())
@@ -49,6 +54,17 @@ namespace Sierra.Api.Tests
                 tenantRecord.Should().NotBeNull();
                 tenantRecord.CustomSourceRepos.Should().ContainSingle(f => f.SourceRepositoryName == "ForkIntTestSourceRepo" && f.State == ForkState.Created && f.TenantCode == "ABCDEF");
             }
+        }
+
+
+        // ReSharper disable once InconsistentNaming
+        private async Task<string> ObtainSTSAccessToken()
+        {
+            var discovery = await DiscoveryClient.GetAsync(Config.STSAuthority);
+            var client = new TokenClient(discovery.TokenEndpoint, Config.STSClientId, Config.STSClientSecret);
+
+            var tokenResponse = await client.RequestClientCredentialsAsync(Config.STSScope);
+            return tokenResponse.AccessToken;
         }
     }
 }
