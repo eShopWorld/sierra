@@ -71,13 +71,12 @@
             {
                 _dbContext.Remove(dbFork);
                 await _dbContext.SaveChangesAsync();
-            }            
+            }
 
             if (forkRemoved)
             {
                 _bigBrother.Publish(new ForkDeleted { ForkName = fork.ToString() });
             }
-            
-        }       
+        }
     }
 }

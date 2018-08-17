@@ -2,6 +2,7 @@
 {
     using Newtonsoft.Json;
     using System;
+    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
 
@@ -11,23 +12,18 @@
     [DataContract]
     public class Fork
     {
+        private const string RepoTenantDelimiter = "-";
+
         public Fork()
         {
-
         }
 
         public Fork(string sourceRepoName, string tenantCode)
         {
             SourceRepositoryName = sourceRepoName;
             TenantCode = tenantCode;
-            State = NotCreatedState;
+            State = ForkState.NotCreated;
         }
-
-        private const string RepoTenantDelimiter = "-";
-
-        internal const string NotCreatedState = "NotCreated";
-        internal const string CreatedState = "Created";
-        internal const string ToBeDeletedState = "ToBeDeleted";
 
         [DataMember]
         [JsonIgnore]
@@ -45,13 +41,12 @@
         /// </summary>
         [DataMember]
         [Required, MaxLength(6)]
-        [JsonIgnore]       
+        [JsonIgnore]
         public string TenantCode { get; set; }
 
         [DataMember]
         [JsonIgnore]
-        [Required, MaxLength(20)]
-        public string State { get; set; }
+        public ForkState State { get; set; }
 
         /// <summary>
         /// encapsulate fork naming strategy
@@ -60,7 +55,7 @@
         public override string ToString()
         {
             return $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantCode}";
-        }       
+        }
 
         /// <summary>
         /// parses out fork object out of fork repo name
@@ -74,9 +69,9 @@
             if (string.IsNullOrWhiteSpace(repoName) || !repoName.Contains(RepoTenantDelimiter) || repoName.EndsWith(RepoTenantDelimiter))
                 throw new ArgumentException($"Unexpected fork repository name {repoName}");
 
-            var lastIndex = repoName.LastIndexOf(RepoTenantDelimiter);                
+            var lastIndex = repoName.LastIndexOf(RepoTenantDelimiter, StringComparison.Ordinal);
 
-            return new Fork (repoName.Substring(0, lastIndex), repoName.Substring(++lastIndex));            
+            return new Fork(repoName.Substring(0, lastIndex), repoName.Substring(++lastIndex));
         }
 
         /// <summary>
@@ -90,9 +85,9 @@
                 return false;
 
             var objFork = (Fork)obj;
-            return String.Equals(objFork.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
+            return string.Equals(objFork.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
         }
-        
+
         /// <summary>
         /// custom hash code for Fork
         /// </summary>
@@ -108,11 +103,21 @@
         /// <param name="vstsRepo">vsts repository guid</param>
         public void UpdateWithVstsRepo(Guid vstsRepo)
         {
-            if (vstsRepo!=Guid.Empty)
+            if (vstsRepo != Guid.Empty)
             {
                 ForkVstsId = vstsRepo;
-                State = CreatedState;
+                State = ForkState.Created;
             }
         }
+    }
+
+    /// <summary>
+    /// Identifies the internal state that a <see cref="Fork"/> model object is in.
+    /// </summary>
+    public enum ForkState
+    {
+        NotCreated,
+        Created,
+        ToBeDeleted
     }
 }
