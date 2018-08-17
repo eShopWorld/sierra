@@ -53,8 +53,8 @@
             await _dbContext.SaveChangesAsync();
 
             // #1 Fork anything that needs to be forked
-            await Task.WhenAll(tenant.ForksToAdd.Select(r => GetActor<IForkActor>(r.ToString()).Add(r)));
-            await Task.WhenAll(tenant.ForksToRemove.Select(r => GetActor<IForkActor>(r.ToString()).Remove(r)));
+            await Task.WhenAll(dbTenant.ForksToAdd.Select(r => GetActor<IForkActor>(r.ToString()).Add(r)));
+            await Task.WhenAll(dbTenant.ForksToRemove.Select(r => GetActor<IForkActor>(r.ToString()).Remove(r)));
 
             // #2 Create CI builds for each new fork created for the tenant
             // #3 Build the tenant test resources
