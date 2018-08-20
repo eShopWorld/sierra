@@ -53,8 +53,13 @@
             }
             else
             {
-                _dbContext.Attach(fork);
-                fork.UpdateWithVstsRepo(repo.Id);
+                Fork dbFork = null;
+                if ((dbFork = _dbContext.Forks.FirstOrDefault(f => f.SourceRepositoryName == fork.SourceRepositoryName && f.TenantCode == fork.TenantCode)) == null)
+                {
+                    dbFork = fork;
+                    _dbContext.Forks.Add(dbFork);
+                }
+                dbFork.UpdateWithVstsRepo(repo.Id);
                 await _dbContext.SaveChangesAsync();
 
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
 using IdentityModel.Client;
+using System.Linq;
 
 namespace Sierra.Api.Tests
 {
@@ -29,7 +30,7 @@ namespace Sierra.Api.Tests
         }
 
         [Fact, IsLayer2]
-        public async Task Post_NewTenant()
+        public async Task TenantFlow()
         {
             var newTenant = new Tenant
             {
@@ -45,7 +46,7 @@ namespace Sierra.Api.Tests
             //obtain access token
             var stsAccessToken = await ObtainSTSAccessToken();
             client.SetBearerToken(stsAccessToken);
-
+            //add tenant
             var resp = await client.PostAsJsonAsync(TenantsControllerUrl, newTenant);
             resp.EnsureSuccessStatusCode();
             using (var dbContext = ContainerFixture.Container.Resolve<SierraDbContext>())
@@ -54,8 +55,17 @@ namespace Sierra.Api.Tests
                 tenantRecord.Should().NotBeNull();
                 tenantRecord.CustomSourceRepos.Should().ContainSingle(f => f.SourceRepositoryName == "ForkIntTestSourceRepo" && f.State == ForkState.Created && f.TenantCode == "ABCDEF");
             }
-        }
 
+            //remove tenant
+            resp = await client.DeleteAsync(TenantsControllerUrl + "/ABCDEF");
+            resp.EnsureSuccessStatusCode();
+            using (var dbContext = ContainerFixture.Container.Resolve<SierraDbContext>())
+            {
+                var tenantRecord = await dbContext.LoadCompleteTenantAsync("ABCDEF");
+                tenantRecord.Should().BeNull();
+                dbContext.Forks.Where(f => f.TenantCode == "ABCDEF").Should().BeNullOrEmpty();
+            }
+        }
 
         // ReSharper disable once InconsistentNaming
         private async Task<string> ObtainSTSAccessToken()

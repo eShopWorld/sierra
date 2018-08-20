@@ -87,7 +87,7 @@
         {
             await Task.WhenAll(
                 forks.Select(f => GetActor<IForkActor>(f.ToString()).Remove(f)
-                    .ContinueWith(t => _dbContext.Entry(f).State = EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+                    .ContinueWith(t => _dbContext.Entry(f).State = EntityState.Detached, TaskContinuationOptions.NotOnFaulted)));
         }
     }
 }
