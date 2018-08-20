@@ -36,7 +36,7 @@
                     ParentRepository = new GitRepositoryRef
                     {
                         Id = sourceRepo.Id,
-                        ProjectReference = new TeamProjectReference { Id = Guid.Parse(vstsTargetProjectId) },
+                        ProjectReference = new TeamProjectReference { Id = sourceRepo.ProjectReference.Id },
                         Collection = new TeamProjectCollectionReference { Id = Guid.Parse(vstsCollectionId) }
                     }
                 });
