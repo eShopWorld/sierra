@@ -56,7 +56,7 @@
         <UniformInt64Partition PartitionCount="[LockerActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
-    <Service Name="ForkActorService" GeneratedIdRef="80fa9eaa-50b5-462c-b1ed-786b81fc6eb9|Persisted">
+    <Service Name="ForkActorService" GeneratedIdRef="11dae370-2517-4c62-8a69-8628302014dc|Volatile">
       <StatefulService ServiceTypeName="ForkActorServiceType" TargetReplicaSetSize="[ForkActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ForkActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ForkActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>

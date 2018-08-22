@@ -9,18 +9,16 @@
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Common.Events;
     using Eshopworld.Core;
-    using System.Linq;
 
     /// <summary>
     /// Manages Forks on behalf of tenant operations.
     /// </summary>
-    [StatePersistence(StatePersistence.Persisted)]
+    [StatePersistence(StatePersistence.Volatile)]
     public class ForkActor : SierraActor<Fork>, IForkActor
     {
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
         private readonly IBigBrother _bigBrother;
-        private readonly SierraDbContext _dbContext;
 
         /// <summary>
         /// Initializes a new instance of <see cref="ForkActor"/>.
@@ -29,17 +27,16 @@
         /// <param name="actorId">The Actor ID.</param>
         /// <param name="gitClient">The <see cref="GitHttpClient"/> to use on repo operations.</param>
         /// <param name="vstsConfiguration">The VSTS configuration payload.</param>
-        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration, IBigBrother bb, SierraDbContext sierraDbCtx)
+        public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration, IBigBrother bb)
             : base(actorService, actorId)
         {
             _gitClient = gitClient;
             _vstsConfiguration = vstsConfiguration;
-            _bigBrother = bb;
-            _dbContext = sierraDbCtx;
+            _bigBrother = bb;           
         }
 
         /// <inheridoc/>
-        public override async Task Add(Fork fork)
+        public override async Task<Fork> Add(Fork fork)
         {
             var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork);
 
@@ -49,34 +46,23 @@
                 {
                     ForkName = repo.Name,
                     Message = $"Repository already exists but is not a fork"
-                });
+                });                
             }
             else
-            {
-                Fork dbFork = null;
-                if ((dbFork = _dbContext.Forks.FirstOrDefault(f => f.SourceRepositoryName == fork.SourceRepositoryName && f.TenantCode == fork.TenantCode)) == null)
-                {
-                    dbFork = fork;
-                    _dbContext.Forks.Add(dbFork);
-                }
-                dbFork.UpdateWithVstsRepo(repo.Id);
-                await _dbContext.SaveChangesAsync();
+            {               
+                fork.UpdateWithVstsRepo(repo.Id);               
 
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
+                return fork;
             }
+
+            return null;
         }
 
         /// <inheridoc/>
         public override async Task Remove(Fork fork)
         {           
             var forkRemoved = await _gitClient.DeleteForkIfExists(fork.ToString());
-
-            Fork dbFork = null;
-            if ((dbFork = _dbContext.Forks.FirstOrDefault(f => f.SourceRepositoryName == fork.SourceRepositoryName && f.TenantCode==fork.TenantCode))!=null)
-            {
-                _dbContext.Remove(dbFork);
-                await _dbContext.SaveChangesAsync();
-            }
 
             if (forkRemoved)
             {

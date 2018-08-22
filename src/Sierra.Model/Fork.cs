@@ -2,7 +2,6 @@
 {
     using Newtonsoft.Json;
     using System;
-    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
 
@@ -108,6 +107,19 @@
                 ForkVstsId = vstsRepo;
                 State = ForkState.Created;
             }
+        }
+
+        /// <summary>
+        /// update current instance 
+        /// </summary>
+        /// <param name="newState"></param>
+        public void Update(Fork newState)
+        {
+            if (newState == null)
+                return;
+
+            ForkVstsId = newState.ForkVstsId;
+            State = newState.State;
         }
     }
 

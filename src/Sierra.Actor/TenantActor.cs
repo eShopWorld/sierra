@@ -35,11 +35,11 @@
         /// </summary>
         /// <param name="tenant"></param>
         /// <returns>The async <see cref="T:System.Threading.Tasks.Task" /> wrapper.</returns>
-        public override async Task Add(Tenant tenant)
+        public override async Task<Tenant> Add(Tenant tenant)
         {
             // Flow
             if (tenant == null)
-                return;
+                return null;
 
             var dbTenant = await _dbContext.LoadCompleteTenantAsync(tenant.Code);
             if (dbTenant == null) //new tenant
@@ -48,13 +48,16 @@
                 _dbContext.Tenants.Add(dbTenant);
             }
             
-            dbTenant.Update(tenant);          
-
-            await _dbContext.SaveChangesAsync();
+            dbTenant.Update(tenant);                     
 
             // #1 Fork anything that needs to be forked
-            await Task.WhenAll(dbTenant.ForksToAdd.Select(r => GetActor<IForkActor>(r.ToString()).Add(r)));
-            await Task.WhenAll(dbTenant.ForksToRemove.Select(r => GetActor<IForkActor>(r.ToString()).Remove(r)));
+            await Task.WhenAll(dbTenant.ForksToAdd.Select(forkToAdd => 
+                GetActor<IForkActor>(forkToAdd.ToString()).Add(forkToAdd)
+                    .ContinueWith((additionTask) => forkToAdd.Update(additionTask.Result), TaskContinuationOptions.NotOnFaulted)));       
+
+            await Task.WhenAll(dbTenant.ForksToRemove.Select(forkToRemove => 
+                GetActor<IForkActor>(forkToRemove.ToString()).Remove(forkToRemove)
+                    .ContinueWith((removalTask) => _dbContext.Entry(forkToRemove).State = EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             // #2 Create CI builds for each new fork created for the tenant
             // #3 Build the tenant test resources
@@ -65,6 +68,9 @@
             // #5b If there are no forks, put the tenant into a ring on the global master release definition
             // #6 Create the tenant Azure AD application for test and prod
             // #7 Map the tenant KeyVault for all test environments and prod
+
+            await _dbContext.SaveChangesAsync();
+            return dbTenant;
         }
 
         /// <summary>

@@ -25,8 +25,8 @@
         /// Adds <see cref="T"/> to the Sierra platform.
         /// </summary>
         /// <param name="model">The model of type <see cref="T"/> that we want to add.</param>
-        /// <returns>The <see cref="Task"/> wrapper.</returns>
-        public abstract Task Add(T model);
+        /// <returns>The <see cref="Task"/> wrapper with resulting entity or its new state</returns>
+        public abstract Task<T> Add(T model);
 
         /// <summary>
         /// Removes <see cref="T"/> to the Sierra platform.

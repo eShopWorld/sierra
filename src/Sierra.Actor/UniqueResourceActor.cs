@@ -21,7 +21,7 @@
         }
 
         /// <inheritdoc />
-        public override Task Add(T model)
+        public override Task<T> Add(T model)
         {
             throw new System.NotImplementedException();
         }
