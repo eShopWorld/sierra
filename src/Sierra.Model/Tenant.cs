@@ -49,6 +49,9 @@
         /// <param name="newState">new intended state</param>
         public void Update(Tenant newState)
         {
+            if (newState == null)
+                return;
+
             //update Fork state
             var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code ));
 

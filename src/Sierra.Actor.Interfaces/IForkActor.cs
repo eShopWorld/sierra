@@ -3,7 +3,6 @@
     using Model;
     using Microsoft.ServiceFabric.Actors;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
 
     /// <summary>
     /// fork actor interface
@@ -14,8 +13,8 @@
         /// fork repository
         /// </summary>
         /// <param name="fork">payload to describe requested fork</param>
-        /// <returns>task instance</returns>
-        Task Add(Fork fork);
+        /// <returns>task instance wrapper with resulting <see cref="Fork"/></returns>
+        Task<Fork> Add(Fork fork);
 
         /// <summary>
         /// remove an existing repo (if exists)

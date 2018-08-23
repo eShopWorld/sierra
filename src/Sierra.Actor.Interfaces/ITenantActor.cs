@@ -14,7 +14,7 @@
         /// </summary>
         /// <param name="tenant"></param>
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
-        Task Add(Tenant tenant);
+        Task<Tenant> Add(Tenant tenant);
 
         /// <summary>
         /// Removes a tenant from the platform.
