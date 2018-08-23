@@ -51,13 +51,13 @@
             dbTenant.Update(tenant);                     
 
             // #1 Fork anything that needs to be forked
-            await Task.WhenAll(dbTenant.ForksToAdd.Select(forkToAdd => 
-                GetActor<IForkActor>(forkToAdd.ToString()).Add(forkToAdd)
-                    .ContinueWith((additionTask) => forkToAdd.Update(additionTask.Result), TaskContinuationOptions.NotOnFaulted)));       
+            await Task.WhenAll(dbTenant.ForksToAdd.Select(f => 
+                GetActor<IForkActor>(f.ToString()).Add(f)
+                    .ContinueWith((additionTask) => f.Update(additionTask.Result), TaskContinuationOptions.NotOnFaulted)));       
 
-            await Task.WhenAll(dbTenant.ForksToRemove.Select(forkToRemove => 
-                GetActor<IForkActor>(forkToRemove.ToString()).Remove(forkToRemove)
-                    .ContinueWith((removalTask) => _dbContext.Entry(forkToRemove).State = EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await Task.WhenAll(dbTenant.ForksToRemove.Select(f => 
+                GetActor<IForkActor>(f.ToString()).Remove(f)
+                    .ContinueWith((removalTask) => _dbContext.Entry(f).State = EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             // #2 Create CI builds for each new fork created for the tenant
             // #3 Build the tenant test resources
@@ -84,16 +84,12 @@
             if (tenant == null)
                 return;
 
-            await RemoveForks(tenant.CustomSourceRepos);
+            await Task.WhenAll(
+                tenant.CustomSourceRepos.Select(f => GetActor<IForkActor>(f.ToString()).Remove(f)
+                    .ContinueWith(t => _dbContext.Entry(f).State = EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();
-        }
-
-        private async Task RemoveForks(IEnumerable<Fork> forks)
-        {
-            await Task.WhenAll(
-                forks.Select(f => GetActor<IForkActor>(f.ToString()).Remove(f)
-                    .ContinueWith(t => _dbContext.Entry(f).State = EntityState.Detached, TaskContinuationOptions.NotOnFaulted)));
         }
     }
 }
