@@ -12,6 +12,7 @@
 
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<Fork> Forks { get; set; }
+        public DbSet<BuildDefinition> BuildDefinitions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -23,6 +24,7 @@
             modelBuilder.Entity<Tenant>();
             modelBuilder.Entity<Fork>()
                 .HasKey(t => new { t.SourceRepositoryName, t.TenantCode });
+            modelBuilder.Entity<BuildDefinition>();
         }    
 
         /// <summary>

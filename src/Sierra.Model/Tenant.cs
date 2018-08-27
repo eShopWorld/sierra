@@ -26,6 +26,12 @@
         [NotMapped]
         public List<Fork> ForksToAdd { get; private set; }
 
+        ///TODO: consider moving under fork since it is bound
+        [DataMember]
+        [JsonIgnore]
+        [NotMapped]
+        public List<BuildDefinition> BuildDefinitions { get; private set; }
+
         [DataMember]
         [JsonIgnore]
         [NotMapped]

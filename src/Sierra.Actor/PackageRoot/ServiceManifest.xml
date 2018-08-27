@@ -43,6 +43,20 @@
         </Extension>
       </Extensions>
     </StatefulServiceType>
+    <StatefulServiceType ServiceTypeName="BuildDefinitionActorServiceType" HasPersistedState="true">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="c7205f7d-4044-4da4-9285-98896deb9d73|Persisted">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="BuildDefinitionActorService" />
+            <ReplicatorEndpoint Name="BuildDefinitionActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="BuildDefinitionActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="BuildDefinitionActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="BuildDefinitionActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="BuildDefinitionActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
   </ServiceTypes>
   <CodePackage Name="Code" Version="1.0.0">
     <EntryPoint>
@@ -60,6 +74,8 @@
       <Endpoint Name="LockerActorServiceReplicatorEndpoint" />
       <Endpoint Name="ForkActorServiceEndpointV2" />
       <Endpoint Name="ForkActorServiceReplicatorEndpoint" />
+      <Endpoint Name="BuildDefinitionActorServiceEndpointV2" />
+      <Endpoint Name="BuildDefinitionActorServiceReplicatorEndpoint" />
     </Endpoints>
   </Resources>
   <!-- The content will be generated during build -->
