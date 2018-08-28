@@ -21,18 +21,16 @@
         [DataMember]
         public List<Fork> CustomSourceRepos { get; set; }
 
+        /// <summary>
+        /// Forks + Core repos (when supported)
+        /// </summary>
         [DataMember]
+        public List<BuildDefinition> BuildDefinitions { get; set; }
+        
         [JsonIgnore]
         [NotMapped]
         public List<Fork> ForksToAdd { get; private set; }
 
-        ///TODO: consider moving under fork since it is bound
-        [DataMember]
-        [JsonIgnore]
-        [NotMapped]
-        public List<BuildDefinition> BuildDefinitions { get; private set; }
-
-        [DataMember]
         [JsonIgnore]
         [NotMapped]
         public List<Fork> ForksToRemove { get; private set; }
@@ -63,13 +61,13 @@
 
             //forks to add = new forks + those in "not created" state (remember idenmpotency)
             ForksToAdd = newStateForks.Except(CustomSourceRepos, _forkEqComparer).ToList();
-            var forksNotCreated= CustomSourceRepos.Where(r => r.State == ForkState.NotCreated).ToList();
+            var forksNotCreated= CustomSourceRepos.Where(r => r.State == EntityStateEnum.NotCreated).ToList();
 
             //forks to delete = forks not referred in target state + those in "to be deleted" state
-            var forksToBeDeleted = CustomSourceRepos.Where(r => r.State == ForkState.ToBeDeleted).ToList();
+            var forksToBeDeleted = CustomSourceRepos.Where(r => r.State == EntityStateEnum.ToBeDeleted).ToList();
             ForksToRemove = CustomSourceRepos.Except(newStateForks, _forkEqComparer).ToList();
             //mark them for deletion in DB
-            ForksToRemove.ForEach(f => f.State = ForkState.ToBeDeleted);
+            ForksToRemove.ForEach(f => f.State = EntityStateEnum.ToBeDeleted);
 
             Name = newState.Name;
             CustomSourceRepos.AddRange(ForksToAdd);

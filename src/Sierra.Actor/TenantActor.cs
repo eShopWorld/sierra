@@ -54,9 +54,9 @@
                 GetActor<IForkActor>(f.ToString()).Add(f)
                     .ContinueWith((additionTask) => f.Update(additionTask.Result), TaskContinuationOptions.NotOnFaulted)));       
 
-            await Task.WhenAll(dbTenant.ForksToRemove.Select(f => 
+            await Task.WhenAll(dbTenant.ForksToRemove.Select(f =>
                 GetActor<IForkActor>(f.ToString()).Remove(f)
-                    .ContinueWith((removalTask) => _dbContext.Entry(f).State = EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+                    .ContinueWith((removalTask) => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             // #2 Create CI builds for each new fork created for the tenant
             // #3 Build the tenant test resources
@@ -85,7 +85,7 @@
 
             await Task.WhenAll(
                 tenant.CustomSourceRepos.Select(f => GetActor<IForkActor>(f.ToString()).Remove(f)
-                    .ContinueWith(t => _dbContext.Entry(f).State = EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+                    .ContinueWith(t => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();

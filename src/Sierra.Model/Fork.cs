@@ -19,13 +19,17 @@
 
         public Fork(string sourceRepoName, string tenantCode)
         {
+            Id = new Guid();
             SourceRepositoryName = sourceRepoName;
             TenantCode = tenantCode;
-            State = ForkState.NotCreated;
+            State = EntityStateEnum.NotCreated;
         }
 
         [DataMember]
-        [JsonIgnore]
+        [Key]
+        public Guid Id { get; set; }
+
+        [DataMember]
         public Guid ForkVstsId { get; set; }
 
         /// <summary>
@@ -40,12 +44,17 @@
         /// </summary>
         [DataMember]
         [Required, MaxLength(6)]
-        [JsonIgnore]
         public string TenantCode { get; set; }
 
         [DataMember]
+        public EntityStateEnum State { get; set; }
+
         [JsonIgnore]
-        public ForkState State { get; set; }
+        public BuildDefinition BuildDefinition { get; set; }       
+
+        [DataMember]
+        [Required]
+        public ProjectTypeEnum ProjectType { get; set; }
 
         /// <summary>
         /// encapsulate fork naming strategy
@@ -105,7 +114,7 @@
             if (vstsRepo != Guid.Empty)
             {
                 ForkVstsId = vstsRepo;
-                State = ForkState.Created;
+                State = EntityStateEnum.Created;
             }
         }
 
@@ -123,13 +132,5 @@
         }
     }
 
-    /// <summary>
-    /// Identifies the internal state that a <see cref="Fork"/> model object is in.
-    /// </summary>
-    public enum ForkState
-    {
-        NotCreated,
-        Created,
-        ToBeDeleted
-    }
+  
 }

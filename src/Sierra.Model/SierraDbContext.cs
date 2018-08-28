@@ -21,10 +21,17 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Tenant>();
-            modelBuilder.Entity<Fork>()
-                .HasKey(t => new { t.SourceRepositoryName, t.TenantCode });
-            modelBuilder.Entity<BuildDefinition>();
+            modelBuilder.Entity<Tenant>();               
+
+            modelBuilder.Entity<BuildDefinition>()
+                .HasMany<Fork>() //this is effectively optional (1:0..1) relationship to allow for partial state persisted
+                .WithOne(b => b.BuildDefinition);
+
+            modelBuilder.Entity<BuildDefinition>()
+                .HasOne<Tenant>()
+                .WithMany(t => t.BuildDefinitions)
+                .HasForeignKey(t => t.TenantCode)
+                .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
         }    
 
         /// <summary>
