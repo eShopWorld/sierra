@@ -13,6 +13,9 @@
     <Parameter Name="ForkActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="ForkActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ForkActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="BuildDefinitionActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="BuildDefinitionActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="BuildDefinitionActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -59,6 +62,11 @@
     <Service Name="ForkActorService" GeneratedIdRef="11dae370-2517-4c62-8a69-8628302014dc|Volatile">
       <StatefulService ServiceTypeName="ForkActorServiceType" TargetReplicaSetSize="[ForkActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ForkActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ForkActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="BuildDefinitionActorService" GeneratedIdRef="c7205f7d-4044-4da4-9285-98896deb9d73|Persisted">
+      <StatefulService ServiceTypeName="BuildDefinitionActorServiceType" TargetReplicaSetSize="[BuildDefinitionActorService_TargetReplicaSetSize]" MinReplicaSetSize="[BuildDefinitionActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[BuildDefinitionActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>
