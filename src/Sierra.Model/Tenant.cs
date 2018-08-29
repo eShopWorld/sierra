@@ -78,19 +78,19 @@
             //forks to delete = forks not referred in target state + those in "to be deleted" state
             var forksToBeDeleted = CustomSourceRepos.Where(r => r.State == EntityStateEnum.ToBeDeleted).ToList();
             ForksToRemove = CustomSourceRepos.Except(newStateForks, _forkEqComparer).ToList();
-            //mark them for deletion in DB
+            //mark entities for deletion in DB
             ForksToRemove.ForEach(f => f.State = EntityStateEnum.ToBeDeleted);                             
             ForksToRemove = ForksToRemove.Union(forksToBeDeleted, _forkEqComparer).ToList();
 
             CustomSourceRepos.AddRange(ForksToAdd);
 
             //Build Definitions - 1:1 to forks
-            //build definitions to add = new forks + build definitions "not created"
+            //build definitions to add = new build definitions + build definitions "not created"
             BuildDefinitionsToAdd = ForksToAdd.Select(f => new BuildDefinition(f, Code)).ToList();
             BuildDefinitionsToAdd.AddRange(BuildDefinitions.Where(d => d.State == EntityStateEnum.NotCreated));
-            //build definitions to remove = forks to be removed + build definitions "to be deleted"
+            //build definitions to remove = build definitions to be removed + build definitions "to be deleted"
             BuildDefinitionsToRemove = ForksToRemove.Select(f => BuildDefinitions.Single(d => d.SourceCode == f)).ToList();
-            //mark the for deletion in DB
+            //mark entities for deletion in DB
             BuildDefinitionsToRemove.ForEach(d => d.State = EntityStateEnum.ToBeDeleted);
             BuildDefinitionsToRemove = BuildDefinitionsToRemove.Union(BuildDefinitions.Where(d => d.State == EntityStateEnum.ToBeDeleted), _buildDefinitionEqComparer).ToList();
 
