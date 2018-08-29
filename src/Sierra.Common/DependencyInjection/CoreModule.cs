@@ -2,6 +2,7 @@
 {
     using Autofac;
     using Eshopworld.Core;
+    using Eshopworld.DevOps;
     using Eshopworld.Telemetry;
     using Microsoft.Azure.KeyVault;
     using Microsoft.Azure.Services.AppAuthentication;
@@ -23,7 +24,7 @@
             var configBuilder = new ConfigurationBuilder().AddAzureKeyVault(
                 Vault,
                 new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback)),
-                new DefaultKeyVaultSecretManager());
+                new SectionKeyVaultManager());
 
             var config = configBuilder.Build();
 

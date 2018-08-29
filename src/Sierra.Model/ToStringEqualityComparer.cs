@@ -3,9 +3,13 @@
     using System;
     using System.Collections.Generic;
 
-    public class ForkEqualityComparer : IEqualityComparer<Fork>
+    /// <summary>
+    /// equality comparer for generic type T based on ToString() implementation
+    /// </summary>
+    public class ToStringEqualityComparer<T> : IEqualityComparer<T> where T:class
     {
-        public bool Equals(Fork x, Fork y)
+        /// <inheritdoc/>
+        public bool Equals(T x, T y)
         {
             if (x == null && y == null)
                 return true;
@@ -16,7 +20,8 @@
             return String.Equals(x.ToString(), y.ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
-        public int GetHashCode(Fork obj)
+        /// <inheritdoc/>
+        public int GetHashCode(T obj)
         {
             return obj.GetHashCode();
         }

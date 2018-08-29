@@ -121,7 +121,7 @@
         /// <summary>
         /// update current instance 
         /// </summary>
-        /// <param name="newState"></param>
+        /// <param name="newState">new state</param>
         public void Update(Fork newState)
         {
             if (newState == null)
