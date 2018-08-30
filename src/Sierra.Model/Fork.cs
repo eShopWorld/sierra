@@ -49,9 +49,6 @@
         [DataMember]
         public EntityStateEnum State { get; set; }
 
-        [JsonIgnore]
-        public BuildDefinition BuildDefinition { get; set; }       
-
         [DataMember]
         [Required]
         public ProjectTypeEnum ProjectType { get; set; }

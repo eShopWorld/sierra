@@ -21,12 +21,9 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Tenant>();               
-
-            modelBuilder.Entity<BuildDefinition>()
-                .HasMany<Fork>() //this is effectively optional (1:0..1) relationship to allow for partial state persisted
-                .WithOne(b => b.BuildDefinition);
-
+            modelBuilder.Entity<Tenant>();
+            modelBuilder.Entity<BuildDefinition>();
+            modelBuilder.Entity<Fork>();                
             modelBuilder.Entity<BuildDefinition>()
                 .HasOne<Tenant>()
                 .WithMany(t => t.BuildDefinitions)
@@ -39,7 +36,7 @@
         /// </summary>
         /// <param name="tenantCode">tenant code</param>
         /// <returns>tenant structure</returns>
-        public  async Task<Tenant> LoadCompleteTenantAsync(string tenantCode)
+        public async Task<Tenant> LoadCompleteTenantAsync(string tenantCode)
         {
             return await Tenants
                 .Include(t=>t.CustomSourceRepos)
