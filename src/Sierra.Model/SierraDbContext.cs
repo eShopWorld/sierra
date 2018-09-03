@@ -40,7 +40,8 @@
         {
             return await Tenants
                 .Include(t=>t.CustomSourceRepos)
-                .FirstOrDefaultAsync(t => t.Code == tenantCode);
+                .Include(t=>t.BuildDefinitions)
+                    .FirstOrDefaultAsync(t => t.Code == tenantCode);
         }
     }
 }

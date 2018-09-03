@@ -54,6 +54,7 @@ namespace Sierra.Api.Tests
                 var tenantRecord = await dbContext.LoadCompleteTenantAsync("ABCDEF");
                 tenantRecord.Should().NotBeNull();
                 tenantRecord.CustomSourceRepos.Should().ContainSingle(f => f.SourceRepositoryName == "ForkIntTestSourceRepo" && f.State == EntityStateEnum.Created && f.TenantCode == "ABCDEF");
+                tenantRecord.BuildDefinitions.Should().ContainSingle(bd => bd.TenantCode == "ABCDEF" && bd.SourceCode.SourceRepositoryName == "ForkIntTestSourceRepo"); //TODO: add state check when process implemented
             }
 
             //remove tenant
@@ -64,6 +65,7 @@ namespace Sierra.Api.Tests
                 var tenantRecord = await dbContext.LoadCompleteTenantAsync("ABCDEF");
                 tenantRecord.Should().BeNull();
                 dbContext.Forks.Where(f => f.TenantCode == "ABCDEF").Should().BeNullOrEmpty();
+                dbContext.BuildDefinitions.Where(bd => bd.TenantCode == "ABCDEF").Should().BeNullOrEmpty();
             }
         }
 
