@@ -1,10 +1,8 @@
 ﻿namespace Sierra.Model
 {
     using System.Linq;
-    using Newtonsoft.Json;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
     using System.Runtime.Serialization;
 
     [DataContract]
@@ -19,16 +17,15 @@
         public string Name { get; set; }
 
         [DataMember]
-        public List<Fork> CustomSourceRepos { get; set; }          
+        public List<Fork> CustomSourceRepos { get; set; }
 
         /// <summary>
         /// Forks + Core repos (when supported)
         /// </summary>
         [DataMember]
-        public List<BuildDefinition> BuildDefinitions { get; set; }       
+        public List<BuildDefinition> BuildDefinitions { get; set; }
 
-        private static ToStringEqualityComparer<Fork> _forkEqComparer = new ToStringEqualityComparer<Fork>();
-        private static ToStringEqualityComparer<BuildDefinition> _buildDefinitionEqComparer = new ToStringEqualityComparer<BuildDefinition>();
+        private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();
 
         public Tenant()
         {
@@ -52,11 +49,11 @@
 
             Name = newState.Name;
 
-            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code ));
+            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code )).ToList();
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
-                .Except(CustomSourceRepos, _forkEqComparer)
+                .Except(CustomSourceRepos, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
@@ -66,13 +63,13 @@
                 });
 
             CustomSourceRepos
-                .Except(newStateForks, _forkEqComparer)
+                .Except(newStateForks, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
                     f.State = EntityStateEnum.ToBeDeleted;
-                    BuildDefinitions.Single(bd => bd.SourceCode == f).State = EntityStateEnum.ToBeDeleted;
-                });                                      
+                    BuildDefinitions.Single(bd => Equals(bd.SourceCode, f)).State = EntityStateEnum.ToBeDeleted;
+                });
         }
     }
 }
