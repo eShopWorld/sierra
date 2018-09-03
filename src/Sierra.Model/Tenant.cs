@@ -1,10 +1,8 @@
 ﻿namespace Sierra.Model
 {
     using System.Linq;
-    using Newtonsoft.Json;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
     using System.Runtime.Serialization;
 
     [DataContract]
@@ -26,20 +24,13 @@
         /// </summary>
         [DataMember]
         public List<BuildDefinition> BuildDefinitions { get; set; }
-        
-        [JsonIgnore]
-        [NotMapped]
-        public List<Fork> ForksToAdd { get; private set; }
 
-        [JsonIgnore]
-        [NotMapped]
-        public List<Fork> ForksToRemove { get; private set; }
-
-        private static ForkEqualityComparer _forkEqComparer = new ForkEqualityComparer();
+        private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();
 
         public Tenant()
         {
             CustomSourceRepos = new List<Fork>();
+            BuildDefinitions = new List<BuildDefinition>();
         }
 
         public Tenant(string code):this()
@@ -56,25 +47,29 @@
             if (newState == null)
                 return;
 
-            //update Fork state
-            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code ));
-
-            //forks to add = new forks + those in "not created" state (remember idenmpotency)
-            ForksToAdd = newStateForks.Except(CustomSourceRepos, _forkEqComparer).ToList();
-            var forksNotCreated= CustomSourceRepos.Where(r => r.State == EntityStateEnum.NotCreated).ToList();
-
-            //forks to delete = forks not referred in target state + those in "to be deleted" state
-            var forksToBeDeleted = CustomSourceRepos.Where(r => r.State == EntityStateEnum.ToBeDeleted).ToList();
-            ForksToRemove = CustomSourceRepos.Except(newStateForks, _forkEqComparer).ToList();
-            //mark them for deletion in DB
-            ForksToRemove.ForEach(f => f.State = EntityStateEnum.ToBeDeleted);
-
             Name = newState.Name;
-            CustomSourceRepos.AddRange(ForksToAdd);
-            ForksToAdd.AddRange(forksNotCreated);
-            ForksToRemove.AddRange(forksToBeDeleted);
 
-            //other states to follow
+            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code )).ToList();
+
+            //update forks and build definitions (1:1) - additions and removals
+            newStateForks
+                .Except(CustomSourceRepos, ForkEqComparer)
+                .ToList()
+                .ForEach(f =>
+                {
+                    f.TenantCode = Code;
+                    CustomSourceRepos.Add(f);
+                    BuildDefinitions.Add(new BuildDefinition(f, Code));
+                });
+
+            CustomSourceRepos
+                .Except(newStateForks, ForkEqComparer)
+                .ToList()
+                .ForEach(f =>
+                {
+                    f.State = EntityStateEnum.ToBeDeleted;
+                    BuildDefinitions.Single(bd => Equals(bd.SourceCode, f)).State = EntityStateEnum.ToBeDeleted;
+                });
         }
     }
 }

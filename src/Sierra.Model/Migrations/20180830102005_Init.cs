@@ -28,7 +28,6 @@ namespace Sierra.Model.Migrations
                     SourceRepositoryName = table.Column<string>(nullable: false),
                     TenantCode = table.Column<string>(maxLength: 6, nullable: false),
                     State = table.Column<int>(nullable: false),
-                    BuildDefinitionId = table.Column<Guid>(nullable: true),
                     ProjectType = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -80,35 +79,18 @@ namespace Sierra.Model.Migrations
                 column: "TenantCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Forks_BuildDefinitionId",
-                table: "Forks",
-                column: "BuildDefinitionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Forks_TenantCode",
                 table: "Forks",
                 column: "TenantCode");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Forks_BuildDefinitions_BuildDefinitionId",
-                table: "Forks",
-                column: "BuildDefinitionId",
-                principalTable: "BuildDefinitions",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_BuildDefinitions_Forks_SourceCodeId",
-                table: "BuildDefinitions");
+            migrationBuilder.DropTable(
+                name: "BuildDefinitions");
 
             migrationBuilder.DropTable(
                 name: "Forks");
-
-            migrationBuilder.DropTable(
-                name: "BuildDefinitions");
 
             migrationBuilder.DropTable(
                 name: "Tenants");

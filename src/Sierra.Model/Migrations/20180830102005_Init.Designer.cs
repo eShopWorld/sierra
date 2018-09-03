@@ -10,7 +10,7 @@ using Sierra.Model;
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    [Migration("20180828132845_Init")]
+    [Migration("20180830102005_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,8 +49,6 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("BuildDefinitionId");
-
                     b.Property<Guid>("ForkVstsId");
 
                     b.Property<int>("ProjectType");
@@ -65,8 +63,6 @@ namespace Sierra.Model.Migrations
                         .HasMaxLength(6);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BuildDefinitionId");
 
                     b.HasIndex("TenantCode");
 
@@ -103,10 +99,6 @@ namespace Sierra.Model.Migrations
 
             modelBuilder.Entity("Sierra.Model.Fork", b =>
                 {
-                    b.HasOne("Sierra.Model.BuildDefinition", "BuildDefinition")
-                        .WithMany()
-                        .HasForeignKey("BuildDefinitionId");
-
                     b.HasOne("Sierra.Model.Tenant")
                         .WithMany("CustomSourceRepos")
                         .HasForeignKey("TenantCode")

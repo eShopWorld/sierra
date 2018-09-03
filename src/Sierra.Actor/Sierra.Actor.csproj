@@ -7,6 +7,10 @@
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <Platform>x64</Platform>
 
+    <!--REVIEW AFTER 2.2-->
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <RuntimeFrameworkVersion>2.1.3</RuntimeFrameworkVersion>
+
     <UpdateServiceFabricManifestEnabled>True</UpdateServiceFabricManifestEnabled>
     <ServicePackagePath>PackageRoot</ServicePackagePath>
     <ServicePackagePrefix>$(MSBuildProjectName)</ServicePackagePrefix>
@@ -16,7 +20,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.1" />
+    <!--REVIEW AFTER 2.2-->
+    <PackageReference Update="Microsoft.NETCore.App" Version="2.1.3" />    <PackageReference Include="Autofac" Version="4.8.1" />
+
     <PackageReference Include="Autofac.ServiceFabric" Version="2.0.0" />
     <PackageReference Include="Eshopworld.Telemetry" Version="1.0.1" />
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.0" />

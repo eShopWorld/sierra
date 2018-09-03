@@ -6,7 +6,6 @@
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Model;
-    using Microsoft.EntityFrameworkCore;
 
     /// <summary>
     /// The main tenant orchestration actor.
@@ -47,18 +46,36 @@
                 _dbContext.Tenants.Add(dbTenant);
             }
             
-            dbTenant.Update(tenant);                     
+            dbTenant.Update(tenant);
+            //persist "ToBeDeleted"+"ToBeCreated" records
+            await _dbContext.SaveChangesAsync();
 
-            // #1 Fork anything that needs to be forked
-            await Task.WhenAll(dbTenant.ForksToAdd.Select(f => 
-                GetActor<IForkActor>(f.ToString()).Add(f)
-                    .ContinueWith((additionTask) => f.Update(additionTask.Result), TaskContinuationOptions.NotOnFaulted)));       
+            // #1 sync forks (add + remove)
+            await Task.WhenAll(dbTenant.CustomSourceRepos
+                .Where(f => f.State== EntityStateEnum.NotCreated)
+                .Select(f =>
+                    GetActor<IForkActor>(f.ToString()).Add(f)
+                        .ContinueWith((t) => f.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
 
-            await Task.WhenAll(dbTenant.ForksToRemove.Select(f =>
-                GetActor<IForkActor>(f.ToString()).Remove(f)
-                    .ContinueWith((removalTask) => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await Task.WhenAll(dbTenant.CustomSourceRepos
+                .Where(f => f.State == EntityStateEnum.ToBeDeleted)
+                .Select(f =>
+                    GetActor<IForkActor>(f.ToString()).Remove(f)
+                        .ContinueWith((t) => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
-            // #2 Create CI builds for each new fork created for the tenant
+            // #2 Sync CI builds for forks created for the tenant (add + remove)
+            await Task.WhenAll(dbTenant.BuildDefinitions
+                .Where(d => d.State == EntityStateEnum.NotCreated)
+                .Select(d =>
+                    GetActor<IBuildDefinitionActor>(d.ToString()).Add(d)
+                        .ContinueWith((t) => d.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
+
+            await Task.WhenAll(dbTenant.BuildDefinitions
+                .Where(d => d.State == EntityStateEnum.ToBeDeleted)
+                .Select(d =>
+                    GetActor<IBuildDefinitionActor>(d.ToString()).Remove(d)
+                        .ContinueWith((t) => _dbContext.Entry(d).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+
             // #3 Build the tenant test resources
             // #4 Build the tenant production resources
             // #5 Release definition
@@ -68,6 +85,7 @@
             // #6 Create the tenant Azure AD application for test and prod
             // #7 Map the tenant KeyVault for all test environments and prod
 
+            //final state persistence
             await _dbContext.SaveChangesAsync();
             return dbTenant;
         }
@@ -86,6 +104,10 @@
             await Task.WhenAll(
                 tenant.CustomSourceRepos.Select(f => GetActor<IForkActor>(f.ToString()).Remove(f)
                     .ContinueWith(t => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+
+            await Task.WhenAll(
+                tenant.BuildDefinitions.Select(bd => GetActor<IBuildDefinitionActor>(bd.ToString()).Remove(bd)
+                    .ContinueWith(t => _dbContext.Entry(bd).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();

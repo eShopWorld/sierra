@@ -49,9 +49,6 @@
         [DataMember]
         public EntityStateEnum State { get; set; }
 
-        [JsonIgnore]
-        public BuildDefinition BuildDefinition { get; set; }       
-
         [DataMember]
         [Required]
         public ProjectTypeEnum ProjectType { get; set; }
@@ -121,7 +118,7 @@
         /// <summary>
         /// update current instance 
         /// </summary>
-        /// <param name="newState"></param>
+        /// <param name="newState">new state</param>
         public void Update(Fork newState)
         {
             if (newState == null)
