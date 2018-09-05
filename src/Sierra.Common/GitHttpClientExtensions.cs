@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Microsoft.TeamFoundation.Core.WebApi;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
-    using Sierra.Model;
+    using Model;
 
     /// <summary>
     /// Contains Sierra extensions methods to the <see cref="GitHttpClient"/> part of the VSTS SDK.
@@ -65,7 +65,7 @@
         /// 
         /// if repo does not exist, just return gracefully
         /// </summary>
-        /// <param name="fork">fork definition</param>
+        /// <param name="forkName">fork definition</param>
         /// <returns>fork deletion result</returns>
         internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
         {

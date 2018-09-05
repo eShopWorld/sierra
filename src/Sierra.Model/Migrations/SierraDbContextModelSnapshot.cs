@@ -31,7 +31,7 @@ namespace Sierra.Model.Migrations
                     b.Property<string>("TenantCode")
                         .IsRequired();
 
-                    b.Property<string>("VstsBuildDefinitionId");
+                    b.Property<int>("VstsBuildDefinitionId");
 
                     b.HasKey("Id");
 

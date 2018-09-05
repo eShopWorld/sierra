@@ -34,7 +34,7 @@
         public string TenantCode { get; set; }
 
         [DataMember]
-        public string VstsBuildDefinitionId { get; set; }
+        public int VstsBuildDefinitionId { get; set; }
 
         [DataMember] 
         public EntityStateEnum State { get; set; }
@@ -47,6 +47,16 @@
         {
             VstsBuildDefinitionId = newState.VstsBuildDefinitionId;
             State = newState.State;
+        }
+
+        /// <summary>
+        /// update instace with vsts information when available
+        /// </summary>
+        /// <param name="vstsDefinitionId">vsts build definition id</param>
+        public void UpdateWithVstsDefinition(int vstsDefinitionId)
+        {
+            VstsBuildDefinitionId = vstsDefinitionId;
+            State = EntityStateEnum.Created;
         }
 
         /// <inheritdoc />
@@ -70,6 +80,5 @@
             var bd = (BuildDefinition)obj;
             return string.Equals(bd.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
         }
-
     }
 }

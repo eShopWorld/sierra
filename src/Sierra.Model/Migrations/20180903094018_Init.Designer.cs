@@ -10,7 +10,7 @@ using Sierra.Model;
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    [Migration("20180830102005_Init")]
+    [Migration("20180903094018_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,7 @@ namespace Sierra.Model.Migrations
                     b.Property<string>("TenantCode")
                         .IsRequired();
 
-                    b.Property<string>("VstsBuildDefinitionId");
+                    b.Property<int>("VstsBuildDefinitionId");
 
                     b.HasKey("Id");
 
