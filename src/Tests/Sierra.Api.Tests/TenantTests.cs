@@ -65,7 +65,7 @@ namespace Sierra.Api.Tests
             }
         }
 
-        [Fact, IsLayer2]
+        [Fact, IsDev]
         public async Task Tenant_BuildDefinitionChecks()
         {
             try
