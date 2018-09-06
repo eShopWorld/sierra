@@ -1,13 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using Autofac;
-using Eshopworld.Tests.Core;
-using FluentAssertions;
-using Microsoft.TeamFoundation.Build.WebApi;
-using Xunit;
-
-namespace Sierra.Common.Tests
+﻿namespace Sierra.Common.Tests
 {
+    using System;
+    using System.Threading.Tasks;
+    using Autofac;
+    using Eshopworld.Tests.Core;
+    using FluentAssertions;
+    using Microsoft.TeamFoundation.Build.WebApi;
+    using Xunit;
+
     [Collection(nameof(CommonContainerCollection))]
     public class BuildHttpClientExtensionsTests
     {

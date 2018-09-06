@@ -1,19 +1,19 @@
-﻿using Autofac;
-using Eshopworld.Tests.Core;
-using Sierra.Model;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Xunit;
-using FluentAssertions;
-using IdentityModel.Client;
-using System.Linq;
-using System.Threading;
-using Microsoft.TeamFoundation.Build.WebApi;
-using Sierra.Common;
-
-namespace Sierra.Api.Tests
+﻿namespace Sierra.Api.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using Autofac;
+    using Common;
+    using Eshopworld.Tests.Core;
+    using FluentAssertions;
+    using IdentityModel.Client;
+    using Microsoft.TeamFoundation.Build.WebApi;
+    using Model;
+    using Xunit;
+
     [Collection(nameof(ActorContainerCollection))]
     public class TenantTests
     {
@@ -21,7 +21,6 @@ namespace Sierra.Api.Tests
         private readonly string _tenantsControllerUrl;
         private readonly TestConfig _testConfig;
         private const string TenantName = "CITNT";
-        private const int BuildStatusPollingWaitTime = 1000; //in ms
 
         public TenantTests(ApiTestsFixture containerFixture)
         {
@@ -32,14 +31,14 @@ namespace Sierra.Api.Tests
 
         [Fact, IsLayer2]
         public async Task Tenant_Flow()
-        {           
+        {
             using (var scope = _containerFixture.Container.BeginLifetimeScope())
             {
                 var dbContext = scope.Resolve<SierraDbContext>();
                 try
                 {
                     await EnsureTenantCreated();
-                   
+
                     var tenantRecord = await dbContext.LoadCompleteTenantAsync(TenantName);
 
                     tenantRecord.Should().NotBeNull();
@@ -85,21 +84,25 @@ namespace Sierra.Api.Tests
                         vstsConfig.VstsTargetProjectId);
 
                     //poll for the build completion
-                    do
-                    {
-                        Thread.Sleep(BuildStatusPollingWaitTime);
-                        build = await buildHttpClient.GetBuildAsync(vstsConfig.VstsTargetProjectId, build.Id);
-                    } while (build.Status != BuildStatus.Completed);
+                    var poolingCompleted = Task.Run(async () =>
+                        {
+                            do
+                            {
+                                await Task.Delay(TimeSpan.FromSeconds(1));
+                                build = await buildHttpClient.GetBuildAsync(vstsConfig.VstsTargetProjectId, build.Id);
+                            } while (build.Status != BuildStatus.Completed);
+                        })
+                        .Wait(TimeSpan.FromSeconds(30));
+
+                    Assert.True(poolingCompleted, "The pooling for the build definition timed out after 30seconds");
 
                     build.Result.Should().Be(BuildResult.Succeeded);
                 }
-
             }
             finally
             {
                 await EnsureTenantDeleted();
             }
-
         }
 
         private async Task EnsureTenantCreated()
@@ -109,7 +112,7 @@ namespace Sierra.Api.Tests
                 Code = TenantName,
                 Name = $"Tenant{TenantName}",
                 CustomSourceRepos =
-                    new List<Fork>(new[] {new Fork {SourceRepositoryName = "ForkIntTestSourceRepo"}})
+                    new List<Fork>(new[] { new Fork { SourceRepositoryName = "ForkIntTestSourceRepo" } })
             };
 
             var client = new HttpClient();
@@ -131,11 +134,11 @@ namespace Sierra.Api.Tests
 
             var resp = await client.DeleteAsync($"{_tenantsControllerUrl}/{TenantName}");
             resp.EnsureSuccessStatusCode();
-        }     
+        }
 
         // ReSharper disable once InconsistentNaming
         private async Task<string> ObtainSTSAccessToken()
-        {           
+        {
             var discovery = await DiscoveryClient.GetAsync(_testConfig.STSAuthority);
             var client = new TokenClient(discovery.TokenEndpoint, _testConfig.STSClientId, _testConfig.STSClientSecret);
 

@@ -21,8 +21,7 @@
         public static async Task<BuildDefinition> CreateOrUpdateDefinition(this BuildHttpClient buildClient, BuildDefinition definition, string targetProjectId)
         {    
             //check whether fork build definition already exists
-            var vstsBuildDefinition = (await buildClient.GetFullDefinitionsAsync(targetProjectId, name: definition.Name))
-                .FirstOrDefault();
+            var vstsBuildDefinition = (await buildClient.GetFullDefinitionsAsync(targetProjectId, name: definition.Name)).FirstOrDefault();
 
             if (vstsBuildDefinition != null)
             {
@@ -34,7 +33,7 @@
                 return await buildClient.UpdateDefinitionAsync(definition, targetProjectId, vstsBuildDefinition.Id);
             }
 
-            return await buildClient.CreateDefinitionAsync(definition);           
+            return await buildClient.CreateDefinitionAsync(definition);
         }
 
         /// <summary>
@@ -48,8 +47,7 @@
         {
             BuildDefinitionReference definition;
 
-            if ((definition = (await buildClient.GetDefinitionsAsync(targetProjectId, name: definitionName))
-                    .FirstOrDefault()) != null)
+            if ((definition = (await buildClient.GetDefinitionsAsync(targetProjectId, name: definitionName)).FirstOrDefault()) != null)
                 await buildClient.DeleteDefinitionAsync(targetProjectId, definition.Id);
         }
     }

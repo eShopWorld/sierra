@@ -25,15 +25,15 @@
         /// Forks + Core repos (when supported)
         /// </summary>
         [DataMember]
-        public List<BuildDefinition> BuildDefinitions { get; set; }       
+        public List<VstsBuildDefinition> BuildDefinitions { get; set; }       
 
         private static ToStringEqualityComparer<Fork> _forkEqComparer = new ToStringEqualityComparer<Fork>();
-        private static ToStringEqualityComparer<BuildDefinition> _buildDefinitionEqComparer = new ToStringEqualityComparer<BuildDefinition>();
+        private static ToStringEqualityComparer<VstsBuildDefinition> _buildDefinitionEqComparer = new ToStringEqualityComparer<VstsBuildDefinition>();
 
         public Tenant()
         {
             CustomSourceRepos = new List<Fork>();
-            BuildDefinitions = new List<BuildDefinition>();
+            BuildDefinitions = new List<VstsBuildDefinition>();
         }
 
         public Tenant(string code):this()
@@ -62,7 +62,7 @@
                 {
                     f.TenantCode = Code;
                     CustomSourceRepos.Add(f);
-                    BuildDefinitions.Add(new BuildDefinition(f, Code));
+                    BuildDefinitions.Add(new VstsBuildDefinition(f, Code));
                 });
 
             CustomSourceRepos

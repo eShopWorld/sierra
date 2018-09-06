@@ -1,20 +1,17 @@
-﻿// ReSharper disable IdentifierTypo
-// ReSharper disable CommentTypo
-
-namespace Sierra.Actor
+﻿namespace Sierra.Actor
 {
+    using System.Threading.Tasks;
+    using Common;
+    using Common.Events;
+    using Eshopworld.Core;
+    using Interfaces;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Interfaces;
-    using System.Threading.Tasks;
     using Microsoft.TeamFoundation.Build.WebApi;
-    using BuildDefinition = Model.BuildDefinition;
-    using Common;
-    using Eshopworld.Core;
-    using Common.Events;
+    using Model;
 
     [StatePersistence(StatePersistence.Persisted)]
-    public class BuildDefinitionActor : SierraActor<BuildDefinition>, IBuildDefinitionActor
+    public class BuildDefinitionActor : SierraActor<VstsBuildDefinition>, IBuildDefinitionActor
     {
         private readonly BuildHttpClient _buildHttpClient;
         private readonly VstsConfiguration _vstsConfiguration;
@@ -28,7 +25,7 @@ namespace Sierra.Actor
         /// <param name="buildHttpClient">http build client</param>
         /// <param name="vstsConfig">vsts configuration</param>
         /// <param name="bb">big brother instance</param>
-        public BuildDefinitionActor(ActorService actorService, ActorId actorId, BuildHttpClient buildHttpClient, VstsConfiguration vstsConfig, IBigBrother bb) 
+        public BuildDefinitionActor(ActorService actorService, ActorId actorId, BuildHttpClient buildHttpClient, VstsConfiguration vstsConfig, IBigBrother bb)
             : base(actorService, actorId)
         {
             _buildHttpClient = buildHttpClient;
@@ -37,18 +34,21 @@ namespace Sierra.Actor
         }
 
         /// <inheritdoc cref="SierraActor{T}" />
-        public override async Task<BuildDefinition> Add(BuildDefinition model)
+        public override async Task<VstsBuildDefinition> Add(VstsBuildDefinition model)
         {
             //load template
             var template = await _buildHttpClient.GetDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
                 _vstsConfiguration.WebApiBuildDefinitionTemplate.DefinitionId,
                 _vstsConfiguration.WebApiBuildDefinitionTemplate.RevisionId);
+
             //customize the template
             template.Name = model.ToString();
             template.Repository.Id = model.SourceCode.ForkVstsId.ToString();
+
             //push to vsts
             var vstsDefinition =
                 await _buildHttpClient.CreateOrUpdateDefinition(template, _vstsConfiguration.VstsTargetProjectId);
+
             //update model
             model.UpdateWithVstsDefinition(vstsDefinition.Id);
 
@@ -58,7 +58,7 @@ namespace Sierra.Actor
         }
 
         /// <inheritdoc cref="SierraActor{T}" />
-        public override async Task Remove(BuildDefinition model)
+        public override async Task Remove(VstsBuildDefinition model)
         {
             var name = model.ToString();
 

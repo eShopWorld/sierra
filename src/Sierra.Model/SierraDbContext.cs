@@ -12,7 +12,7 @@
 
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<Fork> Forks { get; set; }
-        public DbSet<BuildDefinition> BuildDefinitions { get; set; }
+        public DbSet<VstsBuildDefinition> BuildDefinitions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -22,9 +22,9 @@
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>();
-            modelBuilder.Entity<BuildDefinition>();
+            modelBuilder.Entity<VstsBuildDefinition>();
             modelBuilder.Entity<Fork>();                
-            modelBuilder.Entity<BuildDefinition>()
+            modelBuilder.Entity<VstsBuildDefinition>()
                 .HasOne<Tenant>()
                 .WithMany(t => t.BuildDefinitions)
                 .HasForeignKey(t => t.TenantCode)
