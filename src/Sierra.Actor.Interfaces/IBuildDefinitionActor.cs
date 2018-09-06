@@ -11,8 +11,8 @@ namespace Sierra.Actor.Interfaces
     /// </summary>
     public interface IBuildDefinitionActor : IActor
     {
-        Task<BuildDefinition> Add(BuildDefinition def);
+        Task<VstsBuildDefinition> Add(VstsBuildDefinition def);
 
-        Task Remove(BuildDefinition def);
+        Task Remove(VstsBuildDefinition def);
     }
 }

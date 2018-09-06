@@ -1,19 +1,17 @@
 ﻿namespace Sierra.Model
 {
-    using Newtonsoft.Json;
     using System;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
 
     [DataContract]
-    public class BuildDefinition
+    public class VstsBuildDefinition
     {
-        public BuildDefinition()
+        public VstsBuildDefinition()
         {
-
         }
 
-        public BuildDefinition(Fork sourceCode, string tenantCode)
+        public VstsBuildDefinition(Fork sourceCode, string tenantCode)
         {
             Id = new Guid();
             SourceCode = sourceCode;
@@ -34,25 +32,35 @@
         public string TenantCode { get; set; }
 
         [DataMember]
-        public string VstsBuildDefinitionId { get; set; }
+        public int VstsBuildDefinitionId { get; set; }
 
         [DataMember] 
         public EntityStateEnum State { get; set; }
 
         /// <summary>
-        /// update <see cref="BuildDefinition"/> and its state with new state as received
+        /// update <see cref="VstsBuildDefinition"/> and its state with new state as received
         /// </summary>
         /// <param name="newState">new logical state of the entity</param>
-        public void Update(BuildDefinition newState)
+        public void Update(VstsBuildDefinition newState)
         {
             VstsBuildDefinitionId = newState.VstsBuildDefinitionId;
             State = newState.State;
         }
 
+        /// <summary>
+        /// update instance with vsts information when available
+        /// </summary>
+        /// <param name="vstsDefinitionId">vsts build definition id</param>
+        public void UpdateWithVstsDefinition(int vstsDefinitionId)
+        {
+            VstsBuildDefinitionId = vstsDefinitionId;
+            State = EntityStateEnum.Created;
+        }
+
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{SourceCode.ToString()}BuildDefinition";
+            return $"{SourceCode}VstsBuildDefinition";
         }
 
         /// <inheritdoc />
@@ -64,12 +72,11 @@
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            if (!(obj is BuildDefinition))
+            if (!(obj is VstsBuildDefinition))
                 return false;
 
-            var bd = (BuildDefinition)obj;
+            var bd = (VstsBuildDefinition)obj;
             return string.Equals(bd.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
         }
-
     }
 }

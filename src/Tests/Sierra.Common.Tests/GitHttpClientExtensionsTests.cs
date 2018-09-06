@@ -11,19 +11,20 @@ using System.Threading.Tasks;
 using Xunit;
 
 [Collection(nameof(CommonContainerCollection))]
-public class GitClientExtensionsTests
+// ReSharper disable once CheckNamespace
+public class GitHttpClientExtensionsTests
 {
-    public readonly CommonContainerFixture ContainerFixture;
+    private readonly CommonContainerFixture _containerFixture;
 
-    public GitClientExtensionsTests(CommonContainerFixture container)
+    public GitHttpClientExtensionsTests(CommonContainerFixture container)
     {
-        ContainerFixture = container;
+        _containerFixture = container;
     }
 
     [Fact, IsLayer1]
     public async Task CreateForkIfNotExists_SuccessFlow()
     {
-        using (var scope = ContainerFixture.Container.BeginLifetimeScope())
+        using (var scope = _containerFixture.Container.BeginLifetimeScope())
         {
             var sut = scope.Resolve<GitHttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
@@ -34,6 +35,7 @@ public class GitClientExtensionsTests
             var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");
             repo.Should().NotBeNull();
             //clean up
+            // ReSharper disable once PossibleNullReferenceException
             await sut.DeleteRepositoryAsync(repo.Id);
         }
     }
@@ -41,7 +43,7 @@ public class GitClientExtensionsTests
     [Fact, IsLayer1]
     public async Task DeleteForkIfExists_SuccessFlow()
     {
-        using (var scope = ContainerFixture.Container.BeginLifetimeScope())
+        using (var scope = _containerFixture.Container.BeginLifetimeScope())
         {
             var sut = scope.Resolve<GitHttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();

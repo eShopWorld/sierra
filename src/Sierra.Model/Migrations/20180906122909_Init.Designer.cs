@@ -10,7 +10,7 @@ using Sierra.Model;
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    [Migration("20180830102005_Init")]
+    [Migration("20180906122909_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,29 +20,6 @@ namespace Sierra.Model.Migrations
                 .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("Sierra.Model.BuildDefinition", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid>("SourceCodeId");
-
-                    b.Property<int>("State");
-
-                    b.Property<string>("TenantCode")
-                        .IsRequired();
-
-                    b.Property<string>("VstsBuildDefinitionId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SourceCodeId");
-
-                    b.HasIndex("TenantCode");
-
-                    b.ToTable("BuildDefinitions");
-                });
 
             modelBuilder.Entity("Sierra.Model.Fork", b =>
                 {
@@ -84,7 +61,38 @@ namespace Sierra.Model.Migrations
                     b.ToTable("Tenants");
                 });
 
-            modelBuilder.Entity("Sierra.Model.BuildDefinition", b =>
+            modelBuilder.Entity("Sierra.Model.VstsBuildDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("SourceCodeId");
+
+                    b.Property<int>("State");
+
+                    b.Property<string>("TenantCode")
+                        .IsRequired();
+
+                    b.Property<int>("VstsBuildDefinitionId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceCodeId");
+
+                    b.HasIndex("TenantCode");
+
+                    b.ToTable("BuildDefinitions");
+                });
+
+            modelBuilder.Entity("Sierra.Model.Fork", b =>
+                {
+                    b.HasOne("Sierra.Model.Tenant")
+                        .WithMany("CustomSourceRepos")
+                        .HasForeignKey("TenantCode")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Sierra.Model.VstsBuildDefinition", b =>
                 {
                     b.HasOne("Sierra.Model.Fork", "SourceCode")
                         .WithMany()
@@ -95,14 +103,6 @@ namespace Sierra.Model.Migrations
                         .WithMany("BuildDefinitions")
                         .HasForeignKey("TenantCode")
                         .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("Sierra.Model.Fork", b =>
-                {
-                    b.HasOne("Sierra.Model.Tenant")
-                        .WithMany("CustomSourceRepos")
-                        .HasForeignKey("TenantCode")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

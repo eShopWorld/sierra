@@ -23,14 +23,14 @@
         /// Forks + Core repos (when supported)
         /// </summary>
         [DataMember]
-        public List<BuildDefinition> BuildDefinitions { get; set; }
+        public List<VstsBuildDefinition> BuildDefinitions { get; set; }       
 
-        private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();
-
+        private static ToStringEqualityComparer<Fork> _forkEqComparer = new ToStringEqualityComparer<Fork>();
+        
         public Tenant()
         {
             CustomSourceRepos = new List<Fork>();
-            BuildDefinitions = new List<BuildDefinition>();
+            BuildDefinitions = new List<VstsBuildDefinition>();
         }
 
         public Tenant(string code):this()
@@ -53,17 +53,17 @@
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
-                .Except(CustomSourceRepos, ForkEqComparer)
+                .Except(CustomSourceRepos, _forkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
                     f.TenantCode = Code;
                     CustomSourceRepos.Add(f);
-                    BuildDefinitions.Add(new BuildDefinition(f, Code));
+                    BuildDefinitions.Add(new VstsBuildDefinition(f, Code));
                 });
 
             CustomSourceRepos
-                .Except(newStateForks, ForkEqComparer)
+                .Except(newStateForks, _forkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {

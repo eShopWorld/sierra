@@ -27,6 +27,7 @@
         /// <param name="actorId">The Actor ID.</param>
         /// <param name="gitClient">The <see cref="GitHttpClient"/> to use on repo operations.</param>
         /// <param name="vstsConfiguration">The VSTS configuration payload.</param>
+        /// <param name="bb">big brother instance</param>
         public ForkActor(ActorService actorService, ActorId actorId, GitHttpClient gitClient, VstsConfiguration vstsConfiguration, IBigBrother bb)
             : base(actorService, actorId)
         {

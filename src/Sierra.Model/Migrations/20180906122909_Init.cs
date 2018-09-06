@@ -48,7 +48,7 @@ namespace Sierra.Model.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     SourceCodeId = table.Column<Guid>(nullable: false),
                     TenantCode = table.Column<string>(nullable: false),
-                    VstsBuildDefinitionId = table.Column<string>(nullable: true),
+                    VstsBuildDefinitionId = table.Column<int>(nullable: false),
                     State = table.Column<int>(nullable: false)
                 },
                 constraints: table =>

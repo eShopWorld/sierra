@@ -16,7 +16,7 @@ namespace Sierra.Model.Tests
                 Code = "TenantA",
                 Name = "oldName",
                 CustomSourceRepos = new List<Fork>(new[] { fork }),
-                BuildDefinitions = new List<BuildDefinition>(new[] { new BuildDefinition { SourceCode = fork, TenantCode = "TenantA", State = EntityStateEnum.Created } })
+                BuildDefinitions = new List<VstsBuildDefinition>(new[] { new VstsBuildDefinition { SourceCode = fork, TenantCode = "TenantA", State = EntityStateEnum.Created } })
             };
 
             var tenantRequest = new Tenant
@@ -100,9 +100,9 @@ namespace Sierra.Model.Tests
                 CustomSourceRepos = new List<Fork>(new[] {
                     forkRepoA
                 }),
-                BuildDefinitions = new List<BuildDefinition>(new[]
+                BuildDefinitions = new List<VstsBuildDefinition>(new[]
                 {
-                    new BuildDefinition {SourceCode = forkRepoA, State = EntityStateEnum.Created, TenantCode = "TenantA"}
+                    new VstsBuildDefinition {SourceCode = forkRepoA, State = EntityStateEnum.Created, TenantCode = "TenantA"}
                 })
             };
 
@@ -130,9 +130,9 @@ namespace Sierra.Model.Tests
                 CustomSourceRepos = new List<Fork>(new[] {
                     forkRepoA
                 }),
-                BuildDefinitions = new List<BuildDefinition>(new[]
+                BuildDefinitions = new List<VstsBuildDefinition>(new[]
                 {
-                    new BuildDefinition {SourceCode = forkRepoA, State = EntityStateEnum.NotCreated, TenantCode = "TenantA"}
+                    new VstsBuildDefinition {SourceCode = forkRepoA, State = EntityStateEnum.NotCreated, TenantCode = "TenantA"}
                 })
             };
 
@@ -158,9 +158,9 @@ namespace Sierra.Model.Tests
                 CustomSourceRepos = new List<Fork>(new[] {
                     forkRepoA
                 }),
-                BuildDefinitions = new List<BuildDefinition>(new[]
+                BuildDefinitions = new List<VstsBuildDefinition>(new[]
                 {
-                    new BuildDefinition {SourceCode = forkRepoA, State = EntityStateEnum.ToBeDeleted, TenantCode = "TenantA"}
+                    new VstsBuildDefinition {SourceCode = forkRepoA, State = EntityStateEnum.ToBeDeleted, TenantCode = "TenantA"}
                 })
             };
 
@@ -186,10 +186,10 @@ namespace Sierra.Model.Tests
                 {
                     forkRepoA, forkRepoB
                 }),
-                BuildDefinitions = new List<BuildDefinition>(new[]
+                BuildDefinitions = new List<VstsBuildDefinition>(new[]
                 {
-                    new BuildDefinition{SourceCode= forkRepoA, TenantCode = "TenantA", State = EntityStateEnum.Created },
-                    new BuildDefinition { SourceCode = forkRepoB, TenantCode = "TenantA", State = EntityStateEnum.Created }
+                    new VstsBuildDefinition{SourceCode= forkRepoA, TenantCode = "TenantA", State = EntityStateEnum.Created },
+                    new VstsBuildDefinition { SourceCode = forkRepoB, TenantCode = "TenantA", State = EntityStateEnum.Created }
                 })
             };
 
