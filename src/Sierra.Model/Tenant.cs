@@ -26,8 +26,7 @@
         public List<VstsBuildDefinition> BuildDefinitions { get; set; }       
 
         private static ToStringEqualityComparer<Fork> _forkEqComparer = new ToStringEqualityComparer<Fork>();
-        private static ToStringEqualityComparer<VstsBuildDefinition> _buildDefinitionEqComparer = new ToStringEqualityComparer<VstsBuildDefinition>();
-
+        
         public Tenant()
         {
             CustomSourceRepos = new List<Fork>();
@@ -54,7 +53,7 @@
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
-                .Except(CustomSourceRepos, ForkEqComparer)
+                .Except(CustomSourceRepos, _forkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
@@ -64,7 +63,7 @@
                 });
 
             CustomSourceRepos
-                .Except(newStateForks, ForkEqComparer)
+                .Except(newStateForks, _forkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
