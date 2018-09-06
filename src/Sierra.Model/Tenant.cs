@@ -17,7 +17,7 @@
         public string Name { get; set; }
 
         [DataMember]
-        public List<Fork> CustomSourceRepos { get; set; }          
+        public List<Fork> CustomSourceRepos { get; set; }
 
         /// <summary>
         /// Forks + Core repos (when supported)
@@ -54,7 +54,7 @@
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
-                .Except(CustomSourceRepos, _forkEqComparer)
+                .Except(CustomSourceRepos, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
@@ -64,13 +64,13 @@
                 });
 
             CustomSourceRepos
-                .Except(newStateForks, _forkEqComparer)
+                .Except(newStateForks, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
                     f.State = EntityStateEnum.ToBeDeleted;
-                    BuildDefinitions.Single(bd => bd.SourceCode == f).State = EntityStateEnum.ToBeDeleted;
-                });                                      
+                    BuildDefinitions.Single(bd => Equals(bd.SourceCode, f)).State = EntityStateEnum.ToBeDeleted;
+                });
         }
     }
 }
