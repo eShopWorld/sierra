@@ -1,10 +1,8 @@
 ﻿namespace Sierra.Model
 {
     using System.Linq;
-    using Newtonsoft.Json;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
     using System.Runtime.Serialization;
 
     [DataContract]
@@ -52,7 +50,7 @@
 
             Name = newState.Name;
 
-            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code ));
+            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code )).ToList();
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
