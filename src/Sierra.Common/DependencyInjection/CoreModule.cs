@@ -5,14 +5,11 @@
     using Eshopworld.DevOps;
     using Eshopworld.Telemetry;
     using Microsoft.Extensions.Configuration;
-    using System.Reflection;
-    using System;
-    using System.IO;
 
     /// <summary>
     /// some key  - devops + runtime -  level services are registered here
     /// </summary>
-    public class CoreModule : Autofac.Module
+    public class CoreModule : Module
     {
         private bool TestMode { get; }
 
@@ -27,10 +24,7 @@
 
         protected override void Load(ContainerBuilder builder)
         {
-            var config = EswDevOpsSdk.BuildConfiguration(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                Environment.GetEnvironmentVariable(@"ASPNETCORE_ENVIRONMENT"), 
-                TestMode);
+            var config = EswDevOpsSdk.BuildConfiguration(TestMode);
 
             builder.RegisterInstance(config)
                    .As<IConfigurationRoot>()

@@ -8,7 +8,7 @@
     using Common.DependencyInjection;
     using Eshopworld.Telemetry;
     using Microsoft.Extensions.Configuration;
-    using Sierra.Model;
+    using Model;
     using Microsoft.EntityFrameworkCore;
     using Eshopworld.Core;
 

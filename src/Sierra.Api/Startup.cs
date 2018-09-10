@@ -15,7 +15,7 @@
     using Eshopworld.Web;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc.Authorization;
-    using Sierra.Common.DependencyInjection;
+    using Common.DependencyInjection;
 
     /// <summary>
     /// Startup entry point for the Sierra.Api fabric service.

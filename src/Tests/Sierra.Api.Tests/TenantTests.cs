@@ -21,6 +21,7 @@
         private readonly string _tenantsControllerUrl;
         private readonly TestConfig _testConfig;
         private const string TenantName = "CITNT";
+        private const int BuildWaitTimeout = 300; //seconds = 10 minutes
 
         public TenantTests(ApiTestsFixture containerFixture)
         {
@@ -84,17 +85,17 @@
                         vstsConfig.VstsTargetProjectId);
 
                     //poll for the build completion
-                    var poolingCompleted = Task.Run(async () =>
+                    var pollingCompleted = Task.Run(async () =>
                         {
                             do
                             {
-                                await Task.Delay(TimeSpan.FromSeconds(1));
+                                await Task.Delay(TimeSpan.FromSeconds(10));
                                 build = await buildHttpClient.GetBuildAsync(vstsConfig.VstsTargetProjectId, build.Id);
                             } while (build.Status != BuildStatus.Completed);
                         })
-                        .Wait(TimeSpan.FromSeconds(30));
+                        .Wait(TimeSpan.FromSeconds(BuildWaitTimeout));
 
-                    Assert.True(poolingCompleted, "The pooling for the build definition timed out after 30seconds");
+                    Assert.True(pollingCompleted, $"The polling for the build definition timed out after {BuildWaitTimeout} seconds");
 
                     build.Result.Should().Be(BuildResult.Succeeded);
                 }

@@ -2,7 +2,7 @@
 namespace Sierra.Actor.Interfaces
 {
     using Microsoft.ServiceFabric.Actors;
-    using Sierra.Model;
+    using Model;
     using System.Threading.Tasks;
 
     /// <summary>
