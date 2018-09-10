@@ -101,7 +101,7 @@
         /// <param name="builder">The builder for an <see cref="T:Autofac.IContainer" /> from component registrations.</param>
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });           
+            builder.RegisterModule(new CoreModule());           
         }
 
         /// <summary>
