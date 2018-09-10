@@ -32,7 +32,7 @@
     <Content Update="appsettings.CI.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="appsettings.PREPROD.json">
+    <Content Include="appsettings.PREP.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="appsettings.Development.json">
