@@ -2,7 +2,7 @@
 
 ## The Problem
 
-[eShopWorld](https://www.eshopworld.com/) is a fast growing and dynamic company that is attracting new customers at a very agressive rate. How do we provision all their infactrsture in a repeatable way, and help to isolate the technology from large elements of customization that is required when dealing with these large global brands.
+[eShopWorld](https://www.eshopworld.com/) is a fast growing and dynamic company that is attracting new customers at a very agressive rate. How do we provision all their infrastructure in a repeatable way, and help to isolate the technology from large elements of customization that is required when dealing with these large global brands.
 
 ## The Solution
 
