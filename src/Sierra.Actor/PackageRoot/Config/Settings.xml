@@ -21,9 +21,6 @@
   <Section Name="ForkActorServiceReplicatorSecurityConfig">
     <Parameter Name="CredentialType" Value="None" />
   </Section>
-  <Section Name="ForkActorAppConfigSection">
-    <Parameter Name="KeyVaultUrl" Value="https://{tba}.vault.azure.net/" />
-  </Section>
   <Section Name="BuildDefinitionActorServiceReplicatorConfig">
     <Parameter Name="ReplicatorEndpoint" Value="BuildDefinitionActorServiceReplicatorEndpoint" />
     <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />

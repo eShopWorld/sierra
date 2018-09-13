@@ -7,7 +7,7 @@
     using Microsoft.AspNetCore.Hosting;
     using Eshopworld.Core;
     using System.Fabric;
-    using Sierra.Actor.Interfaces;
+    using Actor.Interfaces;
     using System.Threading.Tasks;
 
     /// <summary>

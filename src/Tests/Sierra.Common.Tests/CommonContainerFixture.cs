@@ -2,7 +2,7 @@
 {
     using System;
     using Autofac;
-    using Common.DependencyInjection;
+    using DependencyInjection;
     using Xunit;
 
     public class CommonContainerFixture : IDisposable
@@ -12,7 +12,7 @@
         public CommonContainerFixture()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });
+            builder.RegisterModule(new CoreModule(true));
             builder.RegisterModule(new VstsModule());         
             Container = builder.Build();
         }

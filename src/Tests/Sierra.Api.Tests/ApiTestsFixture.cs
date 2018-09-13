@@ -15,7 +15,7 @@
         public ApiTestsFixture()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });
+            builder.RegisterModule(new CoreModule(true));
             builder.RegisterModule(new VstsModule());
             builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });
             builder.Register(c =>

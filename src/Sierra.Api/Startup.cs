@@ -15,7 +15,7 @@
     using Eshopworld.Web;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc.Authorization;
-    using Sierra.Common.DependencyInjection;
+    using Common.DependencyInjection;
 
     /// <summary>
     /// Startup entry point for the Sierra.Api fabric service.
@@ -101,7 +101,7 @@
         /// <param name="builder">The builder for an <see cref="T:Autofac.IContainer" /> from component registrations.</param>
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });           
+            builder.RegisterModule(new CoreModule());           
         }
 
         /// <summary>

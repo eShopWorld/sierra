@@ -4,29 +4,27 @@
     using Eshopworld.Core;
     using Eshopworld.DevOps;
     using Eshopworld.Telemetry;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.AzureKeyVault;
 
     /// <summary>
     /// some key  - devops + runtime -  level services are registered here
     /// </summary>
     public class CoreModule : Module
     {
+        private bool TestMode { get; }
+
         /// <summary>
-        /// Get and sets the full URI for the keyvault to use in this module.
+        /// core module constructor allowing to enable test mode - disabled by default
         /// </summary>
-        public string Vault { get; set; }
+        /// <param name="testMode">test mode flag</param>
+        public CoreModule(bool testMode = false)
+        {
+            TestMode = testMode;
+        }
 
         protected override void Load(ContainerBuilder builder)
         {
-            var configBuilder = new ConfigurationBuilder().AddAzureKeyVault(
-                Vault,
-                new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback)),
-                new SectionKeyVaultManager());
-
-            var config = configBuilder.Build();
+            var config = EswDevOpsSdk.BuildConfiguration(TestMode);
 
             builder.RegisterInstance(config)
                    .As<IConfigurationRoot>()

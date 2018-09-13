@@ -23,7 +23,7 @@
         /// <param name="hostingEnvironment">hosting environment descriptor</param>
         /// <param name="bigBrother">big brother instance</param>
         /// <param name="sfContext">service fabric context</param>
-        protected SierraControllerBase(IHostingEnvironment hostingEnvironment, IBigBrother bigBrother, StatelessServiceContext sfContext) :base()
+        protected SierraControllerBase(IHostingEnvironment hostingEnvironment, IBigBrother bigBrother, StatelessServiceContext sfContext)
         {
             HostingEnvironment = hostingEnvironment;
             BigBrother = bigBrother;

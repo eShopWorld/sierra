@@ -65,6 +65,7 @@
         /// 
         /// if repo does not exist, just return gracefully
         /// </summary>
+        /// <param name="client">extension entry-point</param>
         /// <param name="forkName">fork definition</param>
         /// <returns>fork deletion result</returns>
         internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)

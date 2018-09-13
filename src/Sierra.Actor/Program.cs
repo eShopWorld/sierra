@@ -8,7 +8,7 @@
     using Common.DependencyInjection;
     using Eshopworld.Telemetry;
     using Microsoft.Extensions.Configuration;
-    using Sierra.Model;
+    using Model;
     using Microsoft.EntityFrameworkCore;
     using Eshopworld.Core;
 
@@ -22,7 +22,7 @@
             try
             {
                 var builder = new ContainerBuilder();
-                builder.RegisterModule(new CoreModule { Vault = @"https://esw-tooling-ci.vault.azure.net/" });
+                builder.RegisterModule(new CoreModule());
                 builder.RegisterModule(new VstsModule());
 
                 builder.RegisterServiceFabricSupport();               

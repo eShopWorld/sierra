@@ -9,6 +9,4 @@
     public string STSClientSecret { get; set; }
 
     public string STSScope { get; set; }
-
-    public string VstsPAT { get; set; }
 }
