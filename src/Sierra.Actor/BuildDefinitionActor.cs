@@ -10,7 +10,7 @@
     using Microsoft.TeamFoundation.Build.WebApi;
     using Model;
 
-    [StatePersistence(StatePersistence.Persisted)]
+    [StatePersistence(StatePersistence.Volatile)]
     public class BuildDefinitionActor : SierraActor<VstsBuildDefinition>, IBuildDefinitionActor
     {
         private readonly BuildHttpClient _buildHttpClient;
@@ -36,10 +36,17 @@
         /// <inheritdoc cref="SierraActor{T}" />
         public override async Task<VstsBuildDefinition> Add(VstsBuildDefinition model)
         {
+            var defId = model.SourceCode.ProjectType == ProjectTypeEnum.WebApi
+                ? _vstsConfiguration.WebApiBuildDefinitionTemplate.DefinitionId
+                : _vstsConfiguration.WebUIBuildDefinitionTemplate.DefinitionId;
+
+            var revId = model.SourceCode.ProjectType == ProjectTypeEnum.WebApi
+                ? _vstsConfiguration.WebApiBuildDefinitionTemplate.RevisionId
+                : _vstsConfiguration.WebUIBuildDefinitionTemplate.RevisionId;
+
             //load template
             var template = await _buildHttpClient.GetDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
-                _vstsConfiguration.WebApiBuildDefinitionTemplate.DefinitionId,
-                _vstsConfiguration.WebApiBuildDefinitionTemplate.RevisionId);
+                defId, revId);
 
             //customize the template
             template.Name = model.ToString();

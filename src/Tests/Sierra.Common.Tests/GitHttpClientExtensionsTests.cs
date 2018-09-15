@@ -30,7 +30,7 @@ public class GitHttpClientExtensionsTests
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var suffix = Guid.NewGuid().ToString();
             //create test repo
-            var newFork = new Fork("ForkIntTestSourceRepo", suffix);
+            var newFork = new Fork("ForkIntTestSourceRepo", suffix, ProjectTypeEnum.WebApi);
             await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, newFork);
             var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");
             repo.Should().NotBeNull();
@@ -48,7 +48,7 @@ public class GitHttpClientExtensionsTests
             var sut = scope.Resolve<GitHttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var suffix = Guid.NewGuid().ToString();
-            var fork = new Fork("ForkIntTestSourceRepo", suffix);
+            var fork = new Fork("ForkIntTestSourceRepo", suffix, ProjectTypeEnum.WebApi);
             //create target repo
             await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, fork);
             var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");

@@ -7,6 +7,6 @@
     public enum ProjectTypeEnum
     {
         WebApi,
-        UI
+        WebUI
     }
 }

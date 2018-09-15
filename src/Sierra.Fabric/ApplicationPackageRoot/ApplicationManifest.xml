@@ -57,7 +57,7 @@
         <UniformInt64Partition PartitionCount="[ForkActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
-    <Service Name="BuildDefinitionActorService" GeneratedIdRef="c7205f7d-4044-4da4-9285-98896deb9d73|Persisted">
+    <Service Name="BuildDefinitionActorService" GeneratedIdRef="b8839aa6-fd43-4cf6-8f56-8c3cb25a6fe1|Volatile">
       <StatefulService ServiceTypeName="BuildDefinitionActorServiceType" TargetReplicaSetSize="[BuildDefinitionActorService_TargetReplicaSetSize]" MinReplicaSetSize="[BuildDefinitionActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[BuildDefinitionActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>

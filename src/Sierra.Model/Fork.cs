@@ -16,11 +16,12 @@
         {
         }
 
-        public Fork(string sourceRepoName, string tenantCode)
+        public Fork(string sourceRepoName, string tenantCode, ProjectTypeEnum projectType)
         {
             Id = new Guid();
             SourceRepositoryName = sourceRepoName;
             TenantCode = tenantCode;
+            ProjectType = projectType;
             State = EntityStateEnum.NotCreated;
         }
 
@@ -59,29 +60,12 @@
         public override string ToString()
         {
             return $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantCode}";
-        }
-
-        /// <summary>
-        /// parses out fork object out of fork repo name
-        /// 
-        /// using naming structure
-        /// </summary>
-        /// <param name="repoName">repository name</param>
-        /// <returns>parsed out fork instance</returns>
-        public static Fork Parse(string repoName)
-        {
-            if (string.IsNullOrWhiteSpace(repoName) || !repoName.Contains(RepoTenantDelimiter) || repoName.EndsWith(RepoTenantDelimiter))
-                throw new ArgumentException($"Unexpected fork repository name {repoName}");
-
-            var lastIndex = repoName.LastIndexOf(RepoTenantDelimiter, StringComparison.Ordinal);
-
-            return new Fork(repoName.Substring(0, lastIndex), repoName.Substring(++lastIndex));
-        }
+        }        
 
         /// <summary>
         /// custom equality compare
         /// </summary>
-        /// <param name="obj">object instance to copare</param>
+        /// <param name="obj">object instance to compare</param>
         /// <returns>equality check result</returns>
         public override bool Equals(object obj)
         {
