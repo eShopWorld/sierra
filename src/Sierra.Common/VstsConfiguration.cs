@@ -11,6 +11,8 @@
         public string VstsPat { get; set; }
 
         public BuildDefinitionConfig WebApiBuildDefinitionTemplate { get; set; }
+
+        public BuildDefinitionConfig WebUIBuildDefinitionTemplate { get; set; }
     }
 
     public class BuildDefinitionConfig

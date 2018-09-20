@@ -49,7 +49,7 @@
 
             Name = newState.Name;
 
-            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code )).ToList();
+            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code, r.ProjectType )).ToList();
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
