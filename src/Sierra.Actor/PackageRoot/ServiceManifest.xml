@@ -57,6 +57,20 @@
         </Extension>
       </Extensions>
     </StatefulServiceType>
+    <StatefulServiceType ServiceTypeName="TestActorServiceType">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="83872c23-b371-4fb5-9ca9-3d3650a69b78|Volatile">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="TestActorService" />
+            <ReplicatorEndpoint Name="TestActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="TestActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="TestActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="TestActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="TestActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
   </ServiceTypes>
   <CodePackage Name="Code" Version="1.0.0">
     <EntryPoint>
@@ -79,6 +93,8 @@
       <Endpoint Name="ForkActorServiceReplicatorEndpoint" />
       <Endpoint Name="BuildDefinitionActorServiceEndpointV2" />
       <Endpoint Name="BuildDefinitionActorServiceReplicatorEndpoint" />
+      <Endpoint Name="TestActorServiceEndpointV2" />
+      <Endpoint Name="TestActorServiceReplicatorEndpoint" />
     </Endpoints>
   </Resources>
   <!-- The content will be generated during build -->

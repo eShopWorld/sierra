@@ -2,20 +2,21 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Fabric;
     using System.IO;
     using System.Reflection;
     using Autofac;
+    using Common.DependencyInjection;
+    using Eshopworld.Web;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Mvc.Authorization;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Model;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Swashbuckle.AspNetCore.Swagger;
-    using Eshopworld.Web;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc.Authorization;
-    using Common.DependencyInjection;
 
     /// <summary>
     /// Startup entry point for the Sierra.Api fabric service.
@@ -81,7 +82,7 @@
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddIdentityServerAuthentication(x =>
             {
-                x.ApiName = Configuration["STSConfig:ApiName"];            
+                x.ApiName = Configuration["STSConfig:ApiName"];
                 x.Authority = Configuration["STSConfig:Authority"];
                 //x.AddJwtBearerEventsTelemetry(bb);
             });
@@ -101,7 +102,7 @@
         /// <param name="builder">The builder for an <see cref="T:Autofac.IContainer" /> from component registrations.</param>
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new CoreModule());           
+            builder.RegisterModule(new CoreModule());
         }
 
         /// <summary>
@@ -109,12 +110,16 @@
         /// </summary>
         /// <param name="app">The mechanisms to configure an application's request pipeline.</param>
         /// <param name="env">The information about the web hosting environment an application is running in.</param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, StatelessServiceContext statelessServiceContext)
         {
 
             if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
             app.UseBigBrotherExceptionHandler();
             app.UseAuthentication();
+            app.UseActorDirectCall(new ActorDirectCallOptions
+            {
+                StatelessServiceContext = statelessServiceContext,
+            });
             app.UseMvc();
 
             app.UseSwagger();
@@ -122,8 +127,6 @@
             {
                 c.SwaggerEndpoint($"/swagger/{SierraVersion.LatestApi}/swagger.json", $"Sierra Api {SierraVersion.LatestApi}");
             });
-
-        
         }
     }
 }

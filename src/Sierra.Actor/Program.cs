@@ -30,6 +30,7 @@
                 builder.RegisterActor<TenantActor>();
                 builder.RegisterActor<LockerActor>();
                 builder.RegisterActor<ForkActor>();
+                builder.RegisterActor<TestActor>();
                 builder.RegisterActor<BuildDefinitionActor>();
 
                 builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });              
