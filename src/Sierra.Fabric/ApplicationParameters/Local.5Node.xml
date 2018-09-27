@@ -2,6 +2,7 @@
 <Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/Sierra.ServiceFabric" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="AspNetCore_Environment" Value="Development" />
+    <Parameter Name="SierraApi_InstanceCount" Value="1" />
     <Parameter Name="ForkActorService_PartitionCount" Value="1" />
     <Parameter Name="LockerActorService_PartitionCount" Value="1" />
     <Parameter Name="TenantActorService_PartitionCount" Value="1" />
