@@ -1,21 +1,27 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.ServiceFabric.Actors;
-using Microsoft.ServiceFabric.Actors.Client;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Fabric;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using Eshopworld.Core;
 
 namespace Sierra.Api
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Fabric;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Reflection;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Newtonsoft.Json;
+
+
+    /// <summary>
+    /// The parameters required by <see cref="ActorDirectCallMiddleware"/>;
+    /// </summary>
     public class ActorDirectCallOptions
     {
         /// <summary>
@@ -28,19 +34,47 @@ namespace Sierra.Api
         /// The context used to locate actors.
         /// </summary>
         public StatelessServiceContext StatelessServiceContext { get; set; }
+
+        /// <summary>
+        /// The request path which is handled by the middleware.
+        /// </summary>
+        public PathString PathPrefix { get; set; } = new PathString("/test");
     }
 
+    /// <summary>
+    /// Extension methods used by <see cref="ActorDirectCallMiddleware"/>.
+    /// </summary>
     public static class ActorDirectCallExtensions
     {
         /// <summary>
         /// Enables handling of HTTP requests which are directly used to 
         /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="options"></param>
+        /// <param name="app">The <see cref="IApplicationBuilder"/> to add the middleware to.</param>
+        /// <param name="options">The middleware's parameters.</param>
         /// <returns></returns>
-        public static IApplicationBuilder UseActorDirectCall(this IApplicationBuilder builder, ActorDirectCallOptions options)
+        public static IApplicationBuilder UseActorDirectCall(this IApplicationBuilder app, ActorDirectCallOptions options)
         {
-            return builder.UseMiddleware<ActorDirectCallMiddleware>(options);
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
+            if (options.StatelessServiceContext == null)
+            {
+                throw new ArgumentException("The StatelessServiceContext property must not be null", nameof(options));
+            }
+
+            if (options.PathPrefix == null)
+            {
+                throw new ArgumentException("The PathPrefix property must not be null", nameof(options));
+            }
+
+            if (options.PathPrefix.Value.Length < 2 || options.PathPrefix.Value.EndsWith("/"))
+            {
+                throw new ArgumentException("The value of the PathPrefix property is invalid.", nameof(options));
+            }
+
+            return app.UseMiddleware<ActorDirectCallMiddleware>(options);
         }
     }
 
@@ -54,22 +88,22 @@ namespace Sierra.Api
     {
         private readonly RequestDelegate _next;
         private readonly ActorDirectCallOptions _options;
-        private readonly Lazy<IEnumerable<Assembly>> _assemblies;
-        private ConcurrentDictionary<string, ActorMethod> _actorMethods
-            = new ConcurrentDictionary<string, ActorMethod>(StringComparer.OrdinalIgnoreCase);
+        private readonly IBigBrother _bigBrother;
+        private readonly Lazy<Dictionary<string, ActorMethod>> _actorMethods;
 
-        public ActorDirectCallMiddleware(RequestDelegate next, ActorDirectCallOptions options)
+        public ActorDirectCallMiddleware(RequestDelegate next, ActorDirectCallOptions options, IBigBrother bigBrother)
         {
             _next = next;
             _options = options;
-            _assemblies = new Lazy<IEnumerable<Assembly>>(
-                () => GetAssemblies(_options.InterfaceAssemblies));
+            _bigBrother = bigBrother;
+            _actorMethods = new Lazy<Dictionary<string, ActorMethod>>(
+                () => CreateActorMethodsDictionary(GetAssemblies(_options.InterfaceAssemblies)));
         }
 
         public Task Invoke(HttpContext context)
         {
             var isTest = context.Request.Path.StartsWithSegments(
-                "/test",
+                _options.PathPrefix,
                 StringComparison.OrdinalIgnoreCase,
                 out var remaining);
             if (!isTest)
@@ -86,12 +120,12 @@ namespace Sierra.Api
         {
             try
             {
-                if (!"application/json".Equals(context.Request.ContentType)) // TODO: is it enough?
+                if (!"application/json".Equals(context.Request.ContentType))
                 {
                     throw new Exception("only the application/json content type is accepted");
                 }
 
-                var actorMethod = FindActorMethdod(remaining);
+                var actorMethod = FindActorMethod(remaining);
 
                 var jsonSerializedParameter = await ReadAsStringAsync(context.Request.Body);
 
@@ -107,62 +141,54 @@ namespace Sierra.Api
                 }
                 else
                 {
-                    context.Response.StatusCode = 204;
+                    context.Response.StatusCode = (int)HttpStatusCode.NoContent;
                 }
             }
-            catch (Exception ex) // TODO: should some custom errors be used?
+            catch (Exception ex)
             {
-                context.Response.StatusCode = 500;
-                var errorMessage = new StringBuilder("Call failed because: ");
-                var err = ex;
-                while (err != null)
-                {
-                    errorMessage.Append(err.Message);
-                    err = err.InnerException;
-                }
+                _bigBrother.Publish(ex.ToBbEvent());
 
-                context.Response.ContentType = "text/plain";
-                await context.Response.WriteAsync(errorMessage.ToString());
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                var error = new
+                {
+                    errors = ListInnerExceptions(ex)
+                        .Where(x => !(x is AggregateException ag && ag.InnerExceptions.Count == 1))
+                        .Select(x => new { message = x.Message, type = x.GetType().FullName })
+                };
+
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(error));
             }
         }
 
-        private ActorMethod FindActorMethdod(PathString remaining)
+        private static IEnumerable<Exception> ListInnerExceptions(Exception ex)
+        {
+            do
+            {
+                yield return ex;
+            } while ((ex = ex.InnerException) != null);
+        }
+
+        private ActorMethod FindActorMethod(PathString remaining)
         {
             var remainingText = remaining.ToString();
-            if (!_actorMethods.TryGetValue(remainingText, out var actorMethod))
+            if (_actorMethods.Value.TryGetValue(remainingText, out var actorMethod))
+                return actorMethod;
+
+            // No valid method matched the request. Find out why.
+            var match = Regex.Match(remainingText, @"^/(\w+)/(\w+)$", RegexOptions.Compiled);
+            if (!match.Success)
             {
-
-                var match = Regex.Match(remainingText, @"^/(\w+)/(\w+)$", RegexOptions.Compiled);
-                if (!match.Success)
-                {
-                    throw new Exception("The request path doesn't match the required pattern.");
-                }
-
-                var actorName = match.Groups[1].Value;
-                var methodName = match.Groups[2].Value;
-
-                var interfaceType = FindActorInterface(_assemblies.Value, actorName);
-
-                var method = interfaceType.GetMethod(methodName,
-                    BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-
-                if (method == null)
-                {
-                    throw new Exception($"The interface {interfaceType.FullName} has no method {methodName}.");
-                }
-
-                var parameters = method.GetParameters();
-                if (parameters.Length != 1)
-                {
-                    throw new Exception(
-                        $"The method {method.Name} with {parameters.Length} parameters is not supported.");
-                }
-
-                actorMethod = new ActorMethod(interfaceType, method, parameters[0]);
-                _actorMethods[remainingText] = actorMethod;
+                throw new Exception("The request path doesn't match the required pattern.");
             }
 
-            return actorMethod;
+            var actorName = match.Groups[1].Value;
+            var methodName = match.Groups[2].Value;
+
+            throw new Exception(
+                $"Failed to find the I{actorName}Actor interface with a valid {methodName} method.");
+
         }
 
         private static async Task<string> ReadAsStringAsync(Stream stream)
@@ -173,9 +199,23 @@ namespace Sierra.Api
             }
         }
 
-        private IEnumerable<Assembly> GetAssemblies(List<Assembly> assemblies)
+        private Dictionary<string, ActorMethod> CreateActorMethodsDictionary(IEnumerable<Assembly> assemblies)
         {
-            if (assemblies == null || assemblies.Count == 0)
+            var methods = from assembly in GetAssemblies(assemblies)
+                          from interfaceType in FindActorInterfaces(assembly)
+                          from methodProperty in FindCallableActorMethods(interfaceType)
+                          select new ActorMethod(interfaceType, methodProperty.method, methodProperty.parameter);
+
+            return methods.ToDictionary(
+                x => $"/{GetCoreActorName(x.InterfaceType.Name)}/{x.Method.Name}",
+                x => x,
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static IEnumerable<Assembly> GetAssemblies(IEnumerable<Assembly> assemblies)
+        {
+            var list = assemblies?.ToList();
+            if (list == null || list.Count == 0)
             {
                 return Assembly
                     .GetEntryAssembly()
@@ -185,32 +225,34 @@ namespace Sierra.Api
             }
             else
             {
-                return assemblies;
+                return list;
             }
         }
 
-
-        private static Type FindActorInterface(IEnumerable<Assembly> actorInterfacesAssemblies, string actorName)
+        private static IEnumerable<Type> FindActorInterfaces(Assembly assembly)
         {
             var actorInterfaceType = typeof(IActor);
-            var interfaceName = $"I{actorName}Actor";
-            var foundInterfaces = actorInterfacesAssemblies
-                .SelectMany(x => x.GetExportedTypes())
-                .Where(x => x.IsInterface && actorInterfaceType.IsAssignableFrom(x))
-                .Where(x => interfaceName.Equals(x.Name, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            return from t in assembly.GetExportedTypes()
+                   where GetCoreActorName(t.Name) != null
+                   where t.IsInterface && actorInterfaceType.IsAssignableFrom(t)
+                   select t;
+        }
 
-            if (foundInterfaces.Count == 0)
-            {
-                throw new Exception($"The interface {interfaceName} has not been found.");
-            }
+        private static string GetCoreActorName(string interfaceName)
+        {
+            var match = Regex.Match(interfaceName, @"I(\w+)Actor", RegexOptions.Compiled);
+            return match.Success ? match.Groups[1].Value : null;
+        }
 
-            if (foundInterfaces.Count > 1)
-            {
-                throw new Exception($"Found {foundInterfaces.Count} matching the name {interfaceName}.");
-            }
-
-            return foundInterfaces[0];
+        private static IEnumerable<(MethodInfo method, ParameterInfo parameter)> FindCallableActorMethods(
+            Type interfaceType)
+        {
+            return
+                from m in interfaceType.GetMethods(
+                    BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public)
+                let p = m.GetParameters()
+                where p.Length == 1
+                select (m, p[0]);
         }
 
         private async Task<object> CallActor(Type interfaceType, MethodInfo method, object parameterValue)
@@ -234,7 +276,6 @@ namespace Sierra.Api
             {
                 throw new Exception("Failed to call the actor. ", ex);
             }
-
 
             var resultProperty = task.GetType().GetProperty("Result");
 

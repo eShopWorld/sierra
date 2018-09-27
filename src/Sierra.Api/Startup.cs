@@ -7,6 +7,9 @@
     using System.Reflection;
     using Autofac;
     using Common.DependencyInjection;
+    using Eshopworld.Core;
+    using Eshopworld.DevOps;
+    using Eshopworld.Telemetry;
     using Eshopworld.Web;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Authorization;
@@ -23,19 +26,19 @@
     /// </summary>
     public class Startup
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="Startup"/>.
-        /// </summary>
-        /// <param name="configuration">[Injected] The set of key/value application configuration properties.</param>
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private readonly IBigBrother _bb;
+        private readonly IConfigurationRoot _configuration;
 
         /// <summary>
-        /// Gets and sets the set of key/value application configuration properties.
+        /// Constructor
         /// </summary>
-        public IConfiguration Configuration { get; }
+        /// <param name="env">hosting environment</param>
+        public Startup(IHostingEnvironment env)
+        {
+            _configuration = EswDevOpsSdk.BuildConfiguration(env.ContentRootPath, env.EnvironmentName);
+            var internalKey = _configuration["BBInstrumentationKey"];
+            _bb = new BigBrother(internalKey, internalKey);
+        }
 
         /// <summary>
         /// The framework service configuration entry point.
@@ -44,7 +47,7 @@
         /// <param name="services">The contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry(Configuration);
+            services.AddApplicationInsightsTelemetry(_configuration);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(SierraVersion.LatestApi, new Info { Title = "Sierra Api", Version = SierraVersion.Sierra });
@@ -82,8 +85,8 @@
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddIdentityServerAuthentication(x =>
             {
-                x.ApiName = Configuration["STSConfig:ApiName"];
-                x.Authority = Configuration["STSConfig:Authority"];
+                x.ApiName = _configuration["STSConfig:ApiName"];
+                x.Authority = _configuration["STSConfig:Authority"];
                 //x.AddJwtBearerEventsTelemetry(bb);
             });
 
@@ -116,10 +119,14 @@
             if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
             app.UseBigBrotherExceptionHandler();
             app.UseAuthentication();
-            app.UseActorDirectCall(new ActorDirectCallOptions
+            if (_configuration.GetValue<bool>("ActorDirectCallMiddlewareEnabled"))
             {
-                StatelessServiceContext = statelessServiceContext,
-            });
+                app.UseActorDirectCall(new ActorDirectCallOptions
+                {
+                    StatelessServiceContext = statelessServiceContext,
+                });
+            }
+
             app.UseMvc();
 
             app.UseSwagger();

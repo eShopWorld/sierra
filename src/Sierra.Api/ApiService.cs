@@ -47,7 +47,6 @@
                                         services.AddSingleton(serviceContext);
                                     })
                                 .UseContentRoot(Directory.GetCurrentDirectory())
-                                .ConfigureAppConfiguration(ctx=> ctx.AddJsonFile("appsettings.json").Build())
                                 .UseStartup<Startup>()                               
                                 .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                                 .UseUrls(url)               
