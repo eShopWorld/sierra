@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <Platform>x64</Platform>
+    <RuntimeFrameworkVersion>2.1.4</RuntimeFrameworkVersion>
     <IsPackable>false</IsPackable>
 
     <LangVersion>latest</LangVersion>
