@@ -11,6 +11,8 @@
     <RuntimeFrameworkVersion>2.1.4</RuntimeFrameworkVersion>
 
     <LangVersion>latest</LangVersion>
+
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

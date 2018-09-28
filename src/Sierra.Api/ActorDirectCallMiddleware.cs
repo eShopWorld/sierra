@@ -1,5 +1,4 @@
-﻿using Eshopworld.Core;
-
+﻿
 namespace Sierra.Api
 {
     using System;
@@ -12,6 +11,7 @@ namespace Sierra.Api
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+    using Eshopworld.Core;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Http;
     using Microsoft.ServiceFabric.Actors;
@@ -28,6 +28,8 @@ namespace Sierra.Api
         /// The optional list of assemblies which contains interfaces of actors. If not
         /// provided or if it's empty all referenced assemblies are used.
         /// </summary>
+        // ReSharper disable once CollectionNeverUpdated.Global
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public List<Assembly> InterfaceAssemblies { get; set; }
 
         /// <summary>
@@ -91,6 +93,12 @@ namespace Sierra.Api
         private readonly IBigBrother _bigBrother;
         private readonly Lazy<Dictionary<string, ActorMethod>> _actorMethods;
 
+        /// <summary>
+        /// Constructs the instance of <see cref="ActorDirectCallMiddleware"/>.
+        /// </summary>
+        /// <param name="next">The next request middleware handler.</param>
+        /// <param name="options">The middleware parameters.</param>
+        /// <param name="bigBrother">The telemetry sink.</param>
         public ActorDirectCallMiddleware(RequestDelegate next, ActorDirectCallOptions options, IBigBrother bigBrother)
         {
             _next = next;
@@ -100,6 +108,11 @@ namespace Sierra.Api
                 () => CreateActorMethodsDictionary(GetAssemblies(_options.InterfaceAssemblies)));
         }
 
+        /// <summary>
+        /// Processes the HTTP request.
+        /// </summary>
+        /// <param name="context">The HTTP request context</param>
+        /// <returns>The task.</returns>
         public Task Invoke(HttpContext context)
         {
             var isTest = context.Request.Path.StartsWithSegments(

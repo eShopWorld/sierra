@@ -100,7 +100,7 @@
 
         /// <summary>
         /// The framework DI container configuration entry point.
-        ///     Use this to setup specific autofac dependencies that don't have <see cref="IServiceCollection"/> extension methods.
+        ///     Use this to setup specific AutoFac dependencies that don't have <see cref="IServiceCollection"/> extension methods.
         /// </summary>
         /// <param name="builder">The builder for an <see cref="T:Autofac.IContainer" /> from component registrations.</param>
         public void ConfigureContainer(ContainerBuilder builder)
@@ -113,6 +113,7 @@
         /// </summary>
         /// <param name="app">The mechanisms to configure an application's request pipeline.</param>
         /// <param name="env">The information about the web hosting environment an application is running in.</param>
+        /// <param name="statelessServiceContext">The context of Service Fabric stateless service.</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, StatelessServiceContext statelessServiceContext)
         {
 
