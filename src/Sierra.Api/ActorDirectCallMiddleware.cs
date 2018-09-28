@@ -146,7 +146,7 @@ namespace Sierra.Api
             }
             catch (Exception ex)
             {
-                _bigBrother.Publish(ex.ToBbEvent());
+                _bigBrother.Publish(ex.ToExceptionEvent());
 
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 

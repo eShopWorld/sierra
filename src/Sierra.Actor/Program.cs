@@ -44,7 +44,7 @@
                     }
                     catch (Exception e)
                     {
-                        container.Resolve<IBigBrother>().Publish(e.ToBbEvent());
+                        container.Resolve<IBigBrother>().Publish(e.ToExceptionEvent());
                     }                   
                    
                     await Task.Delay(Timeout.Infinite);

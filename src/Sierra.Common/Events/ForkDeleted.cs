@@ -5,7 +5,7 @@
     /// <summary>
     /// fork deletion event 
     /// </summary>
-    public class ForkDeleted : BbTelemetryEvent
+    public class ForkDeleted : TelemetryEvent
     {
         /// <summary>
         /// name of the deleted fork
