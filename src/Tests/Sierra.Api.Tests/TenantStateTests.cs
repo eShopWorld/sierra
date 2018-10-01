@@ -14,7 +14,7 @@ public class TenantStateTests
 {
     private readonly L3ActorTestFixture _level3Fixture;
 
-    private const int BuildWaitTimeout = 300; //seconds = 10 minutes
+    private static readonly TimeSpan BuildWaitTimeout = TimeSpan.FromSeconds(300); 
 
     public TenantStateTests(L3ActorTestFixture level3Fixture)
     {
@@ -69,7 +69,7 @@ public class TenantStateTests
                         build = await buildHttpClient.GetBuildAsync(vstsConfig.VstsTargetProjectId, build.Id);
                     } while (build.Status != BuildStatus.Completed);
                 })
-                .Wait(TimeSpan.FromSeconds(BuildWaitTimeout));
+                .Wait(BuildWaitTimeout);
 
             Assert.True(pollingCompleted,
                 $"The polling for the build definition timed out after {BuildWaitTimeout} seconds");

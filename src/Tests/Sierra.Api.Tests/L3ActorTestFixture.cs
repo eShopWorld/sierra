@@ -36,7 +36,7 @@ public class L3ActorTestFixture : IDisposable
     public Tenant TenantUnderTest { get; }
 
     private string TenantsControllerUrl => $"{TestConfig.ApiUrl}tenants";
-    private const int TenantApiTimeoutMs = 10 * 1000; //10 seconds
+    private static readonly TimeSpan TenantApiTimeoutMs = TimeSpan.FromSeconds(10);
 
     /// <summary>
     /// constructor logic
@@ -49,7 +49,7 @@ public class L3ActorTestFixture : IDisposable
         builder.RegisterModule(new CoreModule(true));
         builder.RegisterModule(new VstsModule());
         builder.Register(c => new SierraDbContext
-            {ConnectionString = /*c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"]*/ "Data Source=.;Initial Catalog=Sierra;Persist Security Info=True;User ID=sierra;Password=sierra" });
+            {ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });
         builder.Register(c =>
         {
             TestConfig = new TestConfig();
@@ -61,7 +61,7 @@ public class L3ActorTestFixture : IDisposable
         Container = builder.Build();
         TestConfig = Container.Resolve<TestConfig>();
         EnsureTenantCreated().Wait(TenantApiTimeoutMs);
-
+        //load tenant into memory
         using (var scope = Container.BeginLifetimeScope())
         {
             var dbContext = scope.Resolve<SierraDbContext>();
