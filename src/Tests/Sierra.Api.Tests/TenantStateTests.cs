@@ -9,14 +9,14 @@ using Sierra.Common;
 using Sierra.Model;
 using Xunit;
 
-[Collection(nameof(ActorContainerCollection))]
+[Collection(nameof(TenantL3Collection))]
 public class TenantStateTests
 {
-    private readonly L3ActorTestFixture _level3Fixture;
+    private readonly TenantL3TestFixture _level3Fixture;
 
     private static readonly TimeSpan BuildWaitTimeout = TimeSpan.FromSeconds(300); 
 
-    public TenantStateTests(L3ActorTestFixture level3Fixture)
+    public TenantStateTests(TenantL3TestFixture level3Fixture)
     {
         _level3Fixture = level3Fixture;
     }
