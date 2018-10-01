@@ -12,6 +12,9 @@
     <Parameter Name="ForkActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="ForkActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ForkActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="TestActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="TestActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="TestActorService_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="BuildDefinitionActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="BuildDefinitionActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="BuildDefinitionActorService_TargetReplicaSetSize" DefaultValue="3" />
@@ -55,6 +58,11 @@
     <Service Name="ForkActorService" GeneratedIdRef="11dae370-2517-4c62-8a69-8628302014dc|Volatile">
       <StatefulService ServiceTypeName="ForkActorServiceType" TargetReplicaSetSize="[ForkActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ForkActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ForkActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="TestActorService" GeneratedIdRef="83872c23-b371-4fb5-9ca9-3d3650a69b78|Volatile">
+      <StatefulService ServiceTypeName="TestActorServiceType" TargetReplicaSetSize="[TestActorService_TargetReplicaSetSize]" MinReplicaSetSize="[TestActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[TestActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
     <Service Name="BuildDefinitionActorService" GeneratedIdRef="b8839aa6-fd43-4cf6-8f56-8c3cb25a6fe1|Volatile">

@@ -3,19 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-    <Platform>x64</Platform>
+    <Platforms>x64</Platforms>
 
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.3.162" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.2.162" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.2.162" />
-    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="3.2.162" />
-    <PackageReference Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="3.2.162" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.2.162" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.2.162" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.2.176" />
   </ItemGroup>
 
   <ItemGroup>

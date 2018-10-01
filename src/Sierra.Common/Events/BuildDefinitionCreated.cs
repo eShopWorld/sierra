@@ -5,7 +5,7 @@
     /// <summary>
     /// event to capture build definition being created
     /// </summary>
-    public class BuildDefinitionCreated : BbTelemetryEvent
+    public class BuildDefinitionCreated : TelemetryEvent
     {
         /// <summary>
         /// pipeline name

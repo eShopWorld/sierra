@@ -2,39 +2,43 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Fabric;
     using System.IO;
     using System.Reflection;
     using Autofac;
+    using Common.DependencyInjection;
+    using Eshopworld.Core;
+    using Eshopworld.DevOps;
+    using Eshopworld.Telemetry;
+    using Eshopworld.Web;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Mvc.Authorization;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Model;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Swashbuckle.AspNetCore.Swagger;
-    using Eshopworld.Web;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc.Authorization;
-    using Common.DependencyInjection;
 
     /// <summary>
     /// Startup entry point for the Sierra.Api fabric service.
     /// </summary>
     public class Startup
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="Startup"/>.
-        /// </summary>
-        /// <param name="configuration">[Injected] The set of key/value application configuration properties.</param>
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private readonly IBigBrother _bb;
+        private readonly IConfigurationRoot _configuration;
 
         /// <summary>
-        /// Gets and sets the set of key/value application configuration properties.
+        /// Constructor
         /// </summary>
-        public IConfiguration Configuration { get; }
+        /// <param name="env">hosting environment</param>
+        public Startup(IHostingEnvironment env)
+        {
+            _configuration = EswDevOpsSdk.BuildConfiguration(env.ContentRootPath, env.EnvironmentName);
+            var internalKey = _configuration["BBInstrumentationKey"];
+            _bb = new BigBrother(internalKey, internalKey);
+        }
 
         /// <summary>
         /// The framework service configuration entry point.
@@ -43,7 +47,7 @@
         /// <param name="services">The contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry(Configuration);
+            services.AddApplicationInsightsTelemetry(_configuration);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(SierraVersion.LatestApi, new Info { Title = "Sierra Api", Version = SierraVersion.Sierra });
@@ -81,8 +85,8 @@
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddIdentityServerAuthentication(x =>
             {
-                x.ApiName = Configuration["STSConfig:ApiName"];            
-                x.Authority = Configuration["STSConfig:Authority"];
+                x.ApiName = _configuration["STSConfig:ApiName"];
+                x.Authority = _configuration["STSConfig:Authority"];
                 //x.AddJwtBearerEventsTelemetry(bb);
             });
 
@@ -96,12 +100,12 @@
 
         /// <summary>
         /// The framework DI container configuration entry point.
-        ///     Use this to setup specific autofac dependencies that don't have <see cref="IServiceCollection"/> extension methods.
+        ///     Use this to setup specific AutoFac dependencies that don't have <see cref="IServiceCollection"/> extension methods.
         /// </summary>
         /// <param name="builder">The builder for an <see cref="T:Autofac.IContainer" /> from component registrations.</param>
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new CoreModule());           
+            builder.RegisterModule(new CoreModule());
         }
 
         /// <summary>
@@ -109,12 +113,21 @@
         /// </summary>
         /// <param name="app">The mechanisms to configure an application's request pipeline.</param>
         /// <param name="env">The information about the web hosting environment an application is running in.</param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        /// <param name="statelessServiceContext">The context of Service Fabric stateless service.</param>
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, StatelessServiceContext statelessServiceContext)
         {
 
             if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
             app.UseBigBrotherExceptionHandler();
             app.UseAuthentication();
+            if (_configuration.GetValue<bool>("ActorDirectCallMiddlewareEnabled"))
+            {
+                app.UseActorDirectCall(new ActorDirectCallOptions
+                {
+                    StatelessServiceContext = statelessServiceContext,
+                });
+            }
+
             app.UseMvc();
 
             app.UseSwagger();
@@ -122,8 +135,6 @@
             {
                 c.SwaggerEndpoint($"/swagger/{SierraVersion.LatestApi}/swagger.json", $"Sierra Api {SierraVersion.LatestApi}");
             });
-
-        
         }
     }
 }

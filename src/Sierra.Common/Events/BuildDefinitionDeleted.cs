@@ -5,7 +5,7 @@
     /// <summary>
     /// event to capture build definition removed
     /// </summary>
-    public class BuildDefinitionDeleted : BbTelemetryEvent
+    public class BuildDefinitionDeleted : TelemetryEvent
     {
         /// <summary>
         /// name of the definition

@@ -2,7 +2,7 @@
 {
     using Eshopworld.Core;
 
-    public class ForkRequestFailed : BbTelemetryEvent
+    public class ForkRequestFailed : TelemetryEvent
     {
         public string ForkName { get; set; }     
         public string Message { get; set; }
