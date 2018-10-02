@@ -13,7 +13,6 @@
 
         public VstsBuildDefinition(Fork sourceCode, string tenantCode)
         {
-            Id = Guid.Empty;
             SourceCode = sourceCode;
             TenantCode = tenantCode;
             State = EntityStateEnum.NotCreated;
@@ -72,11 +71,10 @@
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            if (!(obj is VstsBuildDefinition))
+            if (!(obj is VstsBuildDefinition build))
                 return false;
 
-            var bd = (VstsBuildDefinition)obj;
-            return string.Equals(bd.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
+            return string.Equals(build.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
         }
     }
 }

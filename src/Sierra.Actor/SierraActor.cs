@@ -35,9 +35,9 @@
         /// <returns>The <see cref="Task"/> wrapper.</returns>
         public abstract Task Remove(T model);
 
-        protected DepT GetActor<DepT>(string actorId) where DepT:IActor
+        protected TDepActor GetActor<TDepActor>(string actorId) where TDepActor : IActor
         {
-            return ActorProxy.Create<DepT>(new ActorId(actorId));
+            return ActorProxy.Create<TDepActor>(new ActorId(actorId));
         }
     }
 }

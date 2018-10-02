@@ -50,7 +50,6 @@
         /// <param name="vstsTargetProjectId">The target project ID where we are creating the fork on.</param>
         /// <param name="fork">fork definition</param>
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S4457:Parameter validation in \"async\"/\"await\" methods should be wrapped", Justification = "The analyser incorrectly ma")]
         internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, Fork fork)
         {            
             var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == fork.SourceRepositoryName);
@@ -69,16 +68,11 @@
         /// <param name="client">extension entry-point</param>
         /// <param name="forkName">fork definition</param>
         /// <returns>fork deletion result</returns>
-        internal static Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
+        internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
         {
             if (string.IsNullOrWhiteSpace(forkName))
-                return Task.FromResult(false);
+                return false;
 
-            return DeleteForkIfExistsImpl(client, forkName);
-        }
-
-        private static async Task<bool> DeleteForkIfExistsImpl(GitHttpClient client, string forkName)
-        {
             var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == forkName);
 
             if (repo == null)
