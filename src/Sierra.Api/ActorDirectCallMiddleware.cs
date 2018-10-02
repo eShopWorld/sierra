@@ -1,5 +1,4 @@
-﻿
-namespace Sierra.Api
+﻿namespace Sierra.Api
 {
     using System;
     using System.Collections.Generic;
@@ -66,7 +65,7 @@ namespace Sierra.Api
                 throw new ArgumentException("The StatelessServiceContext property must not be null", nameof(options));
             }
 
-            if (options.PathPrefix == null)
+            if (options.PathPrefix.Value == null)
             {
                 throw new ArgumentException("The PathPrefix property must not be null", nameof(options));
             }
@@ -135,7 +134,7 @@ namespace Sierra.Api
             {
                 if (!"application/json".Equals(context.Request.ContentType))
                 {
-                    throw new Exception("only the application/json content type is accepted");
+                    throw new ActorCallFailedException("only the application/json content type is accepted");
                 }
 
                 var actorMethod = FindActorMethod(remaining);
@@ -193,13 +192,13 @@ namespace Sierra.Api
             var match = Regex.Match(remainingText, @"^/(\w+)/(\w+)$", RegexOptions.Compiled);
             if (!match.Success)
             {
-                throw new Exception("The request path doesn't match the required pattern.");
+                throw new ActorCallFailedException("The request path doesn't match the required pattern.");
             }
 
             var actorName = match.Groups[1].Value;
             var methodName = match.Groups[2].Value;
 
-            throw new Exception(
+            throw new ActorCallFailedException(
                 $"Failed to find the I{actorName}Actor interface with a valid {methodName} method.");
 
         }
@@ -287,7 +286,7 @@ namespace Sierra.Api
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to call the actor. ", ex);
+                throw new ActorCallFailedException("Failed to call the actor. ", ex);
             }
 
             var resultProperty = task.GetType().GetProperty("Result");
@@ -322,6 +321,29 @@ namespace Sierra.Api
                 Method = method;
                 Parameter = parameter;
             }
+        }
+
+        /// <summary>
+        /// The internal exception used by <see cref="ActorDirectCallMiddleware"/>.
+        /// </summary>
+        [Serializable]
+        public sealed class ActorCallFailedException : Exception
+        {
+            /// <inheritdoc />
+            public ActorCallFailedException(string message)
+                : base(message)
+            {
+            }
+
+            /// <inheritdoc />
+            public ActorCallFailedException(string message, Exception inner)
+                : base(message, inner)
+            {
+            }
+
+            private ActorCallFailedException(
+                System.Runtime.Serialization.SerializationInfo info,
+                System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
         }
     }
 }

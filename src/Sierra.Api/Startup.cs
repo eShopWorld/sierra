@@ -26,7 +26,8 @@
     /// </summary>
     public class Startup
     {
-        private readonly IBigBrother _bb;
+        // TODO: Review BB code after fixing its extension methods
+        private readonly BigBrother _bb;
         private readonly IConfigurationRoot _configuration;
 
         /// <summary>
@@ -35,9 +36,18 @@
         /// <param name="env">hosting environment</param>
         public Startup(IHostingEnvironment env)
         {
-            _configuration = EswDevOpsSdk.BuildConfiguration(env.ContentRootPath, env.EnvironmentName);
-            var internalKey = _configuration["BBInstrumentationKey"];
-            _bb = new BigBrother(internalKey, internalKey);
+            try
+            {
+                _configuration = EswDevOpsSdk.BuildConfiguration(env.ContentRootPath, env.EnvironmentName);
+                var internalKey = _configuration["BBInstrumentationKey"];
+                _bb = new BigBrother(internalKey, internalKey);
+                _bb.UseEventSourceSink().ForExceptions();
+            }
+            catch (Exception e)
+            {
+                BigBrother.Write(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -47,55 +57,62 @@
         /// <param name="services">The contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry(_configuration);
-            services.AddSwaggerGen(c =>
+            try
             {
-                c.SwaggerDoc(SierraVersion.LatestApi, new Info { Title = "Sierra Api", Version = SierraVersion.Sierra });
-                c.AddSecurityDefinition("Bearer",
-                    new ApiKeyScheme
-                    {
-                        In = "header",
-                        Description = "Please insert JWT with Bearer into field",
-                        Name = "Authorization",
-                        Type = "apiKey"
-                    });
-                var filePath = Path.Combine(
-                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException("Wrong check for the swagger XML file! 'Assembly.GetExecutingAssembly().Location' came back null!"),
-                    "Sierra.Api.xml");
+                services.AddApplicationInsightsTelemetry(_configuration);
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc(SierraVersion.LatestApi, new Info { Title = "Sierra Api", Version = SierraVersion.Sierra });
+                    c.AddSecurityDefinition("Bearer",
+                        new ApiKeyScheme
+                        {
+                            In = "header",
+                            Description = "Please insert JWT with Bearer into field",
+                            Name = "Authorization",
+                            Type = "apiKey"
+                        });
+                    var filePath = Path.Combine(
+                        Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException("Wrong check for the swagger XML file! 'Assembly.GetExecutingAssembly().Location' came back null!"),
+                        "Sierra.Api.xml");
 
-                if (File.Exists(filePath))
-                {
-                    c.IncludeXmlComments(filePath);
-                }
-                else
-                {
-                    if (Debugger.IsAttached)
+                    if (File.Exists(filePath))
                     {
-                        // Couldn't find the XML file! check that XML comments are being built and that the file name checks
-                        Debugger.Break();
+                        c.IncludeXmlComments(filePath);
                     }
-                }
-            });
+                    else
+                    {
+                        if (Debugger.IsAttached)
+                        {
+                            // Couldn't find the XML file! check that XML comments are being built and that the file name checks
+                            Debugger.Break();
+                        }
+                    }
+                });
 
-            services.AddAuthorization(options =>
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("AssertScope", policy =>
+                        policy.RequireClaim("scope", "esw.sierra.api.all"));
+                });
+
+                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddIdentityServerAuthentication(x =>
+                {
+                    x.ApiName = _configuration["STSConfig:ApiName"];
+                    x.Authority = _configuration["STSConfig:Authority"];
+                });
+
+                services.AddMvc(options =>
+                {
+                    var policy = ScopePolicy.Create("esw.sierra.api.all");
+                    options.Filters.Add(new AuthorizeFilter(policy));
+                });
+            }
+            catch (Exception e)
             {
-                options.AddPolicy("AssertScope", policy =>
-                    policy.RequireClaim("scope", "esw.sierra.api.all"));
-            });
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddIdentityServerAuthentication(x =>
-            {
-                x.ApiName = _configuration["STSConfig:ApiName"];
-                x.Authority = _configuration["STSConfig:Authority"];
-                //x.AddJwtBearerEventsTelemetry(bb);
-            });
-
-            services.AddMvc(options =>
-            {
-                var policy = ScopePolicy.Create("esw.sierra.api.all");
-                options.Filters.Add(new AuthorizeFilter(policy));
-            });
-
+                _bb.Publish(e.ToExceptionEvent());
+                _bb.Flush();
+                throw;
+            }
         }
 
         /// <summary>
@@ -116,25 +133,33 @@
         /// <param name="statelessServiceContext">The context of Service Fabric stateless service.</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, StatelessServiceContext statelessServiceContext)
         {
-
-            if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
-            app.UseBigBrotherExceptionHandler();
-            app.UseAuthentication();
-            if (_configuration.GetValue<bool>("ActorDirectCallMiddlewareEnabled"))
+            try
             {
-                app.UseActorDirectCall(new ActorDirectCallOptions
+                if (Debugger.IsAttached) app.UseDeveloperExceptionPage();
+                app.UseBigBrotherExceptionHandler();
+                app.UseAuthentication();
+                if (_configuration.GetValue<bool>("ActorDirectCallMiddlewareEnabled"))
                 {
-                    StatelessServiceContext = statelessServiceContext,
+                    app.UseActorDirectCall(new ActorDirectCallOptions
+                    {
+                        StatelessServiceContext = statelessServiceContext,
+                    });
+                }
+
+                app.UseMvc();
+
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint($"/swagger/{SierraVersion.LatestApi}/swagger.json", $"Sierra Api {SierraVersion.LatestApi}");
                 });
             }
-
-            app.UseMvc();
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            catch (Exception e)
             {
-                c.SwaggerEndpoint($"/swagger/{SierraVersion.LatestApi}/swagger.json", $"Sierra Api {SierraVersion.LatestApi}");
-            });
+                _bb.Publish(e.ToExceptionEvent());
+                _bb.Flush();
+                throw;
+            }
         }
     }
 }

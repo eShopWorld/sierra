@@ -70,9 +70,6 @@
         /// <returns>fork deletion result</returns>
         internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
         {
-            if (string.IsNullOrWhiteSpace(forkName))
-                return false;
-         
             var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == forkName);
 
             if (repo == null)
@@ -81,6 +78,6 @@
             await client.DeleteRepositoryAsync(repo.Id);
 
             return true;
-        }           
+        }
     }        
 }

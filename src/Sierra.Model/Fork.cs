@@ -18,7 +18,6 @@
 
         public Fork(string sourceRepoName, string tenantCode, ProjectTypeEnum projectType)
         {
-            Id = new Guid();
             SourceRepositoryName = sourceRepoName;
             TenantCode = tenantCode;
             ProjectType = projectType;
@@ -69,11 +68,10 @@
         /// <returns>equality check result</returns>
         public override bool Equals(object obj)
         {
-            if (!(obj is Fork))
+            if (!(obj is Fork fork))
                 return false;
 
-            var objFork = (Fork)obj;
-            return string.Equals(objFork.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
+            return string.Equals(fork.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -111,6 +109,4 @@
             State = newState.State;
         }
     }
-
-  
 }
