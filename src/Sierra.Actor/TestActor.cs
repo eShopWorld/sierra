@@ -18,6 +18,7 @@
         {
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S112:General exceptions should never be thrown", Justification = "This test actor is used only to check actor calling code.")]
         public Task<TestItem> Add(TestItem testItem)
         {
             switch (testItem?.Name?.ToLowerInvariant())

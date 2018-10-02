@@ -18,7 +18,7 @@
 
         public Fork(string sourceRepoName, string tenantCode, ProjectTypeEnum projectType)
         {
-            Id = new Guid();
+            Id = Guid.Empty;
             SourceRepositoryName = sourceRepoName;
             TenantCode = tenantCode;
             ProjectType = projectType;

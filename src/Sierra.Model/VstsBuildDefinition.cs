@@ -13,7 +13,7 @@
 
         public VstsBuildDefinition(Fork sourceCode, string tenantCode)
         {
-            Id = new Guid();
+            Id = Guid.Empty;
             SourceCode = sourceCode;
             TenantCode = tenantCode;
             State = EntityStateEnum.NotCreated;

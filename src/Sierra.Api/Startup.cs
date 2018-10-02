@@ -87,7 +87,7 @@
             {
                 x.ApiName = _configuration["STSConfig:ApiName"];
                 x.Authority = _configuration["STSConfig:Authority"];
-                //x.AddJwtBearerEventsTelemetry(bb);
+                ////x.AddJwtBearerEventsTelemetry(bb);
             });
 
             services.AddMvc(options =>
