@@ -132,7 +132,8 @@
         {
             try
             {
-                if (!"application/json".Equals(context.Request.ContentType))
+                //as per rfc, this may contain charset (and indeed other parameters)
+                if (!context.Request.ContentType.StartsWith("application/json", StringComparison.InvariantCultureIgnoreCase))
                 {
                     throw new ActorCallFailedException("only the application/json content type is accepted");
                 }
@@ -279,7 +280,7 @@
 
             var actorProxy = CreateUntypedActorProxy(interfaceType, actorId, actorUri);
 
-            var task = (Task)method.Invoke(actorProxy, new object[] { parameterValue });
+            var task = (Task)method.Invoke(actorProxy, new[] { parameterValue });
             try
             {
                 await task;

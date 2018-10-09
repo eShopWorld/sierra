@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityModel.Client;
+using Sierra.Common;
 using Sierra.Common.DependencyInjection;
+using Sierra.Common.Tests;
 using Sierra.Model;
 
 /// <summary>
