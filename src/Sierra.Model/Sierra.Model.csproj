@@ -8,10 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20181012094735_ReleaseDefinitionAdded.cs" />
+    <Compile Remove="Migrations\20181012095402_ReleaseDefinitionAdded.cs" />
+    <Compile Remove="Migrations\20181012111301_ReleaseDefinitionAdded.cs" />
+    <Compile Remove="Migrations\20181012111543_ReleaseDefinitionAdded.cs" />
+    <Compile Remove="Migrations\20181012115233_ReleaseDefinitionAdded.cs" />
+    <Compile Remove="Migrations\20181012121533_ReleaseDefinitionAdded.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0-preview2-35157" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="2.0.0-preview1-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.3">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.0-preview2-35157">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

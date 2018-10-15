@@ -13,6 +13,7 @@
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<Fork> Forks { get; set; }
         public DbSet<VstsBuildDefinition> BuildDefinitions { get; set; }
+        public DbSet<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -29,6 +30,20 @@
                 .WithMany(t => t.BuildDefinitions)
                 .HasForeignKey(t => t.TenantCode)
                 .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
+
+            modelBuilder.Entity<VstsReleaseDefinition>()
+                .HasOne<Tenant>()
+                .WithMany(t => t.ReleaseDefinitions)
+                .HasForeignKey(t => t.TenantCode)
+                .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
+
+
+            //modelBuilder.Entity<VstsReleaseDefinition>()
+            //    .HasOne<VstsBuildDefinition>()
+            //    .WithOne(t => t.ReleaseDefinition)
+            //    .HasForeignKey<VstsReleaseDefinition>(d => d.BuildDefinitionId)
+            //    .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
+
         }    
 
         /// <summary>
@@ -41,6 +56,7 @@
             return await Tenants
                 .Include(t=>t.CustomSourceRepos)
                 .Include(t=>t.BuildDefinitions)
+                .Include(t=>t.ReleaseDefinitions)
                     .FirstOrDefaultAsync(t => t.Code == tenantCode);
         }
     }

@@ -2,8 +2,8 @@
 {
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Sierra.Actor.Interfaces;
-    using Sierra.Model;
+    using Interfaces;
+    using Model;
     using System;
     using System.Threading.Tasks;
 

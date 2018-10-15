@@ -69,8 +69,9 @@
     <PackageReference Include="Autofac.ServiceFabric" Version="2.0.0" />
     <PackageReference Include="Eshopworld.Telemetry" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.0-preview2-35157" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0-preview2-35157" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0-preview2-35157" />
 
 
     <!--REMOVE LATER-->

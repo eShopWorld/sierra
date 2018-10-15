@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sierra.Model;
 
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    partial class SierraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181015171211_ReleaseDefinitionAdded")]
+    partial class ReleaseDefinitionAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

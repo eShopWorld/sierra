@@ -32,8 +32,9 @@
                 builder.RegisterActor<ForkActor>();
                 builder.RegisterActor<TestActor>();
                 builder.RegisterActor<BuildDefinitionActor>();
+                builder.RegisterActor<ReleaseDefinitionActor>();
 
-                builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });              
+                builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"]});              
 
                 using (var container = builder.Build())
                 {
