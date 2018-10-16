@@ -37,13 +37,6 @@
                 .HasForeignKey(t => t.TenantCode)
                 .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
 
-
-            //modelBuilder.Entity<VstsReleaseDefinition>()
-            //    .HasOne<VstsBuildDefinition>()
-            //    .WithOne(t => t.ReleaseDefinition)
-            //    .HasForeignKey<VstsReleaseDefinition>(d => d.BuildDefinitionId)
-            //    .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
-
         }    
 
         /// <summary>
