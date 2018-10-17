@@ -10,6 +10,7 @@ using Sierra.Model;
 using Xunit;
 
 [Collection(nameof(TenantL3Collection))]
+// ReSharper disable once CheckNamespace
 public class TenantStateTests
 {
     private readonly TenantL3TestFixture _level3Fixture;
@@ -43,6 +44,17 @@ public class TenantStateTests
             .ContainSingle(bd =>
                 bd.TenantCode == _level3Fixture.TenantCode && bd.SourceCode.SourceRepositoryName == _level3Fixture.ForkSourceRepo &&
                 bd.State == EntityStateEnum.Created);
+    }
+
+    [Fact, IsLayer3]
+    public void CheckReleaseDefinitionState()
+    {
+        var tenantRecord = _level3Fixture.TenantUnderTest;
+        tenantRecord.Should().NotBeNull();
+
+        tenantRecord.ReleaseDefinitions.Should()
+            .ContainSingle(rd =>
+                rd.TenantCode == _level3Fixture.TenantCode && rd.BuildDefinition!=null && rd.State == EntityStateEnum.Created);
     }
 
     [Fact, IsDev]

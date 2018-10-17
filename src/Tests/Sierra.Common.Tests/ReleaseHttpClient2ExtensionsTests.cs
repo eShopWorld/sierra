@@ -45,7 +45,7 @@ public class ReleaseHttpClient2ExtensionsTests
             finally
             {
                 if (rd != null)
-                    await sut.DeleteReleaseDefinitionIfFExists(vstsConfig.VstsTargetProjectId, rd.Id, true);
+                    await sut.DeleteReleaseDefinitionIfFExists(vstsConfig.VstsTargetProjectId, rd.Name);
             }
         }
     }

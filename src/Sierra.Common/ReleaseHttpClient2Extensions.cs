@@ -27,7 +27,7 @@
 
             if (vstsDef != null)
             {
-                await client.DeleteReleaseDefinitionIfFExists(targetProject, vstsDef.Id, true);
+                await client.DeleteReleaseDefinitionIfFExists(targetProject, vstsDef.Name);
             }
 
             //create new
@@ -63,13 +63,13 @@
         /// </summary>
         /// <param name="client">extension method entry-point</param>
         /// <param name="targetProject">vsts target project id</param>
-        /// <param name="definitionId">definition id</param>
-        /// <param name="skipCheck">flag to skip definition check</param>
+        /// <param name="definitionName">definition name</param>
         /// <returns>task instance</returns>
-        public static async Task DeleteReleaseDefinitionIfFExists(this ReleaseHttpClient2 client, string targetProject, int definitionId, bool skipCheck=false)
+        public static async Task DeleteReleaseDefinitionIfFExists(this ReleaseHttpClient2 client, string targetProject, string definitionName)
         {
-            if (skipCheck || (await client.GetReleaseDefinitionAsync(targetProject, definitionId)) != null)
-                await client.DeleteReleaseDefinitionAsync(targetProject, definitionId, forceDelete: true);
+            ReleaseDefinition rd;
+            if ((rd = ((await client.GetReleaseDefinitionsAsync(targetProject, definitionName, isExactNameMatch:true)).FirstOrDefault())) != null)
+                await client.DeleteReleaseDefinitionAsync(targetProject, rd.Id, forceDelete: true);
         }
     }
 }
