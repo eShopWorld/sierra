@@ -81,6 +81,19 @@
             // #5 Release definition
             // #5a Create a release definition from dev
             // #5a If there are forks, create a release definition from master
+
+            await Task.WhenAll(dbTenant.ReleaseDefinitions
+                .Where(d => d.State == EntityStateEnum.NotCreated)
+                .Select(d =>
+                    GetActor<IReleaseDefinitionActor>(d.ToString()).Add(d)
+                        .ContinueWith((t) => d.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));               
+            
+            await Task.WhenAll(dbTenant.ReleaseDefinitions
+                .Where(d => d.State == EntityStateEnum.ToBeDeleted)
+                .Select(d =>
+                    GetActor<IReleaseDefinitionActor>(d.ToString()).Remove(d)
+                        .ContinueWith((t) => _dbContext.Entry(d).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+
             // #5b If there are no forks, put the tenant into a ring on the global master release definition
             // #6 Create the tenant Azure AD application for test and prod
             // #7 Map the tenant KeyVault for all test environments and prod

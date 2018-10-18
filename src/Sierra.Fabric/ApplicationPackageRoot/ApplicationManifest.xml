@@ -18,6 +18,9 @@
     <Parameter Name="BuildDefinitionActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="BuildDefinitionActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="BuildDefinitionActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ReleaseDefinitionActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="ReleaseDefinitionActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ReleaseDefinitionActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -68,6 +71,11 @@
     <Service Name="BuildDefinitionActorService" GeneratedIdRef="b8839aa6-fd43-4cf6-8f56-8c3cb25a6fe1|Volatile">
       <StatefulService ServiceTypeName="BuildDefinitionActorServiceType" TargetReplicaSetSize="[BuildDefinitionActorService_TargetReplicaSetSize]" MinReplicaSetSize="[BuildDefinitionActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[BuildDefinitionActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="ReleaseDefinitionActorService" GeneratedIdRef="fe9f8cda-c48e-4a28-a6f4-93788bf9c656|Volatile">
+      <StatefulService ServiceTypeName="ReleaseDefinitionActorServiceType" TargetReplicaSetSize="[ReleaseDefinitionActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ReleaseDefinitionActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ReleaseDefinitionActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>

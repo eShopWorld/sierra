@@ -35,8 +35,7 @@ public class BuildDefinitionActorTests
     {
         var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
-        {
-            
+        {          
             try
             {
                 VstsBuildDefinition resp = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "BuildDefinition", "Add", TestBuildDefinition);                

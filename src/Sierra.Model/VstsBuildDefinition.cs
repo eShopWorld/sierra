@@ -26,6 +26,9 @@
         [Required]
         public Fork SourceCode { get; set; }
         
+        [Required]
+        public VstsReleaseDefinition ReleaseDefinition { get; set; }
+
         [DataMember]
         [Required] 
         public string TenantCode { get; set; }

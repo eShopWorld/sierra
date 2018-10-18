@@ -17,5 +17,8 @@
     <Parameter Name="BuildDefinitionActorService_PartitionCount" Value="1" />
     <Parameter Name="BuildDefinitionActorService_TargetReplicaSetSize" Value="1" />
     <Parameter Name="BuildDefinitionActorService_MinReplicaSetSize" Value="1" />
+    <Parameter Name="ReleaseDefinitionActorService_PartitionCount" Value="1" />
+    <Parameter Name="ReleaseDefinitionActorService_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="ReleaseDefinitionActorService_MinReplicaSetSize" Value="1" />
   </Parameters>
 </Application>

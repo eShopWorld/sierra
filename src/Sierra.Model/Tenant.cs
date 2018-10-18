@@ -25,12 +25,16 @@
         [DataMember]
         public List<VstsBuildDefinition> BuildDefinitions { get; set; }       
 
-        private static ToStringEqualityComparer<Fork> _forkEqComparer = new ToStringEqualityComparer<Fork>();
+        [DataMember]
+        public List<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
+
+        private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();
         
         public Tenant()
         {
             CustomSourceRepos = new List<Fork>();
             BuildDefinitions = new List<VstsBuildDefinition>();
+            ReleaseDefinitions = new List<VstsReleaseDefinition>();
         }
 
         public Tenant(string code):this()
@@ -53,22 +57,26 @@
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
-                .Except(CustomSourceRepos, _forkEqComparer)
+                .Except(CustomSourceRepos, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
                     f.TenantCode = Code;
                     CustomSourceRepos.Add(f);
-                    BuildDefinitions.Add(new VstsBuildDefinition(f, Code));
+                    var bd = new VstsBuildDefinition(f, Code);
+                    BuildDefinitions.Add(bd);
+                    ReleaseDefinitions.Add(new VstsReleaseDefinition(bd, Code));
                 });
 
             CustomSourceRepos
-                .Except(newStateForks, _forkEqComparer)
+                .Except(newStateForks, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
                     f.State = EntityStateEnum.ToBeDeleted;
-                    BuildDefinitions.Single(bd => Equals(bd.SourceCode, f)).State = EntityStateEnum.ToBeDeleted;
+                    var bd = BuildDefinitions.Single(b => Equals(b.SourceCode, f));
+                    bd.State = EntityStateEnum.ToBeDeleted;
+                    bd.ReleaseDefinition.State = EntityStateEnum.ToBeDeleted;                    
                 });
         }
     }

@@ -7,6 +7,7 @@
     using Microsoft.TeamFoundation.SourceControl.WebApi;
     using Microsoft.VisualStudio.Services.Common;
     using Microsoft.VisualStudio.Services.WebApi;
+    using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Clients;
 
     /// <summary>
     /// Sierra autofac module to setup all the Vsts DI chain.
@@ -39,6 +40,9 @@
                    .InstancePerDependency();
 
             builder.Register(c => c.Resolve<VssConnection>().GetClient<BuildHttpClient>())
+                    .InstancePerDependency();
+
+            builder.Register(c => c.Resolve<VssConnection>().GetClient<ReleaseHttpClient2>())
                     .InstancePerDependency();
         }
     }

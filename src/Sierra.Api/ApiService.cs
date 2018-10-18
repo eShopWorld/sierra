@@ -1,6 +1,5 @@
 ﻿namespace Sierra.Api
 {
-    using Microsoft.Extensions.Configuration;
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;

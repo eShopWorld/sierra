@@ -36,17 +36,13 @@
         /// <inheritdoc cref="SierraActor{T}" />
         public override async Task<VstsBuildDefinition> Add(VstsBuildDefinition model)
         {
-            var defId = model.SourceCode.ProjectType == ProjectTypeEnum.WebApi
-                ? _vstsConfiguration.WebApiBuildDefinitionTemplate.DefinitionId
-                : _vstsConfiguration.WebUIBuildDefinitionTemplate.DefinitionId;
-
-            var revId = model.SourceCode.ProjectType == ProjectTypeEnum.WebApi
-                ? _vstsConfiguration.WebApiBuildDefinitionTemplate.RevisionId
-                : _vstsConfiguration.WebUIBuildDefinitionTemplate.RevisionId;
+            var templateDefinition = model.SourceCode.ProjectType == ProjectTypeEnum.WebApi
+                ? _vstsConfiguration.WebApiBuildDefinitionTemplate
+                : _vstsConfiguration.WebUIBuildDefinitionTemplate;       
 
             //load template
             var template = await _buildHttpClient.GetDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
-                defId, revId);
+                templateDefinition.DefinitionId, templateDefinition.RevisionId);
 
             //customize the template
             template.Name = model.ToString();
