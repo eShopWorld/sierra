@@ -15,7 +15,7 @@
     internal class TenantActor : SierraActor<Tenant>, ITenantActor
     {
         private readonly SierraDbContext _dbContext;
-        
+
         /// <summary>
         /// Initializes a new instance of <see cref="TenantActor"/>.
         /// </summary>
@@ -45,14 +45,14 @@
                 dbTenant = new Tenant(tenant.Code);
                 _dbContext.Tenants.Add(dbTenant);
             }
-            
+
             dbTenant.Update(tenant);
             //persist "ToBeDeleted"+"ToBeCreated" records
             await _dbContext.SaveChangesAsync();
 
             // #1 sync forks (add + remove)
             await Task.WhenAll(dbTenant.CustomSourceRepos
-                .Where(f => f.State== EntityStateEnum.NotCreated)
+                .Where(f => f.State == EntityStateEnum.NotCreated)
                 .Select(f =>
                     GetActor<IForkActor>(f.ToString()).Add(f)
                         .ContinueWith((t) => f.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));

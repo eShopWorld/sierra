@@ -11,5 +11,9 @@
         public string STSClientSecret { get; set; }
 
         public string STSScope { get; set; }
+
+        public string RegionName { get; set; }
+
+        public string SubscriptionName { get; set; }
     }
 }

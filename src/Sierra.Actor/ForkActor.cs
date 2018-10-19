@@ -1,14 +1,14 @@
 ﻿namespace Sierra.Actor
 {
     using System.Threading.Tasks;
+    using Common;
+    using Common.Events;
+    using Eshopworld.Core;
     using Interfaces;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Model;
-    using Common;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
-    using Common.Events;
-    using Eshopworld.Core;
+    using Model;
 
     /// <summary>
     /// Manages Forks on behalf of tenant operations.
@@ -33,7 +33,7 @@
         {
             _gitClient = gitClient;
             _vstsConfiguration = vstsConfiguration;
-            _bigBrother = bb;           
+            _bigBrother = bb;
         }
 
         /// <inheridoc/>
@@ -47,11 +47,11 @@
                 {
                     ForkName = repo.Name,
                     Message = $"Repository already exists but is not a fork"
-                });                
+                });
             }
             else
-            {               
-                fork.UpdateWithVstsRepo(repo.Id);               
+            {
+                fork.UpdateWithVstsRepo(repo.Id);
 
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
                 return fork;
@@ -62,7 +62,7 @@
 
         /// <inheridoc/>
         public override async Task Remove(Fork fork)
-        {           
+        {
             var forkRemoved = await _gitClient.DeleteForkIfExists(fork.ToString());
 
             if (forkRemoved)

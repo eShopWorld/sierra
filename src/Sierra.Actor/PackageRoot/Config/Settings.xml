@@ -21,6 +21,13 @@
   <Section Name="ForkActorServiceReplicatorSecurityConfig">
     <Parameter Name="CredentialType" Value="None" />
   </Section>
+  <Section Name="ResourceGroupActorServiceReplicatorConfig">
+    <Parameter Name="ReplicatorEndpoint" Value="ResourceGroupActorServiceReplicatorEndpoint" />
+    <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
+  </Section>
+  <Section Name="ResourceGroupActorServiceReplicatorSecurityConfig">
+    <Parameter Name="CredentialType" Value="None" />
+  </Section>
   <Section Name="TestActorServiceReplicatorConfig">
     <Parameter Name="ReplicatorEndpoint" Value="TestActorServiceReplicatorEndpoint" />
     <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
