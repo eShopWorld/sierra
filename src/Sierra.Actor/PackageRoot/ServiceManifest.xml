@@ -129,5 +129,5 @@
       <Endpoint Name="TestActorServiceReplicatorEndpoint" />
     </Endpoints>
   </Resources>
-  <!-- The content will be generated during buil d -->
+  <!-- The content will be generated during build -->
 </ServiceManifest>
