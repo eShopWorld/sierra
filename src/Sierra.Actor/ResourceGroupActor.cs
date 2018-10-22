@@ -35,10 +35,6 @@
                 RegexOptions.Compiled | RegexOptions.CultureInvariant);
             if (!match.Success)
             {
-                _bigBrother.Publish(new
-                {
-                    ActorId = actorStringId,
-                });
                 throw new ArgumentException($"The format of the actor Id {actorId} is invalid (the environment name is missing).");
             }
 
@@ -46,10 +42,6 @@
             if (!environmentConfiguration.EnvironmentSubscriptionMap.TryGetValue(environmentName,
                 out var subscriptionId))
             {
-                _bigBrother.Publish(new
-                {
-                    ActorId = actorId,
-                });
                 throw new ArgumentException($"The actor Id {actorId} does not contain a recognized environment name.");
             }
             _azure = authenticated.WithSubscription(subscriptionId);
