@@ -13,6 +13,7 @@
     using System.Linq;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Contracts;
+    using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Contracts.Conditions;
     using Eshopworld.Core;
     using System.Collections.Generic;
     using Microsoft.TeamFoundation.DistributedTask.WebApi;
@@ -94,6 +95,7 @@
             //relink to target build definition
             foreach (var e in template.Environments)
             {
+                ReleaseDefinitionEnvironment predecessor = null;
                 foreach (var r in EswDevOpsSdk.RegionList)
                 {
                     //CI is single region (only WE)
@@ -109,6 +111,13 @@
                     regionEnv.Name = $"{e.Name} - {r}";
                     regionEnv.Rank = rank++;
                     regionEnv.Id = regionEnv.Rank;
+                    //link condition to predecessor (region)                  
+                    if (predecessor != null)
+                        regionEnv.Conditions = new List<Condition>(new[]
+                        {
+                            new Condition(predecessor.Name, ConditionType.EnvironmentState, "4" /*find the documentation for this value*/)
+                        });
+
                     //re-point to correct SF instance
                     var sfDeployStep =
                         phase.WorkflowTasks.First(
@@ -140,6 +149,7 @@
                     sfUpdaterStep.Inputs[VstsSfUpdateTaskRegionInput] = r.ToRegionName();
 
                     clonedEnvStages.Add(regionEnv);
+                    predecessor = regionEnv;
                 }
             }
 
