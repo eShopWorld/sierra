@@ -1,10 +1,9 @@
-﻿using Sierra.Common.Events;
-
-namespace Sierra.Actor
+﻿namespace Sierra.Actor
 {
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Eshopworld.DevOps;
     using Interfaces;
     using Model;
     using Common;
@@ -12,20 +11,30 @@ namespace Sierra.Actor
     using System;
     using System.Globalization;
     using System.Linq;
-    using Microsoft.VisualStudio.Services.Common;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Contracts;
     using Eshopworld.Core;
+    using System.Collections.Generic;
+    using Microsoft.TeamFoundation.DistributedTask.WebApi;
+    using Common.Events;
 
     /// <summary>
     /// this actor manages release definitions for a given tenant
     /// </summary>
     [StatePersistence(StatePersistence.Volatile)]
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class ReleaseDefinitionActor : SierraActor<VstsReleaseDefinition>, IReleaseDefinitionActor
     {
         private readonly ReleaseHttpClient2 _httpClient;
         private readonly VstsConfiguration _vstsConfiguration;
         private readonly IBigBrother _bigBrother;
+        private readonly TaskAgentHttpClient _taskAgentHttpClient;
+
+        private const string VstsSfUpdateTaskId = "5b931b5e-3f50-426d-9891-c4a2e0523cc1";
+        private const string VstsSfUpdateTaskRegionInput = "Region";
+
+        private const string VstsSfDeployTaskId = "c6650aa0-185b-11e6-a47d-df93e7a34c64";
+        private const string VstsSfDeployTaskConnectionNameInput = "serviceConnectionName";
 
         /// <summary>
         /// Initializes a new instance of ReleaseDefinitionActor
@@ -34,13 +43,16 @@ namespace Sierra.Actor
         /// <param name="actorId">The Microsoft.ServiceFabric.Actors.ActorId for this actor instance.</param>
         /// <param name="httpClient">release client</param>
         /// <param name="vstsConfiguration">vsts configuration</param>
+        /// <param name="bigBrother">BB instance</param>
+        /// <param name="taskAgentHttpClient">task agent client instance</param>
         public ReleaseDefinitionActor(ActorService actorService, ActorId actorId, ReleaseHttpClient2 httpClient,
-            VstsConfiguration vstsConfiguration, IBigBrother bigBrother)
+            VstsConfiguration vstsConfiguration, IBigBrother bigBrother, TaskAgentHttpClient taskAgentHttpClient)
             : base(actorService, actorId)
         {
             _httpClient = httpClient;
             _vstsConfiguration = vstsConfiguration;
             _bigBrother = bigBrother;
+            _taskAgentHttpClient = taskAgentHttpClient;
         }
 
         /// <summary>
@@ -54,6 +66,10 @@ namespace Sierra.Actor
                 ? _vstsConfiguration.WebApiReleaseDefinitionTemplate
                 : _vstsConfiguration.WebUIReleaseDefinitionTemplate;
 
+            //load sf endpoints
+            var connectionEndpoints =
+                await _taskAgentHttpClient.GetServiceEndpointsAsync(_vstsConfiguration.VstsTargetProjectId);
+
             //load template
             var template = await _httpClient.GetReleaseDefinitionRevision(_vstsConfiguration.VstsTargetProjectId,
                 templateConfig.DefinitionId, templateConfig.RevisionId);
@@ -63,27 +79,80 @@ namespace Sierra.Actor
             //change the aliases
             var firstArtifact = template.Artifacts.First();
             firstArtifact.Alias = model.BuildDefinition.ToString();
-            var sourceTrigger = (ArtifactSourceTrigger) template.Triggers.First();
-            sourceTrigger.ArtifactAlias = model.BuildDefinition.ToString();
-            template.Environments.ForEach(e =>
-            {
-                var envInput = (AgentDeploymentInput) e.DeployPhases.First().GetDeploymentInput();
-                envInput.ArtifactsDownloadInput.DownloadInputs.First().Alias = model.BuildDefinition.ToString();
-            });
-
             //re-point to build definition
             var def = firstArtifact.DefinitionReference["definition"];
             def.Id = Convert.ToString(model.BuildDefinition.VstsBuildDefinitionId, CultureInfo.InvariantCulture);
             def.Name = model.BuildDefinition.ToString();
 
+            var sourceTrigger = (ArtifactSourceTrigger) template.Triggers.First();
+            sourceTrigger.ArtifactAlias = model.BuildDefinition.ToString();
+            var clonedEnvStages =
+                new List<ReleaseDefinitionEnvironment>();
+
+            int rank = 1;
+
+            //relink to target build definition
+            foreach (var e in template.Environments)
+            {
+                foreach (var r in EswDevOpsSdk.RegionList)
+                {
+                    //CI is single region (only WE)
+                    if (EswDevOpsSdk.CI_EnvironmentName.Equals(e.Name, StringComparison.OrdinalIgnoreCase) &&
+                        r != Regions.WestEurope)
+                        continue;
+
+                    var regionEnv = e.DeepClone();
+                    var phase = regionEnv.DeployPhases.First();
+                    var envInput = (AgentDeploymentInput) phase.GetDeploymentInput();
+                    envInput.ArtifactsDownloadInput.DownloadInputs.First().Alias = model.BuildDefinition.ToString();
+
+                    regionEnv.Name = $"{e.Name} - {r}";
+                    regionEnv.Rank = rank++;
+                    regionEnv.Id = regionEnv.Rank;
+                    //re-point to correct SF instance
+                    var sfDeployStep =
+                        phase.WorkflowTasks.First(
+                            t => t.TaskId == Guid.Parse(VstsSfDeployTaskId));
+
+                    if (sfDeployStep == null)
+                        throw new Exception(
+                            $"Release template {template.Name} does not contain expected Task {VstsSfDeployTaskId} for {e.Name} environment");
+
+                    var expectedConnectionName =
+                        $"esw-{r.ToRegionCode().ToLowerInvariant()}-fabric-{e.Name.ToLowerInvariant()}";
+
+                    var sfConnection = connectionEndpoints.FirstOrDefault(c => c.Name == expectedConnectionName);
+                    if (sfConnection == null)
+                        throw new Exception(
+                            $"SF Endpoint {expectedConnectionName} not found in VSTS project {_vstsConfiguration.VstsTargetProjectId}");
+
+                    sfDeployStep.Inputs[VstsSfDeployTaskConnectionNameInput] = sfConnection.Id.ToString();
+
+                    //set region in manifest
+                    var sfUpdaterStep =
+                        phase.WorkflowTasks.First(
+                            t => t.TaskId == Guid.Parse(VstsSfUpdateTaskId));
+
+                    if (sfUpdaterStep == null)
+                        throw new Exception(
+                            $"Release template {template.Name} does not contain expected Task {VstsSfUpdateTaskId} for {e.Name} environment");
+
+                    sfUpdaterStep.Inputs[VstsSfUpdateTaskRegionInput] = r.ToRegionName();
+
+                    clonedEnvStages.Add(regionEnv);
+                }
+            }
+
+            template.Environments = clonedEnvStages;
+
             //set tenant specific variables
             template.Variables["TenantCode"].Value = model.TenantCode;
             template.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
-            var vstsDef = await _httpClient.CreateOrResetDefinition(template, _vstsConfiguration.VstsTargetProjectId);
 
+            var vstsDef = await _httpClient.CreateOrResetDefinition(template, _vstsConfiguration.VstsTargetProjectId);
             model.UpdateWithVstsReleaseDefinition(vstsDef.Id);
 
-            _bigBrother.Publish(new ReleaseDefinitionCreated{DefinitionName = model.ToString()});
+            _bigBrother.Publish(new ReleaseDefinitionCreated {DefinitionName = model.ToString()});
 
             return model;
         }
@@ -98,7 +167,7 @@ namespace Sierra.Actor
             await _httpClient.DeleteReleaseDefinitionIfFExists(_vstsConfiguration.VstsTargetProjectId,
                 model.ToString());
 
-            _bigBrother.Publish(new ReleaseDefinitionDeleted{DefinitionName = model.ToString()});
+            _bigBrother.Publish(new ReleaseDefinitionDeleted {DefinitionName = model.ToString()});
         }
     }
 }
