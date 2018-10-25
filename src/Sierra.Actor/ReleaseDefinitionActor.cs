@@ -26,7 +26,7 @@
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ReleaseDefinitionActor : SierraActor<VstsReleaseDefinition>, IReleaseDefinitionActor
     {
-        private readonly ReleaseHttpClient2 _httpClient;
+        private readonly ReleaseHttpClient2 _releaseHttpClient;
         private readonly VstsConfiguration _vstsConfiguration;
         private readonly IBigBrother _bigBrother;
         private readonly TaskAgentHttpClient _taskAgentHttpClient;
@@ -42,15 +42,15 @@
         /// </summary>
         /// <param name="actorService">The Microsoft.ServiceFabric.Actors.Runtime.ActorService that will host this actor instance.</param>
         /// <param name="actorId">The Microsoft.ServiceFabric.Actors.ActorId for this actor instance.</param>
-        /// <param name="httpClient">release client</param>
+        /// <param name="releaseHttpClient">release client</param>
         /// <param name="vstsConfiguration">vsts configuration</param>
         /// <param name="bigBrother">BB instance</param>
         /// <param name="taskAgentHttpClient">task agent client instance</param>
-        public ReleaseDefinitionActor(ActorService actorService, ActorId actorId, ReleaseHttpClient2 httpClient,
+        public ReleaseDefinitionActor(ActorService actorService, ActorId actorId, ReleaseHttpClient2 releaseHttpClient,
             VstsConfiguration vstsConfiguration, IBigBrother bigBrother, TaskAgentHttpClient taskAgentHttpClient)
             : base(actorService, actorId)
         {
-            _httpClient = httpClient;
+            _releaseHttpClient = releaseHttpClient;
             _vstsConfiguration = vstsConfiguration;
             _bigBrother = bigBrother;
             _taskAgentHttpClient = taskAgentHttpClient;
@@ -72,7 +72,7 @@
                 await _taskAgentHttpClient.GetServiceEndpointsAsync(_vstsConfiguration.VstsTargetProjectId);
 
             //load template
-            var template = await _httpClient.GetReleaseDefinitionRevision(_vstsConfiguration.VstsTargetProjectId,
+            var template = await _releaseHttpClient.GetReleaseDefinitionRevision(_vstsConfiguration.VstsTargetProjectId,
                 templateConfig.DefinitionId, templateConfig.RevisionId);
 
             //customize the template
@@ -120,7 +120,7 @@
 
                     //re-point to correct SF instance
                     var sfDeployStep =
-                        phase.WorkflowTasks.First(
+                        phase.WorkflowTasks.FirstOrDefault(
                             t => t.TaskId == Guid.Parse(VstsSfDeployTaskId));
 
                     if (sfDeployStep == null)
@@ -139,7 +139,7 @@
 
                     //set region in manifest
                     var sfUpdaterStep =
-                        phase.WorkflowTasks.First(
+                        phase.WorkflowTasks.FirstOrDefault(
                             t => t.TaskId == Guid.Parse(VstsSfUpdateTaskId));
 
                     if (sfUpdaterStep == null)
@@ -159,7 +159,7 @@
             template.Variables["TenantCode"].Value = model.TenantCode;
             template.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
 
-            var vstsDef = await _httpClient.CreateOrResetDefinition(template, _vstsConfiguration.VstsTargetProjectId);
+            var vstsDef = await _releaseHttpClient.CreateOrResetDefinition(template, _vstsConfiguration.VstsTargetProjectId);
             model.UpdateWithVstsReleaseDefinition(vstsDef.Id);
 
             _bigBrother.Publish(new ReleaseDefinitionCreated {DefinitionName = model.ToString()});
@@ -174,7 +174,7 @@
         /// <returns>task instance</returns>
         public override async Task Remove(VstsReleaseDefinition model)
         {
-            await _httpClient.DeleteReleaseDefinitionIfFExists(_vstsConfiguration.VstsTargetProjectId,
+            await _releaseHttpClient.DeleteReleaseDefinitionIfFExists(_vstsConfiguration.VstsTargetProjectId,
                 model.ToString());
 
             _bigBrother.Publish(new ReleaseDefinitionDeleted {DefinitionName = model.ToString()});
