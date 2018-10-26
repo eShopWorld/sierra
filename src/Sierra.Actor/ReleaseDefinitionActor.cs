@@ -47,8 +47,8 @@
         /// <param name="bigBrother">BB instance</param>
         /// <param name="taskAgentHttpClient">task agent client instance</param>
         public ReleaseDefinitionActor(ActorService actorService, ActorId actorId, ReleaseHttpClient2 releaseHttpClient,
-            VstsConfiguration vstsConfiguration, IBigBrother bigBrother, TaskAgentHttpClient taskAgentHttpClient)
-            : base(actorService, actorId)
+            VstsConfiguration vstsConfiguration, IBigBrother bigBrother, TaskAgentHttpClient taskAgentHttpClient) :
+            base(actorService, actorId)
         {
             _releaseHttpClient = releaseHttpClient;
             _vstsConfiguration = vstsConfiguration;
@@ -87,22 +87,17 @@
 
             var sourceTrigger = (ArtifactSourceTrigger) template.Triggers.First();
             sourceTrigger.ArtifactAlias = model.BuildDefinition.ToString();
-            var clonedEnvStages =
-                new List<ReleaseDefinitionEnvironment>();
+            var clonedEnvStages = new List<ReleaseDefinitionEnvironment>();
 
-            int rank = 1;
+            var rank = 1;
 
             //relink to target build definition
             foreach (var e in template.Environments)
             {
                 ReleaseDefinitionEnvironment predecessor = null;
-                foreach (var r in EswDevOpsSdk.RegionList)
-                {
-                    //CI is single region (only WE)
-                    if (EswDevOpsSdk.CI_EnvironmentName.Equals(e.Name, StringComparison.OrdinalIgnoreCase) &&
-                        r != Regions.WestEurope)
-                        continue;
 
+                foreach (var r in EswDevOpsSdk.GetRegionSequence(e.Name, default))
+                {
                     var regionEnv = e.DeepClone();
                     var phase = regionEnv.DeployPhases.First();
                     var envInput = (AgentDeploymentInput) phase.GetDeploymentInput();
@@ -115,13 +110,13 @@
                     if (predecessor != null)
                         regionEnv.Conditions = new List<Condition>(new[]
                         {
-                            new Condition(predecessor.Name, ConditionType.EnvironmentState, "4" /*find the documentation for this value*/)
+                            new Condition(predecessor.Name, ConditionType.EnvironmentState,
+                                "4" /*find the documentation for this value*/)
                         });
 
                     //re-point to correct SF instance
                     var sfDeployStep =
-                        phase.WorkflowTasks.FirstOrDefault(
-                            t => t.TaskId == Guid.Parse(VstsSfDeployTaskId));
+                        phase.WorkflowTasks.FirstOrDefault(t => t.TaskId == Guid.Parse(VstsSfDeployTaskId));
 
                     if (sfDeployStep == null)
                         throw new Exception(
@@ -139,8 +134,7 @@
 
                     //set region in manifest
                     var sfUpdaterStep =
-                        phase.WorkflowTasks.FirstOrDefault(
-                            t => t.TaskId == Guid.Parse(VstsSfUpdateTaskId));
+                        phase.WorkflowTasks.FirstOrDefault(t => t.TaskId == Guid.Parse(VstsSfUpdateTaskId));
 
                     if (sfUpdaterStep == null)
                         throw new Exception(
@@ -159,7 +153,8 @@
             template.Variables["TenantCode"].Value = model.TenantCode;
             template.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
 
-            var vstsDef = await _releaseHttpClient.CreateOrResetDefinition(template, _vstsConfiguration.VstsTargetProjectId);
+            var vstsDef =
+                await _releaseHttpClient.CreateOrResetDefinition(template, _vstsConfiguration.VstsTargetProjectId);
             model.UpdateWithVstsReleaseDefinition(vstsDef.Id);
 
             _bigBrother.Publish(new ReleaseDefinitionCreated {DefinitionName = model.ToString()});
