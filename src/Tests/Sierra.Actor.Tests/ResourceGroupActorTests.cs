@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
 using Eshopworld.Tests.Core;
@@ -12,11 +13,8 @@ using Xunit;
 // ReSharper disable once CheckNamespace
 public class ResourceGroupActorTests
 {
+    private const string TestResourceGroupName = "TestResourceGroup";
     private ActorTestsFixture Fixture { get; }
-    private static readonly ResourceGroup TestResourceGroup = new ResourceGroup
-    {
-        Name = "TestResourceGroup",
-    };
 
 
     public ResourceGroupActorTests(ActorTestsFixture fixture)
@@ -27,7 +25,16 @@ public class ResourceGroupActorTests
     private IAzure InitAzure(ILifetimeScope scope)
     {
         var azureAuth = scope.Resolve<Azure.IAuthenticated>();
-        return azureAuth.WithSubscription(Fixture.SubscriptionId);
+        return azureAuth.WithSubscription(Fixture.DeploymentSubscriptionId);
+    }
+
+    private ResourceGroup TestResourceGroupRequest()
+    {
+        return new ResourceGroup
+        {
+            Name = TestResourceGroupName,
+            EnvironmentName = Fixture.EnvironmentName,
+        };
     }
 
     [Theory, IsLayer2]
@@ -42,16 +49,20 @@ public class ResourceGroupActorTests
             await PrepareResourceGroup(resourceGroupExists, azure);
             try
             {
-                var resourceGroupCreated = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ResourceGroup", "Add", TestResourceGroup, actorId: "test-CI");
-                resourceGroupCreated.Should().NotBeNull();
+                var rg = TestResourceGroupRequest();
+                var actorResponse = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ResourceGroup", "Add", rg);
+                actorResponse.Should().NotBeNull();
+                actorResponse.ResourceId.Should().NotBeNullOrEmpty();
+                actorResponse.State.Should().Be(EntityStateEnum.Created);
 
-                var createdResourceGroup = await azure.ResourceGroups.GetByNameAsync(TestResourceGroup.Name);
+                var createdResourceGroup = await azure.ResourceGroups.GetByNameAsync(TestResourceGroupName);
                 createdResourceGroup.Should().NotBeNull();
                 createdResourceGroup.Region.Should().Be(Fixture.TestRegion);
+                actorResponse.ResourceId.Should().Be(createdResourceGroup.Id);
             }
             finally
             {
-                await DeleteResourceGroup(azure, TestResourceGroup.Name);
+                await DeleteResourceGroup(azure, TestResourceGroupName);
             }
         }
     }
@@ -69,14 +80,14 @@ public class ResourceGroupActorTests
 
             try
             {
-                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ResourceGroup", "Remove", TestResourceGroup, actorId: "test-CI");
+                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ResourceGroup", "Remove", TestResourceGroupRequest());
 
-                var exists = await azure.ResourceGroups.ContainAsync(TestResourceGroup.Name);
+                var exists = await azure.ResourceGroups.ContainAsync(TestResourceGroupName);
                 exists.Should().BeFalse();
             }
             finally
             {
-                await DeleteResourceGroup(azure, TestResourceGroup.Name);
+                await DeleteResourceGroup(azure, TestResourceGroupName);
             }
         }
     }
@@ -85,12 +96,12 @@ public class ResourceGroupActorTests
     {
         if (resourceGroupExists)
         {
-            await EnsureResourceGroupExists(azure, TestResourceGroup.Name, Fixture.TestRegion);
+            await EnsureResourceGroupExists(azure, TestResourceGroupName, Fixture.TestRegion);
 
         }
         else
         {
-            await DeleteResourceGroup(azure, TestResourceGroup.Name);
+            await DeleteResourceGroup(azure, TestResourceGroupName);
         }
     }
 

@@ -3,7 +3,6 @@ using Autofac;
 using Eshopworld.DevOps;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.Configuration;
-using Sierra.Common;
 using Sierra.Common.DependencyInjection;
 using Sierra.Common.Tests;
 using Sierra.Model;
@@ -19,11 +18,13 @@ public class ActorTestsFixture : IDisposable
 {
     public readonly IContainer Container;
 
+    public string EnvironmentName { get; private set; }
+
     public string TestMiddlewareUri { get; private set; }
 
     public Region TestRegion { get; private set; }
 
-    public string SubscriptionId { get; private set; }
+    public string DeploymentSubscriptionId { get; private set; }
 
     public ActorTestsFixture()
     {
@@ -31,7 +32,6 @@ public class ActorTestsFixture : IDisposable
         builder.RegisterModule(new CoreModule(true));
         builder.RegisterModule(new VstsModule());
         builder.RegisterModule(new AzureManagementFluentModule());
-        builder.RegisterModule(new EnvironmentsModule());
         builder.Register(c => new SierraDbContext
             { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });
 
@@ -46,8 +46,9 @@ public class ActorTestsFixture : IDisposable
             TestRegion = string.IsNullOrEmpty(testConfig.RegionName)
                 ? Region.EuropeNorth
                 : Region.Create(testConfig.RegionName);
-            var environmentMap = c.Resolve<EnvironmentConfiguration>();
-            SubscriptionId = environmentMap.EnvironmentSubscriptionMap[testConfig.SubscriptionName];
+
+            EnvironmentName = testConfig.SubscriptionName;
+            DeploymentSubscriptionId = "45d5ef37-02bc-4b3d-9e62-19c14f3b9603";  // sierra integration
 
             return testConfig;
         });       

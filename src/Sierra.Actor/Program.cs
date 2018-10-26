@@ -25,7 +25,6 @@
                 builder.RegisterModule(new CoreModule());
                 builder.RegisterModule(new VstsModule());
                 builder.RegisterModule(new AzureManagementFluentModule());
-                builder.RegisterModule(new EnvironmentsModule());
 
                 builder.RegisterServiceFabricSupport();
 

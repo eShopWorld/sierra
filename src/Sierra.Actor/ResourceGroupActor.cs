@@ -1,13 +1,12 @@
 ﻿namespace Sierra.Actor
 {
-    using System;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-    using Common;
     using Common.Events;
     using Eshopworld.Core;
+    using Eshopworld.DevOps;
     using Interfaces;
     using Microsoft.Azure.Management.Fluent;
+    using Microsoft.Azure.Management.ResourceManager.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -20,63 +19,66 @@
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class ResourceGroupActor : SierraActor<ResourceGroup>, IResourceGroupActor
     {
+        private readonly Azure.IAuthenticated _authenticated;
         private readonly IBigBrother _bigBrother;
-        private readonly IAzure _azure;
 
         public ResourceGroupActor(ActorService actorService, ActorId actorId,
-            Azure.IAuthenticated authenticated, EnvironmentConfiguration environmentConfiguration,
-            IBigBrother bigBrother)
+            Azure.IAuthenticated authenticated, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
+            _authenticated = authenticated;
             _bigBrother = bigBrother;
-
-            var actorStringId = actorId.GetStringId();
-            var match = Regex.Match(actorStringId, "-([A-Z]+)$",
-                RegexOptions.Compiled | RegexOptions.CultureInvariant);
-            if (!match.Success)
-            {
-                throw new ArgumentException($"The format of the actor Id {actorId} is invalid (the environment name is missing).");
-            }
-
-            var environmentName = match.Groups[1].Value;
-            if (!environmentConfiguration.EnvironmentSubscriptionMap.TryGetValue(environmentName,
-                out var subscriptionId))
-            {
-                throw new ArgumentException($"The actor Id {actorId} does not contain a recognized environment name.");
-            }
-            _azure = authenticated.WithSubscription(subscriptionId);
         }
 
         public override async Task<ResourceGroup> Add(ResourceGroup model)
         {
-            if (await _azure.ResourceGroups.ContainAsync(model.Name))
+            var azure = BuildAzureClient(model.EnvironmentName);
+            IResourceGroup resourceGroup;
+            if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
-                return model;
+                resourceGroup = await azure.ResourceGroups.GetByNameAsync(model.Name);
+            }
+            else
+            {
+                resourceGroup = await azure.ResourceGroups
+                        .Define(model.Name)
+                        .WithRegion(Region.EuropeNorth)
+                        .CreateAsync();
+
+                _bigBrother.Publish(new ResourceGroupCreated
+                {
+                    EnvironmentName = model.EnvironmentName,
+                    RegionName = resourceGroup.RegionName,
+                    ResourceId = resourceGroup.Id,
+                    ResourceGroupName = resourceGroup.Name,
+                });
             }
 
-            await _azure.ResourceGroups
-                .Define(model.Name)
-                .WithRegion(Region.EuropeNorth)
-                .CreateAsync();
-
-            // TODO: will the event contain the actorId or any other part of the context?
-            _bigBrother.Publish(new ResourceGroupCreated
-            {
-                ResourceGroupName = model.Name,
-            });
-
+            model.State = EntityStateEnum.Created;
+            model.ResourceId = resourceGroup.Id;
             return model;
         }
 
         public override async Task Remove(ResourceGroup model)
         {
-            if (await _azure.ResourceGroups.ContainAsync(model.Name))
+            var azure = BuildAzureClient(model.EnvironmentName);
+            if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
-                await _azure.ResourceGroups
+                await azure.ResourceGroups
                     .DeleteByNameAsync(model.Name);
 
-                _bigBrother.Publish(new ResourceGroupDeleted { ResourceGroupName = model.Name });
+                _bigBrother.Publish(new ResourceGroupDeleted
+                {
+                    EnvironmentName = model.EnvironmentName,
+                    ResourceGroupName = model.Name
+                });
             }
+        }
+
+        private IAzure BuildAzureClient(string environmentName)
+        {
+            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
+            return _authenticated.WithSubscription(subscriptionId);
         }
     }
 }

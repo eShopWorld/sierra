@@ -15,6 +15,8 @@
         public DbSet<VstsBuildDefinition> BuildDefinitions { get; set; }
         public DbSet<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
+        public DbSet<ResourceGroup> ResourceGroups { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(ConnectionString);
@@ -37,7 +39,11 @@
                 .HasForeignKey(t => t.TenantCode)
                 .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
 
-        }    
+            modelBuilder.Entity<VstsReleaseDefinition>()
+                .HasOne<Tenant>()
+                .WithMany(t => t.ReleaseDefinitions)
+                .HasForeignKey(t => t.TenantCode);
+        }
 
         /// <summary>
         /// loads complete tenant based on the tenant code with all dependent models

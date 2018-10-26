@@ -1,8 +1,8 @@
 ﻿namespace Sierra.Model
 {
-    using System.Linq;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Linq;
     using System.Runtime.Serialization;
 
     [DataContract]
@@ -23,21 +23,24 @@
         /// Forks + Core repos (when supported)
         /// </summary>
         [DataMember]
-        public List<VstsBuildDefinition> BuildDefinitions { get; set; }       
+        public List<VstsBuildDefinition> BuildDefinitions { get; set; }
 
         [DataMember]
         public List<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
+        public List<ResourceGroup> ResourceGroups { get; set; }
+
         private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();
-        
+
         public Tenant()
         {
             CustomSourceRepos = new List<Fork>();
             BuildDefinitions = new List<VstsBuildDefinition>();
             ReleaseDefinitions = new List<VstsReleaseDefinition>();
+            ResourceGroups = new List<ResourceGroup>();
         }
 
-        public Tenant(string code):this()
+        public Tenant(string code) : this()
         {
             Code = code;
         }
@@ -53,7 +56,7 @@
 
             Name = newState.Name;
 
-            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork (r.SourceRepositoryName, Code, r.ProjectType )).ToList();
+            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork(r.SourceRepositoryName, Code, r.ProjectType)).ToList();
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
@@ -76,7 +79,7 @@
                     f.State = EntityStateEnum.ToBeDeleted;
                     var bd = BuildDefinitions.Single(b => Equals(b.SourceCode, f));
                     bd.State = EntityStateEnum.ToBeDeleted;
-                    bd.ReleaseDefinition.State = EntityStateEnum.ToBeDeleted;                    
+                    bd.ReleaseDefinition.State = EntityStateEnum.ToBeDeleted;
                 });
         }
     }
