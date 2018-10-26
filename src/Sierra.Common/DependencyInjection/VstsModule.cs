@@ -2,6 +2,7 @@
 {
     using System;
     using Autofac;
+    using Microsoft.TeamFoundation.DistributedTask.WebApi;
     using Microsoft.Extensions.Configuration;
     using Microsoft.TeamFoundation.Build.WebApi;
     using Microsoft.TeamFoundation.SourceControl.WebApi;
@@ -10,17 +11,11 @@
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Clients;
 
     /// <summary>
-    /// Sierra autofac module to setup all the Vsts DI chain.
+    /// Sierra AutoFac module to setup entire Vsts DI chain.
     /// </summary>
     public class VstsModule : Module
     {      
-        /// <summary>
-        /// Adds registrations to the container.
-        /// </summary>
-        /// <param name="builder">The builder through which components can be registered.</param>
-        /// <remarks>
-        /// Note that the ContainerBuilder parameter is unique to this module.
-        /// </remarks>
+        /// <inheritdoc />        
         protected override void Load(ContainerBuilder builder)
         {
             builder.Register(c=> {
@@ -33,7 +28,9 @@
             builder.Register(c => new VssBasicCredential(string.Empty, c.Resolve<VstsConfiguration>().VstsPat))
                    .SingleInstance();
 
-            builder.Register(c => new VssConnection(new Uri(c.Resolve<VstsConfiguration>().VstsBaseUrl), c.Resolve<VssBasicCredential>()))
+            builder.Register(c => new VssConnection(
+                    new Uri(c.Resolve<VstsConfiguration>().VstsBaseUrl), 
+                    c.Resolve<VssBasicCredential>()))
                    .InstancePerDependency();
 
             builder.Register(c => c.Resolve<VssConnection>().GetClient<GitHttpClient>())
@@ -44,6 +41,9 @@
 
             builder.Register(c => c.Resolve<VssConnection>().GetClient<ReleaseHttpClient2>())
                     .InstancePerDependency();
+
+            builder.Register(c => c.Resolve<VssConnection>().GetClient<TaskAgentHttpClient>())
+                .InstancePerDependency();
         }
     }
 }
