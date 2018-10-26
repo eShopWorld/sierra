@@ -11,6 +11,7 @@
     using Model;
 
     [StatePersistence(StatePersistence.Volatile)]
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class BuildDefinitionActor : SierraActor<VstsBuildDefinition>, IBuildDefinitionActor
     {
         private readonly BuildHttpClient _buildHttpClient;
