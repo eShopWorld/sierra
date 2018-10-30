@@ -201,9 +201,15 @@
             var actorName = match.Groups[1].Value;
             var methodName = match.Groups[2].Value;
 
-            throw new ActorCallFailedException(
-                $"Failed to find the I{actorName}Actor interface with a valid {methodName} method.");
+            var actorInterfaces = _actorMethods.Value
+                .Values
+                .GroupBy(x => x.InterfaceType)
+                .Select(x => x.Key.Name)
+                .OrderBy(x => x)
+                .ToList();
 
+            throw new ActorCallFailedException(
+                $"Failed to find the I{actorName}Actor interface with a valid {methodName} method. Recognized interfaces are: {string.Join(", ", actorInterfaces)}.");
         }
 
         private static async Task<string> ReadAsStringAsync(Stream stream)
