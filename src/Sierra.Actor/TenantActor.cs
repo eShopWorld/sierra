@@ -2,6 +2,7 @@
 {
     using System.Linq;
     using System.Threading.Tasks;
+    using Eshopworld.DevOps;
     using Interfaces;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -15,7 +16,7 @@
     internal class TenantActor : SierraActor<Tenant>, ITenantActor
     {
         private readonly SierraDbContext _dbContext;
-        
+
         /// <summary>
         /// Initializes a new instance of <see cref="TenantActor"/>.
         /// </summary>
@@ -45,14 +46,16 @@
                 dbTenant = new Tenant(tenant.Code);
                 _dbContext.Tenants.Add(dbTenant);
             }
-            
+
             dbTenant.Update(tenant);
             //persist "ToBeDeleted"+"ToBeCreated" records
             await _dbContext.SaveChangesAsync();
 
+            // TODO: code running inside ContinueWith should be thread safe.
+
             // #1 sync forks (add + remove)
             await Task.WhenAll(dbTenant.CustomSourceRepos
-                .Where(f => f.State== EntityStateEnum.NotCreated)
+                .Where(f => f.State == EntityStateEnum.NotCreated)
                 .Select(f =>
                     GetActor<IForkActor>(f.ToString()).Add(f)
                         .ContinueWith((t) => f.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
@@ -86,8 +89,8 @@
                 .Where(d => d.State == EntityStateEnum.NotCreated)
                 .Select(d =>
                     GetActor<IReleaseDefinitionActor>(d.ToString()).Add(d)
-                        .ContinueWith((t) => d.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));               
-            
+                        .ContinueWith((t) => d.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
+
             await Task.WhenAll(dbTenant.ReleaseDefinitions
                 .Where(d => d.State == EntityStateEnum.ToBeDeleted)
                 .Select(d =>
@@ -97,6 +100,27 @@
             // #5b If there are no forks, put the tenant into a ring on the global master release definition
             // #6 Create the tenant Azure AD application for test and prod
             // #7 Map the tenant KeyVault for all test environments and prod
+
+            // Sync Azure resource groups
+            if (!dbTenant.ResourceGroups.Any())
+            {
+                foreach (var environmentName in GetAllEnvironments())
+                {
+                    dbTenant.ResourceGroups.Add(new ResourceGroup(tenant.Code, environmentName, $"checkout-{tenant.Code}-{environmentName}"));
+                }
+            }
+
+            await Task.WhenAll(dbTenant.ResourceGroups
+                .Where(rg => rg.State == EntityStateEnum.NotCreated)
+                .Select(rg =>
+                    GetActor<IResourceGroupActor>(rg.ToString()).Add(rg)
+                        .ContinueWith((t) => rg.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
+
+            await Task.WhenAll(dbTenant.ResourceGroups
+                .Where(rg => rg.State == EntityStateEnum.ToBeDeleted)
+                .Select(rg =>
+                    GetActor<IResourceGroupActor>(rg.ToString()).Remove(rg)
+                        .ContinueWith((t) => _dbContext.Entry(rg).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             //final state persistence
             await _dbContext.SaveChangesAsync();
@@ -124,6 +148,18 @@
 
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();
+        }
+
+        private static string[] GetAllEnvironments()
+        {
+            return new[]
+            {
+                EnvironmentNames.TEST,
+                EnvironmentNames.CI,
+                EnvironmentNames.SAND,
+                EnvironmentNames.PREP,
+                EnvironmentNames.PROD
+            };
         }
     }
 }

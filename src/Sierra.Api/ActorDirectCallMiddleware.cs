@@ -144,7 +144,9 @@
 
                 var parameterValue = JsonConvert.DeserializeObject(jsonSerializedParameter, actorMethod.Parameter.ParameterType);
 
-                var result = await CallActor(actorMethod.InterfaceType, actorMethod.Method, parameterValue);
+                var actorId = context.Request.Query["actorId"];
+
+                var result = await CallActor(actorId, actorMethod.InterfaceType, actorMethod.Method, parameterValue);
 
                 if (result != null)
                 {
@@ -212,7 +214,7 @@
             }
         }
 
-        private Dictionary<string, ActorMethod> CreateActorMethodsDictionary(IEnumerable<Assembly> assemblies)
+        private static Dictionary<string, ActorMethod> CreateActorMethodsDictionary(IEnumerable<Assembly> assemblies)
         {
             var methods = from assembly in GetAssemblies(assemblies)
                           from interfaceType in FindActorInterfaces(assembly)
@@ -268,9 +270,9 @@
                 select (m, p[0]);
         }
 
-        private async Task<object> CallActor(Type interfaceType, MethodInfo method, object parameterValue)
+        private async Task<object> CallActor(string actorId, Type interfaceType, MethodInfo method, object parameterValue)
         {
-            var actorId = ActorId.CreateRandom();
+            var actorIdNative = actorId != null ? new ActorId(actorId) : ActorId.CreateRandom();
 
             var serviceName = interfaceType.Name + "Service";
             if (serviceName.StartsWith('I'))
@@ -278,7 +280,7 @@
 
             var actorUri = new Uri($"{_options.StatelessServiceContext.CodePackageActivationContext.ApplicationName}/{serviceName}");
 
-            var actorProxy = CreateUntypedActorProxy(interfaceType, actorId, actorUri);
+            var actorProxy = CreateUntypedActorProxy(interfaceType, actorIdNative, actorUri);
 
             var task = (Task)method.Invoke(actorProxy, new[] { parameterValue });
             try

@@ -10,5 +10,6 @@
     <Parameter Name="BuildDefinitionActorService_PartitionCount" Value="1" />
     <Parameter Name="ReleaseDefinitionActorService_PartitionCount" Value="1" />
     <Parameter Name="TestActorService_PartitionCount" Value="1" />
+    <Parameter Name="ResourceGroupActorService_PartitionCount" Value="1" />
   </Parameters>
 </Application>

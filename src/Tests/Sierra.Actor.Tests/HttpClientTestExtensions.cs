@@ -18,12 +18,21 @@ public static class HttpClientTestExtensions
     /// <param name="method">method name - Add or Remove</param>
     /// <param name="payload">payload instance</param>
     /// <param name="checkResponseCode">flag to indicate whether response code should be checked</param>
+    /// <param name="actorId">The id of an actor. If null a new random id will be used.</param>
     /// <returns>response message</returns>
     public static async Task<T> PostJsonToActor<T>(this HttpClient cl, string baseUri, string actorName,
-        string method, T payload, bool checkResponseCode = true) 
-        where T : class       
+        string method, T payload, bool checkResponseCode = true, string actorId = null) 
+        where T : class
     {
-        var response = await cl.PostAsJsonAsync($"{baseUri}/{actorName}/{method}", payload);
+        string query = null;
+        if (actorId != null)
+        {
+            // Let's assume the query value doesn't need encoding
+            query = "?actorId=" + actorId;
+        }
+
+        var url = $"{baseUri}/{actorName}/{method}" + query;
+        var response = await cl.PostAsJsonAsync($"{baseUri}/{actorName}/{method}" + query, payload);
 
         if (checkResponseCode)
             response.EnsureSuccessStatusCode();
