@@ -55,6 +55,7 @@ public class ResourceGroupActorTests
                 actorResponse.ResourceId.Should().NotBeNullOrEmpty();
                 actorResponse.State.Should().Be(EntityStateEnum.Created);
 
+                await Task.Delay(TimeSpan.FromSeconds(5));
                 var isResourceGroupCreated = await azure.ResourceGroups.ContainAsync(TestResourceGroupName);
                 isResourceGroupCreated.Should()
                     .BeTrue($"the resource {TestResourceGroupName} group should be created in the {azure.SubscriptionId} subscription, but the actor reported that it created {actorResponse.ResourceId}.");
@@ -85,6 +86,7 @@ public class ResourceGroupActorTests
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ResourceGroup", "Remove", TestResourceGroupRequest());
 
+                await Task.Delay(TimeSpan.FromSeconds(5));
                 var exists = await azure.ResourceGroups.ContainAsync(TestResourceGroupName);
                 exists.Should().BeFalse();
             }
