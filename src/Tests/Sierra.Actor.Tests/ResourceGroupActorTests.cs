@@ -55,6 +55,9 @@ public class ResourceGroupActorTests
                 actorResponse.ResourceId.Should().NotBeNullOrEmpty();
                 actorResponse.State.Should().Be(EntityStateEnum.Created);
 
+                var isResourceGroupCreated = await azure.ResourceGroups.ContainAsync(TestResourceGroupName);
+                isResourceGroupCreated.Should()
+                    .BeTrue($"the resource {TestResourceGroupName} group should be created in the {azure.SubscriptionId} subscription, but the actor reported that it created {actorResponse.ResourceId}.");
                 var createdResourceGroup = await azure.ResourceGroups.GetByNameAsync(TestResourceGroupName);
                 createdResourceGroup.Should().NotBeNull();
                 createdResourceGroup.Region.Should().Be(Fixture.TestRegion);
