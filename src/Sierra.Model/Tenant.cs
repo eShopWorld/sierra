@@ -28,6 +28,7 @@
         [DataMember]
         public List<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
+        [DataMember]
         public List<ResourceGroup> ResourceGroups { get; set; }
 
         private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();

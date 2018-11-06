@@ -49,5 +49,12 @@
   <Section Name="ReleaseDefinitionActorServiceReplicatorSecurityConfig">
     <Parameter Name="CredentialType" Value="None" />
   </Section>
+  <Section Name="ManagedIdentityActorServiceReplicatorConfig">
+    <Parameter Name="ReplicatorEndpoint" Value="ManagedIdentityActorServiceReplicatorEndpoint" />
+    <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
+  </Section>
+  <Section Name="ManagedIdentityActorServiceReplicatorSecurityConfig">
+    <Parameter Name="CredentialType" Value="None" />
+  </Section>
   <!-- The content will be generated during build -->
 </Settings>

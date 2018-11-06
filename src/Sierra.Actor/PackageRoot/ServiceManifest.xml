@@ -99,6 +99,20 @@
         </Extension>
       </Extensions>
     </StatefulServiceType>
+    <StatefulServiceType ServiceTypeName="ManagedIdentityActorServiceType">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="4e59f12e-6ece-4fd7-9153-277b1f503702|Volatile">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="ManagedIdentityActorService" />
+            <ReplicatorEndpoint Name="ManagedIdentityActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="ManagedIdentityActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="ManagedIdentityActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="ManagedIdentityActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="ManagedIdentityActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
   </ServiceTypes>
   <CodePackage Name="Code" Version="1.0.0">
     <EntryPoint>
@@ -127,6 +141,8 @@
       <Endpoint Name="ReleaseDefinitionActorServiceReplicatorEndpoint" />
       <Endpoint Name="TestActorServiceEndpointV2" />
       <Endpoint Name="TestActorServiceReplicatorEndpoint" />
+      <Endpoint Name="ManagedIdentityActorServiceEndpointV2" />
+      <Endpoint Name="ManagedIdentityActorServiceReplicatorEndpoint" />
     </Endpoints>
   </Resources>
   <!-- The content will be generated during build -->

@@ -32,6 +32,7 @@
                 builder.RegisterActor<LockerActor>();
                 builder.RegisterActor<ForkActor>();
                 builder.RegisterActor<TestActor>();
+                builder.RegisterActor<ManagedIdentityActor>();
                 builder.RegisterActor<ResourceGroupActor>();
                 builder.RegisterActor<BuildDefinitionActor>();
                 builder.RegisterActor<ReleaseDefinitionActor>();
