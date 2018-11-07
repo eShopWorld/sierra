@@ -66,7 +66,7 @@
 
                 model.IdentityId = identity.Id;
 
-                if (!IsIdentityAssigned(azure, scaleSet, identity))
+                if (!IsIdentityAssigned(scaleSet, identity))
                 {
                     stage = "identityAssignment";
                     await scaleSet.Update()
@@ -94,18 +94,68 @@
             }
         }
 
-        public override Task Remove(ManagedIdentityAssignment model)
+        public override async Task Remove(ManagedIdentityAssignment model)
         {
-            var azure = BuildAzureClient(model.EnvironmentName);
-            throw new System.NotImplementedException();
+            var stage = "initialization";
+            string subscriptionId = null;
+            try
+            {
+                var azure = BuildAzureClient(model.EnvironmentName);
+                subscriptionId = azure.SubscriptionId;
+
+                stage = "resourceGroupValidation";
+                if (!await azure.ResourceGroups.ContainAsync(model.ResourceGroupName))
+                {
+                    return;
+                }
+
+                stage = "identityFinding";
+                var identities = await azure.Identities.ListByResourceGroupAsync(model.ResourceGroupName);
+                var identity = identities.FirstOrDefault(x => x.Name == model.IdentityName);
+                if (identity == null)
+                {
+                    return;
+                }
+
+                stage = "scaleSetFinding";
+                var scaleSetsList = await azure.VirtualMachineScaleSets.ListByResourceGroupAsync(model.VirtualMachineScaleSetResourceGroupName);
+                var scaleSet = scaleSetsList.FirstOrDefault(
+                    x => model.VirtualMachineScaleSetName.Equals(x.Name, StringComparison.OrdinalIgnoreCase));
+                if (scaleSet != null)
+                {
+                    stage = "identityUnassignment";
+                    await scaleSet.Update()
+                        .WithoutUserAssignedManagedServiceIdentity(identity.Id)
+                        .ApplyAsync();
+                }
+
+                stage = "identityDeletion";
+                await azure.Identities.DeleteByIdAsync(identity.Id);
+            }
+            catch (Exception e)
+            {
+                var errorEvent = new ManagedIdentityActorError(e)
+                {
+                    Stage = stage,
+                    SubscriptionId = subscriptionId,
+                    EnvironmentName = model.EnvironmentName,
+                    IdentityName = model.IdentityName,
+                    ResourceGroupName = model.ResourceGroupName,
+                    VirtualMachineScaleSetName = model.VirtualMachineScaleSetName,
+                    VirtualMachineScaleSetResourceGroupName = model.VirtualMachineScaleSetResourceGroupName,
+                };
+                _bigBrother.Publish(errorEvent);
+                throw;
+            }
         }
+
         private IAzure BuildAzureClient(string environmentName)
         {
             var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
             return _authenticated.WithSubscription(subscriptionId);
         }
 
-        private static bool IsIdentityAssigned(IAzure azure, IVirtualMachineScaleSet scaleSet, IIdentity identity)
+        private static bool IsIdentityAssigned(IVirtualMachineScaleSet scaleSet, IIdentity identity)
         {
             var isAssigned = scaleSet.ManagedServiceIdentityType == ResourceIdentityType.SystemAssignedUserAssigned
                               || scaleSet.ManagedServiceIdentityType == ResourceIdentityType.UserAssigned;

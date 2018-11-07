@@ -21,9 +21,9 @@ using Xunit;
 public class ManagedIdentityActorTests
 {
     private const string TestResourceGroupName = "TestResourceGroup";
-    private const string ScaleSetName = "SierraTestSS";
-    private const string ScaleSetResourceGroupName = "SierraTest";
-    private const string IdentityName = "SierraTestSSIdentity";
+    private const string ScaleSetName = "TestScaleSet";
+    private const string ScaleSetResourceGroupName = "TestScaleSetRG";
+    private const string IdentityName = "TestScaleSetIdentity";
     private ActorTestsFixture Fixture { get; }
 
     public ManagedIdentityActorTests(ActorTestsFixture fixture)
@@ -84,41 +84,39 @@ public class ManagedIdentityActorTests
             capturedIdentity.Result.ResourceGroupName.Should().Be(msi.ResourceGroupName);
 
             var modifiedScaleSet = await GetScaleSet(azure);
-            var isAssigned = IsIdentityAssigned(azure, modifiedScaleSet, capturedIdentity.Result);
+            var isAssigned = IsIdentityAssigned(modifiedScaleSet, capturedIdentity.Result);
             isAssigned.Should()
                 .BeTrue($"the identity {capturedIdentity.Result.Id} should be assigned to the scale set {modifiedScaleSet.Id}");
         }
     }
 
-    [Theory(Skip = ""), IsLayer2]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task RemoveTests(bool resourceGroupExists)
+    [Theory, IsLayer2]
+    [InlineData(OperationPhase.IdentityNotCreated)]
+    [InlineData(OperationPhase.IdentityCreatedAndNotAssigned)]
+    [InlineData(OperationPhase.IdentityAssigned)]
+    public async Task RemoveTests(OperationPhase operationPhase)
     {
         var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var azure = InitAzure(scope);
-            await PrepareResourceGroup(resourceGroupExists, azure);
+            var resourceGroup = await EnsureResourceGroupExists(azure, TestResourceGroupName, Region.EuropeNorth);
+            var scaleSet = await GetScaleSet(azure);
+            await Prepare(azure, operationPhase, resourceGroup, scaleSet, IdentityName);
+            var identity = await FindIdentity(azure, resourceGroup, IdentityName);
 
-            try
+            var msi = CreateMangedIdentityAssignment();
+            await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ManagedIdentity", "Remove", msi);
+
+            var deletedIdentity = await FindIdentity(azure, resourceGroup, IdentityName);
+            deletedIdentity.Should().BeNull($"identity {IdentityName} should be deleted.");
+            var updatedScaleSet = await GetScaleSet(azure);
+            if (updatedScaleSet.ManagedServiceIdentityType == ResourceIdentityType.SystemAssignedUserAssigned
+                || updatedScaleSet.ManagedServiceIdentityType == ResourceIdentityType.UserAssigned)
             {
-                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ResourceGroup", "Remove", CreateMangedIdentityAssignment());
-
-                // repeat un
-                var policy = Policy
-                    .HandleResult<bool>(x => x)
-                    .WaitAndRetryAsync(3, retryAttempt =>
-                        TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
-                    );
-
-                var exists = await policy.ExecuteAsync(() => azure.ResourceGroups.ContainAsync(TestResourceGroupName));
-                exists.Should().BeFalse($"The resource group {TestResourceGroupName} should be deleted");
+                updatedScaleSet.UserAssignedManagedServiceIdentityIds.Should().NotContain(identity.Id);
             }
-            finally
-            {
-                await DeleteResourceGroup(azure, TestResourceGroupName);
-            }
+            // TODO: if possible check whether the managed identity had been unassigned from the scale set before it has been deleted. 
         }
     }
 
@@ -179,7 +177,7 @@ public class ManagedIdentityActorTests
         IVirtualMachineScaleSet scaleSet, string identityName)
     {
         var identity = await FindIdentity(azure, resourceGroup, identityName);
-        var isAssigned = identity != null && IsIdentityAssigned(azure, scaleSet, identity);
+        var isAssigned = identity != null && IsIdentityAssigned(scaleSet, identity);
         switch (phase)
         {
             case OperationPhase.IdentityNotCreated:
@@ -239,7 +237,7 @@ public class ManagedIdentityActorTests
         return identities.FirstOrDefault(x => x.Name == identityName);
     }
 
-    private static bool IsIdentityAssigned(IAzure azure, IVirtualMachineScaleSet scaleSet, IIdentity identity)
+    private static bool IsIdentityAssigned(IVirtualMachineScaleSet scaleSet, IIdentity identity)
     {
         bool isAssigned = scaleSet.ManagedServiceIdentityType == ResourceIdentityType.SystemAssignedUserAssigned
                           || scaleSet.ManagedServiceIdentityType == ResourceIdentityType.UserAssigned;

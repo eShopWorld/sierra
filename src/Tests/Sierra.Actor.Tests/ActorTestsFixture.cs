@@ -48,7 +48,7 @@ public class ActorTestsFixture : IDisposable
                 : Region.Create(testConfig.RegionName);
 
             EnvironmentName = testConfig.SubscriptionName;
-            DeploymentSubscriptionId = "45d5ef37-02bc-4b3d-9e62-19c14f3b9603";  // sierra integration
+            DeploymentSubscriptionId = "0b50e185-2e2a-4e1c-bf2f-ead0b80e0b79";  // sierra integration
 
             return testConfig;
         });       
