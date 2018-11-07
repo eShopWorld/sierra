@@ -10,13 +10,13 @@ namespace Sierra.Model.Tests
         [Fact, IsUnit]
         public void Update_AddAdditionalRepo()
         {
-            var fork = new Fork
+            var fork = new SourceCodeRepository
                 {SourceRepositoryName = "AlreadyThere", State = EntityStateEnum.Created, TenantCode = "TenantA"};
             var currentTenant = new Tenant
             {
                 Code = "TenantA",
                 Name = "oldName",
-                CustomSourceRepos = new List<Fork>(new[] {fork}),
+                SourceRepos = new List<SourceCodeRepository>(new[] {fork}),
                 BuildDefinitions = new List<VstsBuildDefinition>(new[]
                 {
                     new VstsBuildDefinition {SourceCode = fork, TenantCode = "TenantA", State = EntityStateEnum.Created}
@@ -25,20 +25,20 @@ namespace Sierra.Model.Tests
 
             var tenantRequest = new Tenant
             {
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
-                    new Fork {SourceRepositoryName = "A"},
-                    new Fork {SourceRepositoryName = "AlreadyThere"}
+                    new SourceCodeRepository {SourceRepositoryName = "A"},
+                    new SourceCodeRepository {SourceRepositoryName = "AlreadyThere"}
                 })
             };
 
             currentTenant.Update(tenantRequest);
-            currentTenant.CustomSourceRepos.Count.Should().Be(2);
+            currentTenant.SourceRepos.Count.Should().Be(2);
             //forks checks
-            currentTenant.CustomSourceRepos.Should().ContainSingle(f => f.State == EntityStateEnum.NotCreated);            
-            currentTenant.CustomSourceRepos.Should().ContainSingle(f =>
+            currentTenant.SourceRepos.Should().ContainSingle(f => f.State == EntityStateEnum.NotCreated);            
+            currentTenant.SourceRepos.Should().ContainSingle(f =>
                 f.SourceRepositoryName == "A" && f.TenantCode == "TenantA" && f.State == EntityStateEnum.NotCreated);
-            currentTenant.CustomSourceRepos.Should().Contain(f =>
+            currentTenant.SourceRepos.Should().Contain(f =>
                 f.SourceRepositoryName == "AlreadyThere" && f.State == EntityStateEnum.Created &&
                 f.TenantCode == "TenantA");
             //build definition checks
@@ -62,18 +62,18 @@ namespace Sierra.Model.Tests
             {
                 Code = "TenantA",
                 Name = "oldName",
-                CustomSourceRepos = new List<Fork>()
+                SourceRepos = new List<SourceCodeRepository>()
             };
 
             var tenantRequest = new Tenant
             {
-                CustomSourceRepos = new List<Fork>(new[] {new Fork {SourceRepositoryName = "RepoB"}})
+                SourceRepos = new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = "RepoB"}})
             };
 
             currentTenant.Update(tenantRequest);
 
             //fork checks
-            currentTenant.CustomSourceRepos.Should().OnlyContain(f =>
+            currentTenant.SourceRepos.Should().OnlyContain(f =>
                 f.SourceRepositoryName == "RepoB" && f.TenantCode == "TenantA" &&
                 f.State == EntityStateEnum.NotCreated);
             //build definition checks       
@@ -93,9 +93,9 @@ namespace Sierra.Model.Tests
             {
                 Code = "TenantA",
                 Name = "oldName",
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
-                    new Fork
+                    new SourceCodeRepository
                     {
                         SourceRepositoryName = "RepoA", State = EntityStateEnum.NotCreated, TenantCode = "TenantA"
                     }
@@ -104,29 +104,29 @@ namespace Sierra.Model.Tests
 
             var tenantRequest = new Tenant
             {
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
-                    new Fork {SourceRepositoryName = "RepoA"},
-                    new Fork {SourceRepositoryName = "RepoB"}
+                    new SourceCodeRepository {SourceRepositoryName = "RepoA"},
+                    new SourceCodeRepository {SourceRepositoryName = "RepoB"}
                 })
             };
 
             currentTenant.Update(tenantRequest);
 
-            currentTenant.CustomSourceRepos.Should().OnlyContain(f =>
+            currentTenant.SourceRepos.Should().OnlyContain(f =>
                 (f.SourceRepositoryName == "RepoA" || f.SourceRepositoryName == "RepoB") && f.TenantCode == "TenantA");
         }
 
         [Fact, IsUnit]
         public void Update_CheckToBeDeletedForkRetry()
         {
-            var forkRepoA = new Fork
+            var forkRepoA = new SourceCodeRepository
                 {SourceRepositoryName = "RepoA", State = EntityStateEnum.ToBeDeleted, TenantCode = "TenantA"};
             var currentTenant = new Tenant
             {
                 Code = "TenantA",
                 Name = "oldName",
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
                     forkRepoA
                 }),
@@ -139,16 +139,16 @@ namespace Sierra.Model.Tests
 
             var tenantRequest = new Tenant
             {
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
-                    new Fork {SourceRepositoryName = "RepoA"},
-                    new Fork {SourceRepositoryName = "RepoB"}
+                    new SourceCodeRepository {SourceRepositoryName = "RepoA"},
+                    new SourceCodeRepository {SourceRepositoryName = "RepoB"}
                 })
             };
 
             currentTenant.Update(tenantRequest);
 
-            currentTenant.CustomSourceRepos.Should().ContainSingle(f =>
+            currentTenant.SourceRepos.Should().ContainSingle(f =>
                 f.SourceRepositoryName == "RepoA" && f.TenantCode == "TenantA" &&
                 f.State == EntityStateEnum.ToBeDeleted);
         }
@@ -156,13 +156,13 @@ namespace Sierra.Model.Tests
         [Fact, IsUnit]
         public void Update_CheckNotCreatedBuildDefinitionRetry()
         {
-            var forkRepoA = new Fork
+            var forkRepoA = new SourceCodeRepository
                 {SourceRepositoryName = "RepoA", State = EntityStateEnum.Created, TenantCode = "TenantA"};
             var currentTenant = new Tenant
             {
                 Code = "TenantA",
                 Name = "oldName",
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
                     forkRepoA
                 }),
@@ -175,9 +175,9 @@ namespace Sierra.Model.Tests
 
             var tenantRequest = new Tenant
             {
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
-                    new Fork {SourceRepositoryName = "RepoA"}
+                    new SourceCodeRepository {SourceRepositoryName = "RepoA"}
                 })
             };
             currentTenant.Update(tenantRequest);
@@ -191,9 +191,9 @@ namespace Sierra.Model.Tests
         [Fact, IsUnit]
         public void Update_RemoveRepo()
         {
-            var forkRepoA = new Fork
+            var forkRepoA = new SourceCodeRepository
                 {State = EntityStateEnum.Created, SourceRepositoryName = "RepoA", TenantCode = "TenantA"};
-            var forkRepoB = new Fork
+            var forkRepoB = new SourceCodeRepository
                 {State = EntityStateEnum.Created, SourceRepositoryName = "RepoB", TenantCode = "TenantA"};
             var relDefA = new VstsReleaseDefinition
                 { TenantCode = "TenantA", State = EntityStateEnum.Created };
@@ -210,7 +210,7 @@ namespace Sierra.Model.Tests
             {
                 Code = "TenantA",
                 Name = "oldName",
-                CustomSourceRepos = new List<Fork>(new[]
+                SourceRepos = new List<SourceCodeRepository>(new[]
                 {
                     forkRepoA, forkRepoB
                 }),
@@ -220,14 +220,14 @@ namespace Sierra.Model.Tests
 
             var tenantRequest = new Tenant
             {
-                CustomSourceRepos = new List<Fork>(new[] {new Fork {SourceRepositoryName = "RepoA"}})
+                SourceRepos = new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = "RepoA"}})
             };
 
             currentTenant.Update(tenantRequest);
 
             //forks checks
-            currentTenant.CustomSourceRepos.Should().NotContain(f => f.State == EntityStateEnum.NotCreated);
-            currentTenant.CustomSourceRepos.Should().ContainSingle(f =>
+            currentTenant.SourceRepos.Should().NotContain(f => f.State == EntityStateEnum.NotCreated);
+            currentTenant.SourceRepos.Should().ContainSingle(f =>
                 f.SourceRepositoryName == "RepoB" && f.TenantCode == "TenantA" &&
                 f.State == EntityStateEnum.ToBeDeleted);
             //build definition checks

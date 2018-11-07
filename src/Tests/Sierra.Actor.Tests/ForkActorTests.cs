@@ -14,7 +14,7 @@ using Xunit;
 public class ForkActorTests
 {
     private ActorTestsFixture Fixture { get; }
-    private static readonly Fork TestFork = new Fork
+    private static readonly SourceCodeRepository TestFork = new SourceCodeRepository
     {
         TenantCode = "L2TNT",
         ProjectType = ProjectTypeEnum.WebApi,
@@ -37,7 +37,7 @@ public class ForkActorTests
                 var forkCreated = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "Fork", "Add", TestFork);
                 
                 var vstsClient = scope.Resolve<GitHttpClient>();
-                var repo = await vstsClient.GetRepositoryAsync(forkCreated.ForkVstsId, true, null);
+                var repo = await vstsClient.GetRepositoryAsync(forkCreated.RepoVstsId, true, null);
                 repo.Should().NotBeNull();
                 //check parent repo link                
                 repo.ParentRepository.Name.Should().BeEquivalentTo(TestFork.SourceRepositoryName);

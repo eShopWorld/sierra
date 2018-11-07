@@ -11,7 +11,7 @@
         public string ConnectionString { get; set; } = "Data Source=.;Initial Catalog=Sierra;Integrated Security=True"; //for local dev experience
 
         public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<Fork> Forks { get; set; }
+        public DbSet<SourceCodeRepository> SourceCodeRepositories { get; set; }
         public DbSet<VstsBuildDefinition> BuildDefinitions { get; set; }
         public DbSet<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
@@ -26,7 +26,7 @@
         {
             modelBuilder.Entity<Tenant>();
             modelBuilder.Entity<VstsBuildDefinition>();
-            modelBuilder.Entity<Fork>();                
+            modelBuilder.Entity<SourceCodeRepository>();                
             modelBuilder.Entity<VstsBuildDefinition>()
                 .HasOne<Tenant>()
                 .WithMany(t => t.BuildDefinitions)
@@ -53,7 +53,7 @@
         public async Task<Tenant> LoadCompleteTenantAsync(string tenantCode)
         {
             return await Tenants
-                .Include(t=>t.CustomSourceRepos)
+                .Include(t=>t.SourceRepos)
                 .Include(t=>t.BuildDefinitions)
                 .Include(t=>t.ReleaseDefinitions)
                     .FirstOrDefaultAsync(t => t.Code == tenantCode);

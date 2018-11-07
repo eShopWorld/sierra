@@ -17,7 +17,7 @@
             if (x == null || y == null)
                 return false;
 
-            return String.Equals(x.ToString(), y.ToString(), StringComparison.OrdinalIgnoreCase);
+            return string.Equals(x.ToString(), y.ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <inheritdoc/>

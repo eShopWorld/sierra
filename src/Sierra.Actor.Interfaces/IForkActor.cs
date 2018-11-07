@@ -12,15 +12,15 @@
         /// <summary>
         /// fork repository
         /// </summary>
-        /// <param name="fork">payload to describe requested fork</param>
-        /// <returns>task instance wrapper with resulting <see cref="Fork"/></returns>
-        Task<Fork> Add(Fork fork);
+        /// <param name="sourceCodeRepository">payload to describe requested fork</param>
+        /// <returns>task instance wrapper with resulting <see cref="SourceCodeRepository"/></returns>
+        Task<SourceCodeRepository> Add(SourceCodeRepository sourceCodeRepository);
 
         /// <summary>
         /// remove an existing repo (if exists)
         /// </summary>
-        /// <param name="fork">repo to remove</param>
+        /// <param name="sourceCodeRepository">repo to remove</param>
         /// <returns>task instance</returns>
-        Task Remove(Fork fork);
+        Task Remove(SourceCodeRepository sourceCodeRepository);
     }
 }

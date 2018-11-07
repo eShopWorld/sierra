@@ -8,20 +8,21 @@
     /// message payload to define a fork that is requested
     /// </summary>
     [DataContract]
-    public class Fork
+    public class SourceCodeRepository
     {
         private const string RepoTenantDelimiter = "-";
 
-        public Fork()
+        public SourceCodeRepository()
         {
         }
 
-        public Fork(string sourceRepoName, string tenantCode, ProjectTypeEnum projectType)
+        public SourceCodeRepository(string sourceRepoName, string tenantCode, ProjectTypeEnum projectType, bool fork=false)
         {
             SourceRepositoryName = sourceRepoName;
             TenantCode = tenantCode;
             ProjectType = projectType;
             State = EntityStateEnum.NotCreated;
+            Fork = fork;
         }
 
         [DataMember]
@@ -29,7 +30,7 @@
         public Guid Id { get; set; }
 
         [DataMember]
-        public Guid ForkVstsId { get; set; }
+        public Guid RepoVstsId { get; set; }
 
         /// <summary>
         /// source repository name (within singular collection)
@@ -52,13 +53,17 @@
         [Required]
         public ProjectTypeEnum ProjectType { get; set; }
 
+        [DataMember]
+        [Required]
+        public bool Fork { get; set; }
+
         /// <summary>
         /// encapsulate fork naming strategy
         /// </summary>
         /// <returns>desired fork name</returns>
         public override string ToString()
         {
-            return $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantCode}";
+            return Fork ? $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantCode}" : SourceRepositoryName; //TODO: consider name clashes here (different projects?)
         }        
 
         /// <summary>
@@ -68,7 +73,7 @@
         /// <returns>equality check result</returns>
         public override bool Equals(object obj)
         {
-            if (!(obj is Fork fork))
+            if (!(obj is SourceCodeRepository fork))
                 return false;
 
             return string.Equals(fork.ToString(), ToString(), StringComparison.OrdinalIgnoreCase);
@@ -91,7 +96,7 @@
         {
             if (vstsRepo != Guid.Empty)
             {
-                ForkVstsId = vstsRepo;
+                RepoVstsId = vstsRepo;
                 State = EntityStateEnum.Created;
             }
         }
@@ -100,12 +105,12 @@
         /// update current instance 
         /// </summary>
         /// <param name="newState">new state</param>
-        public void Update(Fork newState)
+        public void Update(SourceCodeRepository newState)
         {
             if (newState == null)
                 return;
 
-            ForkVstsId = newState.ForkVstsId;
+            RepoVstsId = newState.RepoVstsId;
             State = newState.State;
         }
     }

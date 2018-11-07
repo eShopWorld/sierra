@@ -47,7 +47,7 @@
 
             //customize the template
             template.Name = model.ToString();
-            template.Repository.Id = model.SourceCode.ForkVstsId.ToString();
+            template.Repository.Id = model.SourceCode.RepoVstsId.ToString();
 
             //push to vsts
             var vstsDefinition =

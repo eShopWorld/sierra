@@ -48,16 +48,16 @@
         /// <param name="client">The <see cref="GitHttpClient"/> used to create the Fork.</param>
         /// <param name="vstsCollectionId">The target collection ID where we are creating the fork on.</param>
         /// <param name="vstsTargetProjectId">The target project ID where we are creating the fork on.</param>
-        /// <param name="fork">fork definition</param>
+        /// <param name="sourceCodeRepository">fork definition</param>
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
-        internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, Fork fork)
+        internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, SourceCodeRepository sourceCodeRepository)
         {            
-            var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == fork.SourceRepositoryName);
+            var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == sourceCodeRepository.SourceRepositoryName);
 
             if (sourceRepo == null)
-                throw new ArgumentException($"Repository {fork.SourceRepositoryName} not found");
+                throw new ArgumentException($"Repository {sourceCodeRepository.SourceRepositoryName} not found");
 
-            return await CreateForkIfNotExists(client, vstsCollectionId, vstsTargetProjectId, sourceRepo, fork.ToString());
+            return await CreateForkIfNotExists(client, vstsCollectionId, vstsTargetProjectId, sourceRepo, sourceCodeRepository.ToString());
         }
 
         /// <summary>

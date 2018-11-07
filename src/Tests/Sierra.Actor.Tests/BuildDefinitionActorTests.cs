@@ -16,12 +16,12 @@ public class BuildDefinitionActorTests
 {
     private ActorTestsFixture Fixture { get; }
 
-    private static readonly VstsBuildDefinition TestBuildDefinition = new VstsBuildDefinition(new Fork
+    private static readonly VstsBuildDefinition TestBuildDefinition = new VstsBuildDefinition(new SourceCodeRepository
     {
         TenantCode = "L2TNT",
         ProjectType = ProjectTypeEnum.WebApi,
         SourceRepositoryName = "ForkIntTestSourceRepo",
-        ForkVstsId = Guid.Parse("2c71775d-25a9-4e16-b880-9880cc8b9f1c")
+        RepoVstsId = Guid.Parse("2c71775d-25a9-4e16-b880-9880cc8b9f1c")
     }, "L2TNT");
     
 

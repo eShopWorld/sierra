@@ -14,7 +14,7 @@
     /// Manages Forks on behalf of tenant operations.
     /// </summary>
     [StatePersistence(StatePersistence.Volatile)]
-    public class ForkActor : SierraActor<Fork>, IForkActor
+    public class ForkActor : SierraActor<SourceCodeRepository>, IForkActor
     {
         private readonly GitHttpClient _gitClient;
         private readonly VstsConfiguration _vstsConfiguration;
@@ -37,9 +37,9 @@
         }
 
         /// <inheridoc/>
-        public override async Task<Fork> Add(Fork fork)
+        public override async Task<SourceCodeRepository> Add(SourceCodeRepository sourceCodeRepository)
         {
-            var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, fork);
+            var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, sourceCodeRepository);
 
             if (!repo.IsFork)
             {
@@ -51,23 +51,23 @@
             }
             else
             {
-                fork.UpdateWithVstsRepo(repo.Id);
+                sourceCodeRepository.UpdateWithVstsRepo(repo.Id);
 
                 _bigBrother.Publish(new ForkRequestSucceeded { ForkName = repo.Name });
-                return fork;
+                return sourceCodeRepository;
             }
 
             return null;
         }
 
         /// <inheridoc/>
-        public override async Task Remove(Fork fork)
+        public override async Task Remove(SourceCodeRepository sourceCodeRepository)
         {
-            var forkRemoved = await _gitClient.DeleteForkIfExists(fork.ToString());
+            var forkRemoved = await _gitClient.DeleteForkIfExists(sourceCodeRepository.ToString());
 
             if (forkRemoved)
             {
-                _bigBrother.Publish(new ForkDeleted { ForkName = fork.ToString() });
+                _bigBrother.Publish(new ForkDeleted { ForkName = sourceCodeRepository.ToString() });
             }
         }
     }

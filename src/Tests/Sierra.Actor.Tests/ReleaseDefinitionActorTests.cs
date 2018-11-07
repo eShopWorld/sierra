@@ -34,7 +34,7 @@ public class ReleaseDefinitionActorTests
                 {
                     TenantCode = "L2TNT",
                     VstsBuildDefinitionId = vstsConfig.WebApiBuildDefinitionTemplate.DefinitionId,
-                    SourceCode = new Fork
+                    SourceCode = new SourceCodeRepository
                     {
                         TenantCode = "L2TNT",
                         ProjectType = ProjectTypeEnum.WebApi,
@@ -79,7 +79,7 @@ public class ReleaseDefinitionActorTests
                 {
                     TenantCode = "L2TNT",
                     VstsBuildDefinitionId = vstsConfig.WebApiBuildDefinitionTemplate.DefinitionId,
-                    SourceCode = new Fork
+                    SourceCode = new SourceCodeRepository
                     {
                         TenantCode = "L2TNT",
                         ProjectType = ProjectTypeEnum.WebApi,
