@@ -9,9 +9,9 @@
     <Parameter Name="LockerActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="LockerActorService_MinReplicaSetSize" DefaultValue="1" />
     <Parameter Name="LockerActorService_TargetReplicaSetSize" DefaultValue="1" />
-    <Parameter Name="ForkActorService_PartitionCount" DefaultValue="10" />
-    <Parameter Name="ForkActorService_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="ForkActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="RepositoryActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="RepositoryActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="RepositoryActorService_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="TestActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="TestActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="TestActorService_TargetReplicaSetSize" DefaultValue="3" />
@@ -61,9 +61,9 @@
         <UniformInt64Partition PartitionCount="[LockerActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
-    <Service Name="ForkActorService" GeneratedIdRef="11dae370-2517-4c62-8a69-8628302014dc|Volatile">
-      <StatefulService ServiceTypeName="ForkActorServiceType" TargetReplicaSetSize="[ForkActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ForkActorService_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[ForkActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+    <Service Name="RepositoryActorService" GeneratedIdRef="11dae370-2517-4c62-8a69-8628302014dc|Volatile">
+      <StatefulService ServiceTypeName="RepositoryActorServiceType" TargetReplicaSetSize="[RepositoryActorService_TargetReplicaSetSize]" MinReplicaSetSize="[RepositoryActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[RepositoryActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
     <Service Name="TestActorService" GeneratedIdRef="83872c23-b371-4fb5-9ca9-3d3650a69b78|Volatile">

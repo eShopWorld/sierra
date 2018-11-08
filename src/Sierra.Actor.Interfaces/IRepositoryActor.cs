@@ -7,7 +7,7 @@
     /// <summary>
     /// fork actor interface
     /// </summary>
-    public interface IForkActor : IActor
+    public interface IRepositoryActor : IActor
     {
         /// <summary>
         /// fork repository
