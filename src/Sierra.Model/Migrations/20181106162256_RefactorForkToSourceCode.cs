@@ -10,7 +10,7 @@ namespace Sierra.Model.Migrations
             migrationBuilder.RenameColumn("ForkVstsId", "Forks", "RepoVstsId");
             migrationBuilder.RenameTable("Forks", "dbo", "SourceCodeRepositories");
             migrationBuilder.AddColumn<bool>("Fork", "SourceCodeRepositories", defaultValue: false);
-            migrationBuilder.Sql("UPDATE dbo.SourceCodeRepositories SET Fork = true;");
+            migrationBuilder.Sql("UPDATE dbo.SourceCodeRepositories SET Fork = 1;");
             migrationBuilder.DropForeignKey("FK_BuildDefinitions_Forks_SourceCodeId", "BuildDefinitions", "dbo");
             migrationBuilder.AddForeignKey("FK_BuildDefinitions_SourceCodeRepositories_SourceCodeId",
                 "BuildDefinitions", "SourceCodeId", "SourceCodeRepositories", "dbo", "dbo", "Id");
@@ -22,7 +22,10 @@ namespace Sierra.Model.Migrations
             migrationBuilder.DropColumn("Fork", "SourceCodeRepositories");
             migrationBuilder.RenameTable("SourceCodeRepositories", "dbo", "Forks");
             migrationBuilder.RenameColumn("RepoVstsId", "Forks", "ForkVstsId");
-
+            migrationBuilder.DropForeignKey("FK_BuildDefinitions_SourceCodeRepositories_SourceCodeId",
+                "BuildDefinitions", "dbo");
+            migrationBuilder.AddForeignKey("FK_BuildDefinitions_Forks_SourceCodeId", "BuildDefinitions", "SourceCodeId",
+                "Forks", "dbo", "dbo", "Id");
         }
     }
 }

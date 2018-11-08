@@ -58,4 +58,17 @@ public class GitHttpClientExtensionsTests
             (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}").Should().BeNull();
         }
     }
+    
+    [Fact, IsLayer1]
+    public async Task LoadGitRepositoryIfExists()
+    {
+        using (var scope = _containerFixture.Container.BeginLifetimeScope())
+        {
+            var sut = scope.Resolve<GitHttpClient>();
+            var vstsConfig = scope.Resolve<VstsConfiguration>();
+
+            var repo = await sut.LoadGitRepositoryIfExists("ForkIntTestSourceRepo");
+            repo.Id.Should().NotBe(default(Guid));
+        }
+    }
 }

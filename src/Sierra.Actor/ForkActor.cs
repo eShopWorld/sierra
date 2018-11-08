@@ -1,4 +1,6 @@
-﻿namespace Sierra.Actor
+﻿using System;
+
+namespace Sierra.Actor
 {
     using System.Threading.Tasks;
     using Common;
@@ -39,6 +41,20 @@
         /// <inheridoc/>
         public override async Task<SourceCodeRepository> Add(SourceCodeRepository sourceCodeRepository)
         {
+            //if fork not requested, look up the repo id
+            if (!sourceCodeRepository.Fork)
+            {
+                var gitRepo = await _gitClient.LoadGitRepositoryIfExists(sourceCodeRepository.SourceRepositoryName);
+                if (gitRepo == null)
+                    throw new ArgumentException(
+                        $"Repository {sourceCodeRepository.SourceRepositoryName} does not exist",
+                        nameof(SourceCodeRepository));
+
+                sourceCodeRepository.UpdateWithVstsRepo(gitRepo.Id);
+                return sourceCodeRepository;
+            }
+
+            //otherwise fork to a new repo
             var repo = await _gitClient.CreateForkIfNotExists(_vstsConfiguration.VstsCollectionId, _vstsConfiguration.VstsTargetProjectId, sourceCodeRepository);
 
             if (!repo.IsFork)
@@ -63,6 +79,10 @@
         /// <inheridoc/>
         public override async Task Remove(SourceCodeRepository sourceCodeRepository)
         {
+            //do not delete standard component
+            if (!sourceCodeRepository.Fork)
+                return;
+
             var forkRemoved = await _gitClient.DeleteForkIfExists(sourceCodeRepository.ToString());
 
             if (forkRemoved)

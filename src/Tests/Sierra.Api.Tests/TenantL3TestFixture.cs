@@ -78,7 +78,7 @@ public class TenantL3TestFixture : IDisposable
             Code = TenantCode,
             Name = $"Tenant{TenantCode}",
             SourceRepos =
-                new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = ForkSourceRepo}})
+                new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = ForkSourceRepo, Fork = true}})
         };
 
         var client = new HttpClient();

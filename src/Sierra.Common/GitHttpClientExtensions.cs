@@ -23,7 +23,7 @@
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
         internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, GitRepository sourceRepo, string targetRepo)
         {
-            var repo = (await client.GetRepositoriesAsync()).SingleOrDefault(r => r.Name == targetRepo);
+            var repo = await client.LoadGitRepositoryIfExists(targetRepo);
 
             if (repo != null)
                 return repo;
@@ -52,7 +52,7 @@
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
         internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, SourceCodeRepository sourceCodeRepository)
         {            
-            var sourceRepo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == sourceCodeRepository.SourceRepositoryName);
+            var sourceRepo = await client.LoadGitRepositoryIfExists(sourceCodeRepository.SourceRepositoryName);
 
             if (sourceRepo == null)
                 throw new ArgumentException($"Repository {sourceCodeRepository.SourceRepositoryName} not found");
@@ -70,7 +70,7 @@
         /// <returns>fork deletion result</returns>
         internal static async Task<bool> DeleteForkIfExists(this GitHttpClient client, string forkName)
         {
-            var repo = (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == forkName);
+            var repo = await client.LoadGitRepositoryIfExists(forkName);
 
             if (repo == null)
                 return false;
@@ -78,6 +78,17 @@
             await client.DeleteRepositoryAsync(repo.Id);
 
             return true;
+        }
+
+        /// <summary>
+        /// load repo definition if it exists
+        /// </summary>
+        /// <param name="client">extension method entry-point</param>
+        /// <param name="name">name of the repo to locate</param>
+        /// <returns>repo definition if it exists</returns>
+        internal static async Task<GitRepository> LoadGitRepositoryIfExists(this GitHttpClient client, string name)
+        {
+            return (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == name);
         }
     }        
 }
