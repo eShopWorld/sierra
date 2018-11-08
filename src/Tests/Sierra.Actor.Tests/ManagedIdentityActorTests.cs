@@ -55,6 +55,20 @@ public class ManagedIdentityActorTests
     [InlineData(OperationPhase.IdentityAssigned)]
     public async Task AddTest(OperationPhase operationPhase)
     {
+        await TestAddingManagedIdentity(operationPhase, allScaleSets: false);
+    }
+
+    [Theory, IsLayer2]
+    [InlineData(OperationPhase.IdentityNotCreated)]
+    [InlineData(OperationPhase.IdentityCreatedAndNotAssigned)]
+    [InlineData(OperationPhase.IdentityAssigned)]
+    public async Task AddToAllScaleSetsTest(OperationPhase operationPhase)
+    {
+        await TestAddingManagedIdentity(operationPhase, allScaleSets: true);
+    }
+
+    private async Task TestAddingManagedIdentity(OperationPhase operationPhase, bool allScaleSets)
+    {
         var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
@@ -110,13 +124,18 @@ public class ManagedIdentityActorTests
 
             var deletedIdentity = await FindIdentity(azure, resourceGroup, IdentityName);
             deletedIdentity.Should().BeNull($"identity {IdentityName} should be deleted.");
-            var updatedScaleSet = await GetScaleSet(azure);
-            if (updatedScaleSet.ManagedServiceIdentityType == ResourceIdentityType.SystemAssignedUserAssigned
-                || updatedScaleSet.ManagedServiceIdentityType == ResourceIdentityType.UserAssigned)
+            if (identity != null)
             {
-                updatedScaleSet.UserAssignedManagedServiceIdentityIds.Should().NotContain(identity.Id);
+                var updatedScaleSet = await GetScaleSet(azure);
+                if (updatedScaleSet.ManagedServiceIdentityType == ResourceIdentityType.SystemAssignedUserAssigned
+                    || updatedScaleSet.ManagedServiceIdentityType == ResourceIdentityType.UserAssigned)
+                {
+                    updatedScaleSet.UserAssignedManagedServiceIdentityIds.Should().NotBeNull();
+                    updatedScaleSet.UserAssignedManagedServiceIdentityIds.Should().NotContain(identity.Id);
+                }
+
+                // TODO: if possible check whether the managed identity had been unassigned from the scale set before it has been deleted. 
             }
-            // TODO: if possible check whether the managed identity had been unassigned from the scale set before it has been deleted. 
         }
     }
 
@@ -131,19 +150,6 @@ public class ManagedIdentityActorTests
         return scaleSet;
     }
 
-    private async Task PrepareResourceGroup(bool resourceGroupExists, IAzure azure)
-    {
-        if (resourceGroupExists)
-        {
-            await EnsureResourceGroupExists(azure, TestResourceGroupName, Fixture.TestRegion);
-
-        }
-        else
-        {
-            await DeleteResourceGroup(azure, TestResourceGroupName);
-        }
-    }
-
     private static async Task<IResourceGroup> EnsureResourceGroupExists(IAzure azure, string resourceGroupName, Region region)
     {
         if (await azure.ResourceGroups.ContainAsync(resourceGroupName))
@@ -155,14 +161,6 @@ public class ManagedIdentityActorTests
             return await azure.ResourceGroups.Define(resourceGroupName)
                     .WithRegion(region)
                     .CreateAsync();
-        }
-    }
-
-    private static async Task DeleteResourceGroup(IAzure azure, string resourceGroupName)
-    {
-        if (await azure.ResourceGroups.ContainAsync(resourceGroupName))
-        {
-            await azure.ResourceGroups.DeleteByNameAsync(resourceGroupName);
         }
     }
 
