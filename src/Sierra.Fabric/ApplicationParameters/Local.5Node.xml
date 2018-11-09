@@ -4,7 +4,7 @@
     <Parameter Name="AspNetCore_Environment" Value="Development" />
     <!-- Instance count setting prevents static TCP port sharing conflicts -->
     <Parameter Name="SierraApi_InstanceCount" Value="1" />
-    <Parameter Name="ForkActorService_PartitionCount" Value="1" />
+    <Parameter Name="RepositoryActorService_PartitionCount" Value="1" />
     <Parameter Name="LockerActorService_PartitionCount" Value="1" />
     <Parameter Name="TenantActorService_PartitionCount" Value="1" />
     <Parameter Name="BuildDefinitionActorService_PartitionCount" Value="1" />

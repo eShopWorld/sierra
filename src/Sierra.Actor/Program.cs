@@ -30,7 +30,7 @@
 
                 builder.RegisterActor<TenantActor>();
                 builder.RegisterActor<LockerActor>();
-                builder.RegisterActor<ForkActor>();
+                builder.RegisterActor<RepositoryActor>();
                 builder.RegisterActor<TestActor>();
                 builder.RegisterActor<ManagedIdentityActor>();
                 builder.RegisterActor<ResourceGroupActor>();

@@ -18,7 +18,7 @@
         public string Name { get; set; }
 
         [DataMember]
-        public List<Fork> CustomSourceRepos { get; set; }
+        public List<SourceCodeRepository> SourceRepos { get; set; }
 
         /// <summary>
         /// Forks + Core repos (when supported)
@@ -35,11 +35,11 @@
         [DataMember]
         public List<ManagedIdentity> ManagedIdentities { get; set; }
 
-        private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();
+        private static readonly ToStringEqualityComparer<SourceCodeRepository> ForkEqComparer = new ToStringEqualityComparer<SourceCodeRepository>();
 
         public Tenant()
         {
-            CustomSourceRepos = new List<Fork>();
+            SourceRepos = new List<SourceCodeRepository>();
             BuildDefinitions = new List<VstsBuildDefinition>();
             ReleaseDefinitions = new List<VstsReleaseDefinition>();
             ResourceGroups = new List<ResourceGroup>();
@@ -62,22 +62,22 @@
 
             Name = newState.Name;
 
-            var newStateForks = newState.CustomSourceRepos.Select(r => new Fork(r.SourceRepositoryName, Code, r.ProjectType)).ToList();
+            var newStateForks = newState.SourceRepos.Select(r => new SourceCodeRepository(r.SourceRepositoryName, Code, r.ProjectType, r.Fork)).ToList();
 
             //update forks and build definitions (1:1) - additions and removals
             newStateForks
-                .Except(CustomSourceRepos, ForkEqComparer)
+                .Except(SourceRepos, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>
                 {
                     f.TenantCode = Code;
-                    CustomSourceRepos.Add(f);
+                    SourceRepos.Add(f);
                     var bd = new VstsBuildDefinition(f, Code);
                     BuildDefinitions.Add(bd);
                     ReleaseDefinitions.Add(new VstsReleaseDefinition(bd, Code));
                 });
 
-            CustomSourceRepos
+            SourceRepos
                 .Except(newStateForks, ForkEqComparer)
                 .ToList()
                 .ForEach(f =>

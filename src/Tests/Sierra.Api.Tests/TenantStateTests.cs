@@ -28,7 +28,7 @@ public class TenantStateTests
             var tenantRecord =  _level3Fixture.TenantUnderTest;
             tenantRecord.Should().NotBeNull();
 
-            tenantRecord.CustomSourceRepos.Should()
+            tenantRecord.SourceRepos.Should()
                 .ContainSingle(f =>
                     f.SourceRepositoryName == _level3Fixture.ForkSourceRepo && f.State == EntityStateEnum.Created &&
                     f.TenantCode == _level3Fixture.TenantCode);            

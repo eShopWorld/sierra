@@ -14,11 +14,11 @@
   <Section Name="LockerActorServiceReplicatorSecurityConfig">
     <Parameter Name="CredentialType" Value="None" />
   </Section>
-  <Section Name="ForkActorServiceReplicatorConfig">
-    <Parameter Name="ReplicatorEndpoint" Value="ForkActorServiceReplicatorEndpoint" />
+  <Section Name="RepositoryActorServiceReplicatorConfig">
+    <Parameter Name="ReplicatorEndpoint" Value="RepositoryActorServiceReplicatorEndpoint" />
     <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
   </Section>
-  <Section Name="ForkActorServiceReplicatorSecurityConfig">
+  <Section Name="RepositoryActorServiceReplicatorSecurityConfig">
     <Parameter Name="CredentialType" Value="None" />
   </Section>
   <Section Name="ResourceGroupActorServiceReplicatorConfig">

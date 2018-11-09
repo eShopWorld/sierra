@@ -29,16 +29,16 @@
         </Extension>
       </Extensions>
     </StatefulServiceType>
-    <StatefulServiceType ServiceTypeName="ForkActorServiceType">
+    <StatefulServiceType ServiceTypeName="RepositoryActorServiceType">
       <Extensions>
         <Extension Name="__GeneratedServiceType__" GeneratedId="11dae370-2517-4c62-8a69-8628302014dc|Volatile">
           <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
-            <DefaultService Name="ForkActorService" />
-            <ReplicatorEndpoint Name="ForkActorServiceReplicatorEndpoint" />
-            <ReplicatorConfigSection Name="ForkActorServiceReplicatorConfig" />
-            <ReplicatorSecurityConfigSection Name="ForkActorServiceReplicatorSecurityConfig" />
-            <StoreConfigSection Name="ForkActorServiceLocalStoreConfig" />
-            <ServiceEndpointV2 Name="ForkActorServiceEndpointV2" />
+            <DefaultService Name="RepositoryActorService" />
+            <ReplicatorEndpoint Name="RepositoryActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="RepositoryActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="RepositoryActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="RepositoryActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="RepositoryActorServiceEndpointV2" />
           </GeneratedNames>
         </Extension>
       </Extensions>
@@ -131,8 +131,8 @@
       <Endpoint Name="TenantActorServiceReplicatorEndpoint" />
       <Endpoint Name="LockerActorServiceEndpointV2" />
       <Endpoint Name="LockerActorServiceReplicatorEndpoint" />
-      <Endpoint Name="ForkActorServiceEndpointV2" />
-      <Endpoint Name="ForkActorServiceReplicatorEndpoint" />
+      <Endpoint Name="RepositoryActorServiceEndpointV2" />
+      <Endpoint Name="RepositoryActorServiceReplicatorEndpoint" />
       <Endpoint Name="ResourceGroupActorServiceEndpointV2" />
       <Endpoint Name="ResourceGroupActorServiceReplicatorEndpoint" />
       <Endpoint Name="BuildDefinitionActorServiceEndpointV2" />
