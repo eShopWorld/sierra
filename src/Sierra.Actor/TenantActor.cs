@@ -103,8 +103,6 @@
             // #7 Map the tenant KeyVault for all test environments and prod
 
             // Sync Azure resource groups
-
-            /*
             if (!dbTenant.ResourceGroups.Any())
             {
                 foreach (var environmentName in GetAllEnvironments())

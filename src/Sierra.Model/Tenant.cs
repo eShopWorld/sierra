@@ -4,7 +4,6 @@
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Runtime.Serialization;
-    using Eshopworld.DevOps;
 
     [DataContract]
     public class Tenant
