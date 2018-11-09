@@ -4,6 +4,7 @@
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Runtime.Serialization;
+    using Eshopworld.DevOps;
 
     [DataContract]
     public class Tenant
@@ -31,6 +32,9 @@
         [DataMember]
         public List<ResourceGroup> ResourceGroups { get; set; }
 
+        [DataMember]
+        public List<ManagedIdentity> ManagedIdentities { get; set; }
+
         private static readonly ToStringEqualityComparer<Fork> ForkEqComparer = new ToStringEqualityComparer<Fork>();
 
         public Tenant()
@@ -39,6 +43,7 @@
             BuildDefinitions = new List<VstsBuildDefinition>();
             ReleaseDefinitions = new List<VstsReleaseDefinition>();
             ResourceGroups = new List<ResourceGroup>();
+            ManagedIdentities = new List<ManagedIdentity>();
         }
 
         public Tenant(string code) : this()

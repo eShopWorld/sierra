@@ -17,7 +17,7 @@
     using Sierra.Model;
 
     [StatePersistence(StatePersistence.Volatile)]
-    public class ManagedIdentityActor : SierraActor<ManagedIdentityAssignment>, IManagedIdentityActor
+    public class ManagedIdentityActor : SierraActor<ManagedIdentity>, IManagedIdentityActor
     {
         private readonly Azure.IAuthenticated _authenticated;
         private readonly IBigBrother _bigBrother;
@@ -30,12 +30,12 @@
             _bigBrother = bigBrother;
         }
 
-        public override async Task<ManagedIdentityAssignment> Add(ManagedIdentityAssignment model)
+        public override async Task<ManagedIdentity> Add(ManagedIdentity model)
         {
             var stage = "initialization";
             string subscriptionId = null;
-            var scaleSetName = model.VirtualMachineScaleSetName;
-            var scaleSetResourceGroupName = model.VirtualMachineScaleSetResourceGroupName;
+            string scaleSetName = null;
+            string scaleSetResourceGroupName = null;
             try
             {
                 var azure = BuildAzureClient(model.EnvironmentName);
@@ -45,7 +45,7 @@
                 var resourceGroup = await azure.ResourceGroups.GetByNameAsync(model.ResourceGroupName);
 
                 stage = "scaleSetValidation";
-                var scaleSets = await FindScaleSets(azure, scaleSetName, scaleSetResourceGroupName);
+                var scaleSets = await azure.VirtualMachineScaleSets.ListAsync();
 
                 stage = "identityFinding";
                 var identities = await azure.Identities.ListByResourceGroupAsync(model.ResourceGroupName);
@@ -96,12 +96,12 @@
             }
         }
 
-        public override async Task Remove(ManagedIdentityAssignment model)
+        public override async Task Remove(ManagedIdentity model)
         {
             var stage = "initialization";
             string subscriptionId = null;
-            var scaleSetName = model.VirtualMachineScaleSetName;
-            var scaleSetResourceGroupName = model.VirtualMachineScaleSetResourceGroupName;
+            string scaleSetName = null;
+            string scaleSetResourceGroupName = null;
             try
             {
                 var azure = BuildAzureClient(model.EnvironmentName);
@@ -122,7 +122,7 @@
                 }
 
                 stage = "scaleSetFinding";
-                var scaleSets = await FindScaleSets(azure, scaleSetName, scaleSetResourceGroupName);
+                var scaleSets = await azure.VirtualMachineScaleSets.ListAsync();
 
                 foreach (var scaleSet in scaleSets)
                 {
@@ -152,36 +152,6 @@
                 _bigBrother.Publish(errorEvent);
                 throw;
             }
-        }
-
-
-        private static async Task<List<IVirtualMachineScaleSet>> FindScaleSets(IAzure azure, string scaleSetName, string scaleSetResourceGroupName)
-        {
-            List<IVirtualMachineScaleSet> scaleSets;
-            if (scaleSetName != null)
-            {
-                var scaleSetsList = await azure.VirtualMachineScaleSets.ListByResourceGroupAsync(
-                    scaleSetResourceGroupName);
-                var scaleSet = scaleSetsList.FirstOrDefault(
-                    x => scaleSetName.Equals(x.Name, StringComparison.OrdinalIgnoreCase));
-                if (scaleSet == null)
-                {
-                    throw new Exception("The specified virtual machine scale set has not been found.");
-                }
-
-                scaleSets = new List<IVirtualMachineScaleSet> { scaleSet };
-            }
-            else if (scaleSetResourceGroupName != null)
-            {
-                scaleSets = (await azure.VirtualMachineScaleSets.ListByResourceGroupAsync(
-                    scaleSetResourceGroupName)).ToList();
-            }
-            else
-            {
-                scaleSets = (await azure.VirtualMachineScaleSets.ListAsync()).ToList();
-            }
-
-            return scaleSets;
         }
 
         private IAzure BuildAzureClient(string environmentName)

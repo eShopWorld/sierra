@@ -37,14 +37,12 @@ public class ManagedIdentityActorTests
         return azureAuth.WithSubscription(Fixture.DeploymentSubscriptionId);
     }
 
-    private ManagedIdentityAssignment CreateMangedIdentityAssignment()
+    private ManagedIdentity CreateMangedIdentityAssignment()
     {
-        return new ManagedIdentityAssignment
+        return new ManagedIdentity
         {
             ResourceGroupName = TestResourceGroupName,
             IdentityName = IdentityName,
-            VirtualMachineScaleSetName = ScaleSetName,
-            VirtualMachineScaleSetResourceGroupName = ScaleSetResourceGroupName,
             EnvironmentName = Fixture.EnvironmentName,
         };
     }
@@ -54,20 +52,6 @@ public class ManagedIdentityActorTests
     [InlineData(OperationPhase.IdentityCreatedAndNotAssigned)]
     [InlineData(OperationPhase.IdentityAssigned)]
     public async Task AddTest(OperationPhase operationPhase)
-    {
-        await TestAddingManagedIdentity(operationPhase, allScaleSets: false);
-    }
-
-    [Theory, IsLayer2]
-    [InlineData(OperationPhase.IdentityNotCreated)]
-    [InlineData(OperationPhase.IdentityCreatedAndNotAssigned)]
-    [InlineData(OperationPhase.IdentityAssigned)]
-    public async Task AddToAllScaleSetsTest(OperationPhase operationPhase)
-    {
-        await TestAddingManagedIdentity(operationPhase, allScaleSets: true);
-    }
-
-    private async Task TestAddingManagedIdentity(OperationPhase operationPhase, bool allScaleSets)
     {
         var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())

@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Actor
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Eshopworld.DevOps;
@@ -106,7 +107,7 @@
             {
                 foreach (var environmentName in GetAllEnvironments())
                 {
-                    dbTenant.ResourceGroups.Add(new ResourceGroup(tenant.Code, environmentName, $"checkout-{tenant.Code}-{environmentName}"));
+                    dbTenant.ResourceGroups.Add(new ResourceGroup(dbTenant.Code, environmentName, $"checkout-{dbTenant.Code}-{environmentName}"));
                 }
             }
 
@@ -121,6 +122,32 @@
                 .Select(rg =>
                     GetActor<IResourceGroupActor>(rg.ToString()).Remove(rg)
                         .ContinueWith((t) => _dbContext.Entry(rg).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+
+            // Sync Azure user assigned managed identities
+            if (!dbTenant.ManagedIdentities.Any())
+            {
+                foreach (var environmentName in GetAllEnvironments())
+                {
+                    dbTenant.ManagedIdentities.Add(new ManagedIdentity
+                    {
+                        EnvironmentName = environmentName,
+                        IdentityName = $"{dbTenant.Code}-{environmentName}",
+                        ResourceGroupName = $"checkout-{dbTenant.Code}-{environmentName}",
+                    });
+                }
+            }
+
+            await Task.WhenAll(dbTenant.ManagedIdentities
+                .Where(mi => mi.State == EntityStateEnum.NotCreated)
+                .Select(mi =>
+                    GetActor<IManagedIdentityActor>(mi.ToString()).Add(mi)
+                        .ContinueWith((t) => mi.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
+
+            await Task.WhenAll(dbTenant.ManagedIdentities
+                .Where(mi => mi.State == EntityStateEnum.ToBeDeleted)
+                .Select(mi =>
+                    GetActor<IManagedIdentityActor>(mi.ToString()).Remove(mi)
+                        .ContinueWith((t) => _dbContext.Entry(mi).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             //final state persistence
             await _dbContext.SaveChangesAsync();
@@ -150,7 +177,7 @@
             await _dbContext.SaveChangesAsync();
         }
 
-        private static string[] GetAllEnvironments()
+        private static IEnumerable<string> GetAllEnvironments()
         {
             return new[]
             {

@@ -6,8 +6,8 @@
 
     public interface IManagedIdentityActor: IActor
     {
-        Task<ManagedIdentityAssignment> Add(ManagedIdentityAssignment assignment);
+        Task<ManagedIdentity> Add(ManagedIdentity assignment);
 
-        Task Remove(ManagedIdentityAssignment assignment);
+        Task Remove(ManagedIdentity assignment);
     }
 }
