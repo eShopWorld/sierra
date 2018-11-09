@@ -102,6 +102,8 @@
             // #7 Map the tenant KeyVault for all test environments and prod
 
             // Sync Azure resource groups
+
+            /*
             if (!dbTenant.ResourceGroups.Any())
             {
                 foreach (var environmentName in GetAllEnvironments())
@@ -121,7 +123,7 @@
                 .Select(rg =>
                     GetActor<IResourceGroupActor>(rg.ToString()).Remove(rg)
                         .ContinueWith((t) => _dbContext.Entry(rg).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
-
+*/
             //final state persistence
             await _dbContext.SaveChangesAsync();
             return dbTenant;
