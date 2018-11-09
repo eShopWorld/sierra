@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sierra.Model;
 
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    partial class SierraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181106162256_RefactorForkToSourceCode")]
+    partial class RefactorForkToSourceCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,7 +52,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("Fork");
+                    b.Property<bool>("IsFork");
 
                     b.Property<int>("ProjectType");
 
@@ -145,7 +147,7 @@ namespace Sierra.Model.Migrations
             modelBuilder.Entity("Sierra.Model.SourceCodeRepository", b =>
                 {
                     b.HasOne("Sierra.Model.Tenant")
-                        .WithMany("SourceRepos")
+                        .WithMany("CustomSourceRepos")
                         .HasForeignKey("TenantCode")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

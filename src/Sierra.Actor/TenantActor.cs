@@ -54,16 +54,16 @@
             // TODO: code running inside ContinueWith should be thread safe.
 
             // #1 sync forks (add + remove)
-            await Task.WhenAll(dbTenant.CustomSourceRepos
+            await Task.WhenAll(dbTenant.SourceRepos
                 .Where(f => f.State == EntityStateEnum.NotCreated)
                 .Select(f =>
-                    GetActor<IForkActor>(f.ToString()).Add(f)
+                    GetActor<IRepositoryActor>(f.ToString()).Add(f)
                         .ContinueWith((t) => f.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
 
-            await Task.WhenAll(dbTenant.CustomSourceRepos
+            await Task.WhenAll(dbTenant.SourceRepos
                 .Where(f => f.State == EntityStateEnum.ToBeDeleted)
                 .Select(f =>
-                    GetActor<IForkActor>(f.ToString()).Remove(f)
+                    GetActor<IRepositoryActor>(f.ToString()).Remove(f)
                         .ContinueWith((t) => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             // #2 Sync CI builds for forks created for the tenant (add + remove)
@@ -139,7 +139,7 @@
                 return;
 
             await Task.WhenAll(
-                tenant.CustomSourceRepos.Select(f => GetActor<IForkActor>(f.ToString()).Remove(f)
+                tenant.SourceRepos.Select(f => GetActor<IRepositoryActor>(f.ToString()).Remove(f)
                     .ContinueWith(t => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
 
             await Task.WhenAll(

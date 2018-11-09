@@ -11,7 +11,7 @@
         {
         }
 
-        public VstsBuildDefinition(Fork sourceCode, string tenantCode)
+        public VstsBuildDefinition(SourceCodeRepository sourceCode, string tenantCode)
         {
             SourceCode = sourceCode;
             TenantCode = tenantCode;
@@ -24,7 +24,7 @@
 
         [DataMember]
         [Required]
-        public Fork SourceCode { get; set; }
+        public SourceCodeRepository SourceCode { get; set; }
         
         [Required]
         public VstsReleaseDefinition ReleaseDefinition { get; set; }

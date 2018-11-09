@@ -30,7 +30,7 @@ public class GitHttpClientExtensionsTests
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var suffix = Guid.NewGuid().ToString();
             //create test repo
-            var newFork = new Fork("ForkIntTestSourceRepo", suffix, ProjectTypeEnum.WebApi);
+            var newFork = new SourceCodeRepository("ForkIntTestSourceRepo", suffix, ProjectTypeEnum.WebApi, true);
             await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, newFork);
             var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");
             repo.Should().NotBeNull();
@@ -48,7 +48,7 @@ public class GitHttpClientExtensionsTests
             var sut = scope.Resolve<GitHttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var suffix = Guid.NewGuid().ToString();
-            var fork = new Fork("ForkIntTestSourceRepo", suffix, ProjectTypeEnum.WebApi);
+            var fork = new SourceCodeRepository("ForkIntTestSourceRepo", suffix, ProjectTypeEnum.WebApi, true);
             //create target repo
             await sut.CreateForkIfNotExists(vstsConfig.VstsCollectionId, vstsConfig.VstsTargetProjectId, fork);
             var repo = (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}");
@@ -56,6 +56,19 @@ public class GitHttpClientExtensionsTests
             //delete target repo
             await sut.DeleteForkIfExists($"ForkIntTestSourceRepo-{suffix}");
             (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}").Should().BeNull();
+        }
+    }
+    
+    [Fact, IsLayer1]
+    public async Task LoadGitRepositoryIfExists()
+    {
+        using (var scope = _containerFixture.Container.BeginLifetimeScope())
+        {
+            var sut = scope.Resolve<GitHttpClient>();
+            var vstsConfig = scope.Resolve<VstsConfiguration>();
+
+            var repo = await sut.LoadGitRepositoryIfExists("ForkIntTestSourceRepo");
+            repo.Id.Should().NotBe(default(Guid));
         }
     }
 }
