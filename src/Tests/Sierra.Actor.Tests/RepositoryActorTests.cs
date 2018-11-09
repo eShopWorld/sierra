@@ -54,7 +54,7 @@ public class RepositoryActorTests
             }
             finally
             {
-                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "Fork", "Remove", TestFork);                
+                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Remove", TestFork);                
             }
         }
     }
