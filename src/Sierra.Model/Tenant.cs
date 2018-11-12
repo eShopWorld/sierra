@@ -54,7 +54,7 @@
         /// project new state onto the current instance
         /// </summary>
         /// <param name="newState">new intended state</param>
-        public void Update(Tenant newState)
+        public void Update(Tenant newState, IEnumerable<string> environments)
         {
             if (newState == null)
                 return;
@@ -86,6 +86,29 @@
                     bd.State = EntityStateEnum.ToBeDeleted;
                     bd.ReleaseDefinition.State = EntityStateEnum.ToBeDeleted;
                 });
+
+            var environmentList = environments.ToList();
+            if (!ResourceGroups.Any())
+            {
+                foreach (var environmentName in environmentList)
+                {
+                    ResourceGroups.Add(new ResourceGroup(Code, environmentName, $"checkout-{Code}-{environmentName}"));
+                }
+            }
+
+            if (!ManagedIdentities.Any())
+            {
+                foreach (var environmentName in environmentList)
+                {
+                    ManagedIdentities.Add(new ManagedIdentity
+                    {
+                        TenantCode = Code,
+                        EnvironmentName = environmentName,
+                        IdentityName = $"{Code}-{environmentName}",
+                        ResourceGroupName = $"checkout-{Code}-{environmentName}",
+                    });
+                }
+            }
         }
     }
 }

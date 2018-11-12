@@ -1,8 +1,8 @@
-﻿using Eshopworld.Tests.Core;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Eshopworld.Tests.Core;
 using FluentAssertions;
 using Sierra.Model;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -38,7 +38,7 @@ public class TenantTests
             })
         };
 
-        currentTenant.Update(tenantRequest);
+        currentTenant.Update(tenantRequest, GetEnvironments());
         currentTenant.SourceRepos.Should().HaveCount(2);
         //forks checks
         currentTenant.SourceRepos.Should().ContainSingle(f => f.State == EntityStateEnum.NotCreated);
@@ -79,7 +79,7 @@ public class TenantTests
                 new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = "RepoB"}})
         };
 
-        currentTenant.Update(tenantRequest);
+        currentTenant.Update(tenantRequest, GetEnvironments());
 
         //fork checks
         currentTenant.SourceRepos.Should()
@@ -125,7 +125,7 @@ public class TenantTests
             })
         };
 
-        currentTenant.Update(tenantRequest);
+        currentTenant.Update(tenantRequest, GetEnvironments());
 
         currentTenant.SourceRepos.Should()
             .OnlyContain(f =>
@@ -162,7 +162,7 @@ public class TenantTests
             })
         };
 
-        currentTenant.Update(tenantRequest);
+        currentTenant.Update(tenantRequest, GetEnvironments());
 
         currentTenant.SourceRepos.Should()
             .ContainSingle(f =>
@@ -198,7 +198,7 @@ public class TenantTests
                 new SourceCodeRepository {SourceRepositoryName = "RepoA"}
             })
         };
-        currentTenant.Update(tenantRequest);
+        currentTenant.Update(tenantRequest, GetEnvironments());
 
         currentTenant.BuildDefinitions.Should()
             .ContainSingle(d =>
@@ -252,7 +252,7 @@ public class TenantTests
                 new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = "RepoA"}})
         };
 
-        currentTenant.Update(tenantRequest);
+        currentTenant.Update(tenantRequest, GetEnvironments());
 
         //forks checks
         currentTenant.SourceRepos.Should().NotContain(f => f.State == EntityStateEnum.NotCreated);
@@ -311,7 +311,7 @@ public class TenantTests
                     {new SourceCodeRepository {SourceRepositoryName = "RepoA", Fork = false}})
         };
 
-        currentTenant.Update(tenantRequest);
+        currentTenant.Update(tenantRequest, GetEnvironments());
         //check fork repo in to be deleted state and standard component in to be created
         currentTenant.SourceRepos.Should().HaveCount(2);
         currentTenant.SourceRepos.Should().ContainSingle(r =>
@@ -335,5 +335,55 @@ public class TenantTests
             .ContainSingle(r => r.BuildDefinition.Equals(buildDefA) && r.State == EntityStateEnum.ToBeDeleted);
         currentTenant.ReleaseDefinitions.Should()
             .ContainSingle(r => r.BuildDefinition.Equals(newBuildDef) && r.State == EntityStateEnum.NotCreated);
+    }
+
+    [Fact, IsUnit]
+    public void Update_CreateResourceGroups()
+    {
+        var tenantRequest = new Tenant
+        {
+            Code = "TEN1",
+            Name = "TenantName"
+        };
+        var currentTenant = new Tenant
+        {
+            Code = tenantRequest.Code,
+        };
+        currentTenant.Update(tenantRequest, GetEnvironments());
+
+        currentTenant.ResourceGroups.Should().HaveCount(2);
+        currentTenant.ResourceGroups.Should().OnlyContain(x => x.Name != null);
+        currentTenant.ResourceGroups.Should().OnlyContain(x => x.EnvironmentName != null);
+        currentTenant.ResourceGroups.Should().OnlyContain(x => x.ResourceId == null);
+        currentTenant.ResourceGroups.Should().OnlyContain(x => x.TenantCode == tenantRequest.Code);
+        currentTenant.ResourceGroups.Should().OnlyContain(x => x.State == EntityStateEnum.NotCreated);
+    }
+
+
+    [Fact, IsUnit]
+    public void Update_ManagedIdentities()
+    {
+        var tenantRequest = new Tenant
+        {
+            Code = "TEN1",
+            Name = "TenantName"
+        };
+        var currentTenant = new Tenant
+        {
+            Code = tenantRequest.Code,
+        };
+        currentTenant.Update(tenantRequest, GetEnvironments());
+
+        currentTenant.ManagedIdentities.Should().HaveCount(2);
+        currentTenant.ManagedIdentities.Should().OnlyContain(x => x.IdentityName != null);
+        currentTenant.ManagedIdentities.Should().OnlyContain(x => x.EnvironmentName != null);
+        currentTenant.ManagedIdentities.Should().OnlyContain(x => x.IdentityId == null);
+        currentTenant.ManagedIdentities.Should().OnlyContain(x => x.TenantCode == tenantRequest.Code);
+        currentTenant.ManagedIdentities.Should().OnlyContain(x => x.State == EntityStateEnum.NotCreated);
+    }
+
+    private static IEnumerable<string> GetEnvironments()
+    {
+        return new[] { "ENV1", "ENV2" };
     }
 }
