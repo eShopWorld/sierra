@@ -130,6 +130,7 @@
                 {
                     dbTenant.ManagedIdentities.Add(new ManagedIdentity
                     {
+                        TenantCode = tenant.Code,
                         EnvironmentName = environmentName,
                         IdentityName = $"{dbTenant.Code}-{environmentName}",
                         ResourceGroupName = $"checkout-{dbTenant.Code}-{environmentName}",

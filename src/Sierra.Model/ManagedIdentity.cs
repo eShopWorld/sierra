@@ -11,20 +11,27 @@
         public Guid Id { get; set; }
 
         [DataMember]
+        [MaxLength(6), Required]
+        public string TenantCode { get; set; }
+
+        [DataMember]
+        [MaxLength(10), Required]
         public string EnvironmentName { get; set; }
 
         [DataMember]
+        [MaxLength(50), Required]
         public string IdentityName { get; set; }
 
         [DataMember]
+        [MaxLength(500)]
         public string IdentityId { get; set; }
 
         [DataMember]
+        [MaxLength(90), Required]
         public string ResourceGroupName { get; set; }
 
         [DataMember]
         public EntityStateEnum State { get; set; }
-
 
         /// <summary>
         /// encapsulate naming strategy
