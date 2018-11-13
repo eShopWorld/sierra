@@ -29,13 +29,13 @@
             _bigBrother = bigBrother;
             if (actorId.Kind != ActorIdKind.String)
             {
-                throw new Exception($"The ScaleSetIdentity actor expects string id but got {actorId}");
+                throw new ArgumentException($"The ScaleSetIdentity actor expects string id but got {actorId}"); 
             }
 
             var id = actorId.GetStringId();
             if (!id.StartsWith(ActorIdPrefix))
             {
-                throw new Exception(
+                throw new ArgumentException(
                     $"The ScaleSetIdentity actor id must starts with '{ActorIdPrefix}' followed by a virtual machine scale set id.");
             }
 

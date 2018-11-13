@@ -31,6 +31,7 @@
 
         public override async Task<ManagedIdentity> Add(ManagedIdentity model)
         {
+            // TODO: remove this custom error logging when a more generic solution is available
             var stage = "initialization";
             string subscriptionId = null;
             try
