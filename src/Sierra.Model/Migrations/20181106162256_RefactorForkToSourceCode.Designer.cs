@@ -52,7 +52,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("IsFork");
+                    b.Property<bool>("Fork");
 
                     b.Property<int>("ProjectType");
 
@@ -147,7 +147,7 @@ namespace Sierra.Model.Migrations
             modelBuilder.Entity("Sierra.Model.SourceCodeRepository", b =>
                 {
                     b.HasOne("Sierra.Model.Tenant")
-                        .WithMany("CustomSourceRepos")
+                        .WithMany("SourceRepos")
                         .HasForeignKey("TenantCode")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

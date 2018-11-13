@@ -99,6 +99,34 @@
         </Extension>
       </Extensions>
     </StatefulServiceType>
+    <StatefulServiceType ServiceTypeName="ManagedIdentityActorServiceType">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="4e59f12e-6ece-4fd7-9153-277b1f503702|Volatile">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="ManagedIdentityActorService" />
+            <ReplicatorEndpoint Name="ManagedIdentityActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="ManagedIdentityActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="ManagedIdentityActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="ManagedIdentityActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="ManagedIdentityActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
+    <StatefulServiceType ServiceTypeName="ScaleSetIdentityActorServiceType">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="fdc04d24-e027-4755-88b8-caf58bbc4b81|Volatile">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="ScaleSetIdentityActorService" />
+            <ReplicatorEndpoint Name="ScaleSetIdentityActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="ScaleSetIdentityActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="ScaleSetIdentityActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="ScaleSetIdentityActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="ScaleSetIdentityActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
   </ServiceTypes>
   <CodePackage Name="Code" Version="1.0.0">
     <EntryPoint>
@@ -127,6 +155,10 @@
       <Endpoint Name="ReleaseDefinitionActorServiceReplicatorEndpoint" />
       <Endpoint Name="TestActorServiceEndpointV2" />
       <Endpoint Name="TestActorServiceReplicatorEndpoint" />
+      <Endpoint Name="ManagedIdentityActorServiceEndpointV2" />
+      <Endpoint Name="ManagedIdentityActorServiceReplicatorEndpoint" />
+      <Endpoint Name="ScaleSetIdentityActorServiceEndpointV2" />
+      <Endpoint Name="ScaleSetIdentityActorServiceReplicatorEndpoint" />
     </Endpoints>
   </Resources>
   <!-- The content will be generated during build -->

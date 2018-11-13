@@ -28,7 +28,11 @@
         [DataMember]
         public List<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
+        [DataMember]
         public List<ResourceGroup> ResourceGroups { get; set; }
+
+        [DataMember]
+        public List<ManagedIdentity> ManagedIdentities { get; set; }
 
         private static readonly ToStringEqualityComparer<SourceCodeRepository> ForkEqComparer = new ToStringEqualityComparer<SourceCodeRepository>();
 
@@ -38,6 +42,7 @@
             BuildDefinitions = new List<VstsBuildDefinition>();
             ReleaseDefinitions = new List<VstsReleaseDefinition>();
             ResourceGroups = new List<ResourceGroup>();
+            ManagedIdentities = new List<ManagedIdentity>();
         }
 
         public Tenant(string code) : this()
@@ -49,7 +54,7 @@
         /// project new state onto the current instance
         /// </summary>
         /// <param name="newState">new intended state</param>
-        public void Update(Tenant newState)
+        public void Update(Tenant newState, IEnumerable<string> environments)
         {
             if (newState == null)
                 return;
@@ -81,6 +86,31 @@
                     bd.State = EntityStateEnum.ToBeDeleted;
                     bd.ReleaseDefinition.State = EntityStateEnum.ToBeDeleted;
                 });
+
+            var environmentList = environments.ToList();
+            if (!ResourceGroups.Any())
+            {
+                foreach (var environmentName in environmentList)
+                {
+                    // TODO: validate that the list of resource groups and their names
+                    ResourceGroups.Add(new ResourceGroup(Code, environmentName, $"checkout-{Code}-{environmentName}"));
+                }
+            }
+
+            if (!ManagedIdentities.Any())
+            {
+                foreach (var environmentName in environmentList)
+                {
+                    // TODO: validate the list of created managed identities and their names
+                    ManagedIdentities.Add(new ManagedIdentity
+                    {
+                        TenantCode = Code,
+                        EnvironmentName = environmentName,
+                        IdentityName = $"{Code}-{environmentName}",
+                        ResourceGroupName = $"checkout-{Code}-{environmentName}",
+                    });
+                }
+            }
         }
     }
 }

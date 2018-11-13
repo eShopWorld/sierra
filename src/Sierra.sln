@@ -24,6 +24,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Api.Tests", "Tests\Sierra.Api.Tests\Sierra.Api.Tests.csproj", "{10B9BF04-9F0B-4152-B3CD-6FEED4BE56F3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Actor.Tests", "Tests\Sierra.Actor.Tests\Sierra.Actor.Tests.csproj", "{D2F2E4F7-7F81-4EF1-8ECF-37D016BA24E9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{17909DD2-D384-4E32-9904-1387B726B2D2} = {17909DD2-D384-4E32-9904-1387B726B2D2}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sierra.Actor", "Sierra.Actor\Sierra.Actor.csproj", "{759DFF98-E308-4129-8A62-A3012E38CEC8}"
 EndProject

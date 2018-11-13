@@ -295,7 +295,7 @@
             }
             catch (Exception ex)
             {
-                throw new ActorCallFailedException("Failed to call the actor. ", ex);
+                throw new ActorCallFailedException($"Failed to call the {interfaceType.Name} actor.", ex);
             }
 
             var resultProperty = task.GetType().GetProperty("Result");
