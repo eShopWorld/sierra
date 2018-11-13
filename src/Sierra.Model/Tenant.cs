@@ -92,6 +92,7 @@
             {
                 foreach (var environmentName in environmentList)
                 {
+                    // TODO: validate that the list of resource groups and their names
                     ResourceGroups.Add(new ResourceGroup(Code, environmentName, $"checkout-{Code}-{environmentName}"));
                 }
             }
@@ -100,6 +101,7 @@
             {
                 foreach (var environmentName in environmentList)
                 {
+                    // TODO: validate the list of created managed identities and their names
                     ManagedIdentities.Add(new ManagedIdentity
                     {
                         TenantCode = Code,

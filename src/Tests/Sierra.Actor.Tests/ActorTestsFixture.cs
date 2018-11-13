@@ -48,6 +48,7 @@ public class ActorTestsFixture : IDisposable
                 : Region.Create(testConfig.RegionName);
 
             EnvironmentName = testConfig.SubscriptionName;
+            // TODO: replace the literal value with some other method of obtaining this value (e.g DevOpsSdk)
             DeploymentSubscriptionId = "0b50e185-2e2a-4e1c-bf2f-ead0b80e0b79";  // sierra integration
 
             return testConfig;
