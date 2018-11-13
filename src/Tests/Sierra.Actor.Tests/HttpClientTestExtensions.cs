@@ -34,8 +34,11 @@ public static class HttpClientTestExtensions
         var url = $"{baseUri}/{actorName}/{method}" + query;
         var response = await cl.PostAsJsonAsync($"{baseUri}/{actorName}/{method}" + query, payload);
 
-        if (checkResponseCode)
-            response.EnsureSuccessStatusCode();
+        if (checkResponseCode && !response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Request {url} failed with the {response.StatusCode} status code. Response body: {body}");
+        }
 
         if (response.StatusCode == HttpStatusCode.OK)
         {

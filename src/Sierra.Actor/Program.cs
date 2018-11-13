@@ -32,9 +32,11 @@
                 builder.RegisterActor<LockerActor>();
                 builder.RegisterActor<RepositoryActor>();
                 builder.RegisterActor<TestActor>();
+                builder.RegisterActor<ManagedIdentityActor>();
                 builder.RegisterActor<ResourceGroupActor>();
                 builder.RegisterActor<BuildDefinitionActor>();
                 builder.RegisterActor<ReleaseDefinitionActor>();
+                builder.RegisterActor<ScaleSetIdentityActor>();
 
                 builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });
 

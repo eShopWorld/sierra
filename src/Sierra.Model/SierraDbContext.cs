@@ -43,6 +43,11 @@
                 .HasOne<Tenant>()
                 .WithMany(t => t.ReleaseDefinitions)
                 .HasForeignKey(t => t.TenantCode);
+
+            modelBuilder.Entity<ManagedIdentity>()
+                .HasOne<Tenant>()
+                .WithMany(t => t.ManagedIdentities)
+                .HasForeignKey(t => t.TenantCode);
         }
 
         /// <summary>
