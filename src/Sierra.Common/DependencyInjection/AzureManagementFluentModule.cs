@@ -26,6 +26,7 @@
                         AzureEnvironment.AzureGlobalCloud))
                     .Build();
 
+                // TODO: per subscription cache or a pool could be used here
                 return Azure.Authenticate(client, string.Empty);
             });
         }

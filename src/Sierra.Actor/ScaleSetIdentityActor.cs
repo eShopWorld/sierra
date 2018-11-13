@@ -17,12 +17,12 @@
     public class ScaleSetIdentityActor : SierraActor<ScaleSetIdentity>, IScaleSetIdentityActor
     {
         public const string ActorIdPrefix = "ScaleSetIdentity:";
-        private readonly Azure.IAuthenticated _authenticated;
+        private readonly Func<Azure.IAuthenticated> _authenticated;
         private readonly IBigBrother _bigBrother;
         private readonly string _scaleSetId;
 
         public ScaleSetIdentityActor(ActorService actorService, ActorId actorId,
-            Azure.IAuthenticated authenticated, IBigBrother bigBrother)
+            Func<Azure.IAuthenticated> authenticated, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
             _authenticated = authenticated;
@@ -70,7 +70,7 @@
         private IAzure BuildAzureClient(string environmentName)
         {
             var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
-            return _authenticated.WithSubscription(subscriptionId);
+            return _authenticated().WithSubscription(subscriptionId);
         }
     }
 }

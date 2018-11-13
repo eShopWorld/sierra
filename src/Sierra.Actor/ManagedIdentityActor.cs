@@ -18,11 +18,11 @@
     [StatePersistence(StatePersistence.Volatile)]
     public class ManagedIdentityActor : SierraActor<ManagedIdentity>, IManagedIdentityActor
     {
-        private readonly Azure.IAuthenticated _authenticated;
+        private readonly Func<Azure.IAuthenticated> _authenticated;
         private readonly IBigBrother _bigBrother;
 
         public ManagedIdentityActor(ActorService actorService, ActorId actorId,
-            Azure.IAuthenticated authenticated, IBigBrother bigBrother)
+            Func<Azure.IAuthenticated> authenticated, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
             _authenticated = authenticated;
@@ -151,7 +151,7 @@
         private IAzure BuildAzureClient(string environmentName)
         {
             var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
-            return _authenticated.WithSubscription(subscriptionId);
+            return _authenticated().WithSubscription(subscriptionId);
         }
 
         private static bool IsIdentityAssigned(IVirtualMachineScaleSet scaleSet, IIdentity identity)
