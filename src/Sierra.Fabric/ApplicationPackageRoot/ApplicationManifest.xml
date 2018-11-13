@@ -27,6 +27,9 @@
     <Parameter Name="ManagedIdentityActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="ManagedIdentityActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ManagedIdentityActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ScaleSetIdentityActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="ScaleSetIdentityActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ScaleSetIdentityActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -92,6 +95,11 @@
     <Service Name="ManagedIdentityActorService" GeneratedIdRef="4e59f12e-6ece-4fd7-9153-277b1f503702|Volatile">
       <StatefulService ServiceTypeName="ManagedIdentityActorServiceType" TargetReplicaSetSize="[ManagedIdentityActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ManagedIdentityActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ManagedIdentityActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="ScaleSetIdentityActorService" GeneratedIdRef="fdc04d24-e027-4755-88b8-caf58bbc4b81|Volatile">
+      <StatefulService ServiceTypeName="ScaleSetIdentityActorServiceType" TargetReplicaSetSize="[ScaleSetIdentityActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ScaleSetIdentityActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ScaleSetIdentityActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>

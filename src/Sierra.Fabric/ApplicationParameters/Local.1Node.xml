@@ -26,5 +26,8 @@
     <Parameter Name="ManagedIdentityActorService_PartitionCount" Value="1" />
     <Parameter Name="ManagedIdentityActorService_TargetReplicaSetSize" Value="1" />
     <Parameter Name="ManagedIdentityActorService_MinReplicaSetSize" Value="1" />
+    <Parameter Name="ScaleSetIdentityActorService_PartitionCount" Value="1" />
+    <Parameter Name="ScaleSetIdentityActorService_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="ScaleSetIdentityActorService_MinReplicaSetSize" Value="1" />
   </Parameters>
 </Application>

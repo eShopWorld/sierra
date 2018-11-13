@@ -36,6 +36,7 @@
                 builder.RegisterActor<ResourceGroupActor>();
                 builder.RegisterActor<BuildDefinitionActor>();
                 builder.RegisterActor<ReleaseDefinitionActor>();
+                builder.RegisterActor<ScaleSetIdentityActor>();
 
                 builder.Register(c => new SierraDbContext { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });
 

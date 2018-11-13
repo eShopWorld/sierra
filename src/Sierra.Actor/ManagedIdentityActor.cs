@@ -1,7 +1,6 @@
 ﻿namespace Sierra.Actor
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Common.Events;
@@ -34,8 +33,6 @@
         {
             var stage = "initialization";
             string subscriptionId = null;
-            string scaleSetName = null;
-            string scaleSetResourceGroupName = null;
             try
             {
                 var azure = BuildAzureClient(model.EnvironmentName);
@@ -43,9 +40,6 @@
 
                 stage = "resourceGroupValidation";
                 var resourceGroup = await azure.ResourceGroups.GetByNameAsync(model.ResourceGroupName);
-
-                stage = "scaleSetValidation";
-                var scaleSets = await azure.VirtualMachineScaleSets.ListAsync();
 
                 stage = "identityFinding";
                 var identities = await azure.Identities.ListByResourceGroupAsync(model.ResourceGroupName);
@@ -63,18 +57,21 @@
 
                 model.IdentityId = identity.Id;
 
-                foreach (var scaleSet in scaleSets)
-                {
-                    if (!IsIdentityAssigned(scaleSet, identity))
-                    {
-                        stage = "identityAssignment";
-                        scaleSetName = scaleSet.Name;
-                        scaleSetResourceGroupName = scaleSet.ResourceGroupName;
-                        await scaleSet.Update()
-                            .WithExistingUserAssignedManagedServiceIdentity(identity)
-                            .ApplyAsync();
-                    }
-                }
+                stage = "scaleSetValidation";
+                var scaleSets = await azure.VirtualMachineScaleSets.ListAsync();
+
+                stage = "scaleSetIdentityAssignment";
+                Task AssignIdentityToScaleSet(IVirtualMachineScaleSet scaleSet) =>
+                    GetActor<IScaleSetIdentityActor>(ScaleSetIdentityActor.ActorIdPrefix + scaleSet.Id)
+                        .Add(new ScaleSetIdentity
+                        {
+                            EnvironmentName = model.EnvironmentName,
+                            ManagedIdentityId = identity.Id,
+                        });
+                
+                var scaleSetAssignmentTasks = scaleSets.Select(AssignIdentityToScaleSet);
+
+                await Task.WhenAll(scaleSetAssignmentTasks);
 
                 model.State = EntityStateEnum.Created;
                 return model;
@@ -88,8 +85,6 @@
                     EnvironmentName = model.EnvironmentName,
                     IdentityName = model.IdentityName,
                     ResourceGroupName = model.ResourceGroupName,
-                    VirtualMachineScaleSetName = scaleSetName,
-                    VirtualMachineScaleSetResourceGroupName = scaleSetResourceGroupName,
                 };
                 _bigBrother.Publish(errorEvent);
                 throw;
@@ -100,8 +95,6 @@
         {
             var stage = "initialization";
             string subscriptionId = null;
-            string scaleSetName = null;
-            string scaleSetResourceGroupName = null;
             try
             {
                 var azure = BuildAzureClient(model.EnvironmentName);
@@ -124,15 +117,18 @@
                 stage = "scaleSetFinding";
                 var scaleSets = await azure.VirtualMachineScaleSets.ListAsync();
 
-                foreach (var scaleSet in scaleSets)
-                {
-                    stage = "identityUnassignment";
-                    scaleSetName = scaleSet.Name;
-                    scaleSetResourceGroupName = scaleSet.ResourceGroupName;
-                    await scaleSet.Update()
-                        .WithoutUserAssignedManagedServiceIdentity(identity.Id)
-                        .ApplyAsync();
-                }
+                stage = "scaleSetIdentityUnassignment";
+                Task UnassignIdentityFromScaleSet(IVirtualMachineScaleSet scaleSet) =>
+                    GetActor<IScaleSetIdentityActor>(ScaleSetIdentityActor.ActorIdPrefix + scaleSet.Id)
+                        .Remove(new ScaleSetIdentity
+                        {
+                            EnvironmentName = model.EnvironmentName,
+                            ManagedIdentityId = identity.Id,
+                        });
+
+                var scaleSetAssignmentTasks = scaleSets.Select(UnassignIdentityFromScaleSet);
+
+                await Task.WhenAll(scaleSetAssignmentTasks);
 
                 stage = "identityDeletion";
                 await azure.Identities.DeleteByIdAsync(identity.Id);
@@ -146,8 +142,6 @@
                     EnvironmentName = model.EnvironmentName,
                     IdentityName = model.IdentityName,
                     ResourceGroupName = model.ResourceGroupName,
-                    VirtualMachineScaleSetName = scaleSetName,
-                    VirtualMachineScaleSetResourceGroupName = scaleSetResourceGroupName,
                 };
                 _bigBrother.Publish(errorEvent);
                 throw;

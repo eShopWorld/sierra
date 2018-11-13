@@ -12,5 +12,6 @@
     <Parameter Name="TestActorService_PartitionCount" Value="1" />
     <Parameter Name="ResourceGroupActorService_PartitionCount" Value="1" />
     <Parameter Name="ManagedIdentityActorService_PartitionCount" Value="1" />
+    <Parameter Name="ScaleSetIdentityActorService_PartitionCount" Value="1" />
   </Parameters>
 </Application>

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sierra.Common.Events
 {
@@ -21,10 +19,5 @@ namespace Sierra.Common.Events
         public string IdentityName { get; set; }
 
         public string ResourceGroupName { get; set; }
-
-        public string VirtualMachineScaleSetResourceGroupName { get; set; }
-
-        public string VirtualMachineScaleSetName { get; set; }
-
     }
 }
