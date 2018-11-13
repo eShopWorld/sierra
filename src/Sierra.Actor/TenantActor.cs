@@ -47,7 +47,7 @@
                 _dbContext.Tenants.Add(dbTenant);
             }
 
-            dbTenant.Update(tenant);
+            dbTenant.Update(tenant, EnvironmentNames.PROD);
             //persist "ToBeDeleted"+"ToBeCreated" records
             await _dbContext.SaveChangesAsync();
 

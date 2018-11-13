@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Eshopworld.DevOps" Version="1.1.5" />
     <PackageReference Include="Eshopworld.Tests.Core" Version="1.0.5" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
   </ItemGroup>

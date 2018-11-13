@@ -1,4 +1,6 @@
-﻿namespace Sierra.Actor
+﻿using Castle.Core.Internal;
+
+namespace Sierra.Actor
 {
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
@@ -94,6 +96,11 @@
             //relink to target build definition
             foreach (var e in template.Environments)
             {
+                if (!model.SkipEnvironments.IsNullOrEmpty() && model.SkipEnvironments.Contains(e.Name, StringComparer.OrdinalIgnoreCase))
+                {                    
+                    continue;
+                }
+
                 ReleaseDefinitionEnvironment predecessor = null;
 
                 foreach (var r in EswDevOpsSdk.GetRegionSequence(e.Name, default))
