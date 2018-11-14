@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="Autofac" Version="4.9.0-beta1" />
     <PackageReference Include="Eshopworld.Tests.Core" Version="1.0.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="16.142.0-preview" />

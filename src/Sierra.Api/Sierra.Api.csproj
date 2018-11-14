@@ -36,10 +36,10 @@
     <!--REVIEW AFTER 2.2-->
     <PackageReference Update="Microsoft.NETCore.App" Version="2.1.4" />
 
-    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="Autofac" Version="4.9.0-beta1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.1" />
     <PackageReference Include="Eshopworld.Web" Version="1.1.0" />
-    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.6.0" />
+    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.7.0-preview1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.4" />
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.2.187" />
     <PackageReference Include="Microsoft.ServiceFabric.AspNetCore.Kestrel" Version="3.2.187" />
