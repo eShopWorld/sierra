@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
 using Sierra.Model;
+using Eshopworld.DevOps;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -96,6 +98,30 @@ public class TenantTests
             .OnlyContain(d =>
                 d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
                 d.BuildDefinition.SourceCode.SourceRepositoryName == "RepoB");
+    }
+
+
+    [Fact, IsUnit]
+    public void Update_CheckCanarySkipsPRODForRelease()
+    {
+        var currentTenant = new Tenant
+        {
+            Code = "TenantA",
+            Name = "oldName",
+            SourceRepos = new List<SourceCodeRepository>()
+        };
+
+        var tenantRequest = new Tenant
+        {
+            SourceRepos =
+                new List<SourceCodeRepository>(new[] { new SourceCodeRepository { SourceRepositoryName = "RepoB", Fork =  false} })
+        };
+
+        currentTenant.Update(tenantRequest, GetEnvironments());
+
+        //release definition checks
+        currentTenant.ReleaseDefinitions.First().SkipEnvironments.Should()
+            .OnlyContain(d => EnvironmentNames.PROD.Equals(d, StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact, IsUnit]

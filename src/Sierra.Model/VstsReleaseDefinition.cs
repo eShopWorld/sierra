@@ -1,4 +1,7 @@
-﻿namespace Sierra.Model
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Sierra.Model
 {
     using System;
     using System.ComponentModel.DataAnnotations;
@@ -28,6 +31,10 @@
 
         [DataMember]
         public int VstsReleaseDefinitionId { get; set; }
+
+        [NotMapped]
+        [DataMember]
+        public IEnumerable<string> SkipEnvironments { get; set; }
 
         public VstsReleaseDefinition()
         {

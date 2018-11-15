@@ -94,6 +94,11 @@
             //relink to target build definition
             foreach (var e in template.Environments)
             {
+                if (model.SkipEnvironments!=null && model.SkipEnvironments.Contains(e.Name, StringComparer.OrdinalIgnoreCase))
+                {                    
+                    continue;
+                }
+
                 ReleaseDefinitionEnvironment predecessor = null;
 
                 foreach (var r in EswDevOpsSdk.GetRegionSequence(e.Name, default))

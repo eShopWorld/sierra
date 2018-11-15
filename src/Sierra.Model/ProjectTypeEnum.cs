@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// enumerates types of projects recognised by Sierra
-    /// this drives build/release pipelines amongs other things
+    /// this drives build/release pipelines amongst other things
     /// </summary>
     public enum ProjectTypeEnum
     {

@@ -54,7 +54,8 @@
         /// project new state onto the current instance
         /// </summary>
         /// <param name="newState">new intended state</param>
-        public void Update(Tenant newState, IEnumerable<string> environments)
+        /// <param name="prodEnvName">name of the production environment</param>
+        public void Update(Tenant newState, IEnumerable<string> environments, string prodEnvName = "PROD")
         {
             if (newState == null)
                 return;
@@ -73,7 +74,11 @@
                     SourceRepos.Add(f);
                     var bd = new VstsBuildDefinition(f, Code);
                     BuildDefinitions.Add(bd);
-                    ReleaseDefinitions.Add(new VstsReleaseDefinition(bd, Code));
+                    var rd = new VstsReleaseDefinition(bd, Code);
+                    if (!f.Fork)
+                        rd.SkipEnvironments = new[] {prodEnvName}; //for canary, no PROD env in non prod release pipeline
+
+                    ReleaseDefinitions.Add(rd);
                 });
 
             SourceRepos
