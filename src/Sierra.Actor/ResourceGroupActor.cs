@@ -1,10 +1,9 @@
 ﻿namespace Sierra.Actor
 {
-    using System;
     using System.Threading.Tasks;
+    using Autofac.Features.Indexed;
     using Common.Events;
     using Eshopworld.Core;
-    using Eshopworld.DevOps;
     using Interfaces;
     using Microsoft.Azure.Management.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
@@ -20,20 +19,20 @@
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class ResourceGroupActor : SierraActor<ResourceGroup>, IResourceGroupActor
     {
-        private readonly Func<Azure.IAuthenticated> _authenticated;
+        private readonly IIndex<string, IAzure> _azureFactory;
         private readonly IBigBrother _bigBrother;
 
         public ResourceGroupActor(ActorService actorService, ActorId actorId,
-            Func<Azure.IAuthenticated> authenticated, IBigBrother bigBrother)
+            IIndex<string, IAzure> azureFactory, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
-            _authenticated = authenticated;
+            _azureFactory = azureFactory;
             _bigBrother = bigBrother;
         }
 
         public override async Task<ResourceGroup> Add(ResourceGroup model)
         {
-            var azure = BuildAzureClient(model.EnvironmentName);
+            var azure = _azureFactory[string.Intern(model.EnvironmentName)];
             IResourceGroup resourceGroup;
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
@@ -62,7 +61,7 @@
 
         public override async Task Remove(ResourceGroup model)
         {
-            var azure = BuildAzureClient(model.EnvironmentName);
+            var azure = _azureFactory[string.Intern(model.EnvironmentName)];
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
                 await azure.ResourceGroups
@@ -74,12 +73,6 @@
                     ResourceGroupName = model.Name
                 });
             }
-        }
-
-        private IAzure BuildAzureClient(string environmentName)
-        {
-            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
-            return _authenticated().WithSubscription(subscriptionId);
         }
     }
 }

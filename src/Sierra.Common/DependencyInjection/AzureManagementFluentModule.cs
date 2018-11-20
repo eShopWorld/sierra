@@ -4,6 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
+    using Eshopworld.DevOps;
     using Microsoft.Azure.Management.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
@@ -28,9 +29,27 @@
                         AzureEnvironment.AzureGlobalCloud))
                     .Build();
 
-                // TODO: per subscription cache or a pool could be used here
                 return Azure.Authenticate(client, string.Empty);
             });
+
+            var allEnvironments = new[]
+            {
+                EnvironmentNames.CI,
+                EnvironmentNames.DEVELOPMENT,
+                EnvironmentNames.PREP,
+                EnvironmentNames.PROD,
+                EnvironmentNames.SAND,
+                EnvironmentNames.TEST,
+            };
+            foreach (var env in allEnvironments)
+            {
+                var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(env);
+                builder.Register(c =>
+                {
+                    var authenticated = c.Resolve<Azure.IAuthenticated>();
+                    return authenticated.WithSubscription(subscriptionId);
+                }).Keyed<IAzure>(string.Intern(env)).InstancePerLifetimeScope();
+            }
         }
 
         private class AzureServiceTokenProviderAdapter : ITokenProvider

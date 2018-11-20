@@ -1,6 +1,8 @@
 ﻿using System;
 using Autofac;
+using Autofac.Features.Indexed;
 using Eshopworld.DevOps;
+using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.Configuration;
 using Sierra.Common.DependencyInjection;
@@ -28,6 +30,11 @@ public class ActorTestsFixture : IDisposable
 
     public ActorTestsFixture()
     {
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+        {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", EnvironmentNames.DEVELOPMENT);
+        }
+
         var builder = new ContainerBuilder();
         builder.RegisterModule(new CoreModule(true));
         builder.RegisterModule(new VstsModule());
@@ -41,7 +48,7 @@ public class ActorTestsFixture : IDisposable
 
             var config = EswDevOpsSdk.BuildConfiguration(true);
             config.GetSection("TestConfig").Bind(testConfig);
-            
+
             TestMiddlewareUri = $"{testConfig.ApiUrl}test";
             TestRegion = string.IsNullOrEmpty(testConfig.RegionName)
                 ? Region.EuropeNorth
@@ -52,7 +59,7 @@ public class ActorTestsFixture : IDisposable
             DeploymentSubscriptionId = "0b50e185-2e2a-4e1c-bf2f-ead0b80e0b79";  // sierra integration
 
             return testConfig;
-        });       
+        });
 
         Container = builder.Build();
         //trigger set up

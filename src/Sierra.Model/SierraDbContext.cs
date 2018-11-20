@@ -1,12 +1,12 @@
 ﻿namespace Sierra.Model
 {
-    using Microsoft.EntityFrameworkCore;
     using System.Threading.Tasks;
+    using Microsoft.EntityFrameworkCore;
 
     /// <summary>
     /// EF.Core Db Context implementation for Sierra State Management
     /// </summary>
-    public class SierraDbContext :DbContext
+    public class SierraDbContext : DbContext
     {
         public string ConnectionString { get; set; } = "Data Source=.;Initial Catalog=Sierra;Integrated Security=True"; //for local dev experience
 
@@ -26,7 +26,7 @@
         {
             modelBuilder.Entity<Tenant>();
             modelBuilder.Entity<VstsBuildDefinition>();
-            modelBuilder.Entity<SourceCodeRepository>();                
+            modelBuilder.Entity<SourceCodeRepository>();
             modelBuilder.Entity<VstsBuildDefinition>()
                 .HasOne<Tenant>()
                 .WithMany(t => t.BuildDefinitions)
@@ -58,9 +58,9 @@
         public async Task<Tenant> LoadCompleteTenantAsync(string tenantCode)
         {
             return await Tenants
-                .Include(t=>t.SourceRepos)
-                .Include(t=>t.BuildDefinitions)
-                .Include(t=>t.ReleaseDefinitions)
+                .Include(t => t.SourceRepos)
+                .Include(t => t.BuildDefinitions)
+                .Include(t => t.ReleaseDefinitions)
                     .FirstOrDefaultAsync(t => t.Code == tenantCode);
         }
     }

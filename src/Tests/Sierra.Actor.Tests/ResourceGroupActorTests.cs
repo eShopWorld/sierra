@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Features.Indexed;
+using Eshopworld.DevOps;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
 using Microsoft.Azure.Management.Fluent;
@@ -16,16 +20,9 @@ public class ResourceGroupActorTests
     private const string TestResourceGroupName = "TestResourceGroup";
     private ActorTestsFixture Fixture { get; }
 
-
     public ResourceGroupActorTests(ActorTestsFixture fixture)
     {
         Fixture = fixture;
-    }
-
-    private IAzure InitAzure(ILifetimeScope scope)
-    {
-        var azureAuth = scope.Resolve<Azure.IAuthenticated>();
-        return azureAuth.WithSubscription(Fixture.DeploymentSubscriptionId);
     }
 
     private ResourceGroup TestResourceGroupRequest()
@@ -44,8 +41,8 @@ public class ResourceGroupActorTests
     {
         var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
-        { 
-            var azure = InitAzure(scope);
+        {
+            var azure = scope.ResolveKeyed<IAzure>(string.Intern(EswDevOpsSdk.GetEnvironmentName()));
             await PrepareResourceGroup(resourceGroupExists, azure);
             try
             {
@@ -79,7 +76,7 @@ public class ResourceGroupActorTests
         var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
-            var azure = InitAzure(scope);
+            var azure = scope.ResolveKeyed<IAzure>(string.Intern(EswDevOpsSdk.GetEnvironmentName()));
             await PrepareResourceGroup(resourceGroupExists, azure);
 
             try

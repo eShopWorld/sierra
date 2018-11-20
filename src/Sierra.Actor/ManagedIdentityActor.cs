@@ -3,9 +3,9 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using Autofac.Features.Indexed;
     using Common.Events;
     using Eshopworld.Core;
-    using Eshopworld.DevOps;
     using Interfaces;
     using Microsoft.Azure.Management.Compute.Fluent;
     using Microsoft.Azure.Management.Compute.Fluent.Models;
@@ -18,14 +18,14 @@
     [StatePersistence(StatePersistence.Volatile)]
     public class ManagedIdentityActor : SierraActor<ManagedIdentity>, IManagedIdentityActor
     {
-        private readonly Func<Azure.IAuthenticated> _authenticated;
+        private readonly IIndex<string, IAzure> _azureFactory;
         private readonly IBigBrother _bigBrother;
 
         public ManagedIdentityActor(ActorService actorService, ActorId actorId,
-            Func<Azure.IAuthenticated> authenticated, IBigBrother bigBrother)
+            IIndex<string, IAzure> azureFactory, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
-            _authenticated = authenticated;
+            _azureFactory = azureFactory;
             _bigBrother = bigBrother;
         }
 
@@ -36,7 +36,7 @@
             string subscriptionId = null;
             try
             {
-                var azure = BuildAzureClient(model.EnvironmentName);
+                var azure = _azureFactory[string.Intern(model.EnvironmentName)];
                 subscriptionId = azure.SubscriptionId;
 
                 stage = "resourceGroupValidation";
@@ -98,7 +98,7 @@
             string subscriptionId = null;
             try
             {
-                var azure = BuildAzureClient(model.EnvironmentName);
+                var azure = _azureFactory[string.Intern(model.EnvironmentName)];
                 subscriptionId = azure.SubscriptionId;
 
                 stage = "resourceGroupValidation";
@@ -147,12 +147,6 @@
                 _bigBrother.Publish(errorEvent);
                 throw;
             }
-        }
-
-        private IAzure BuildAzureClient(string environmentName)
-        {
-            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
-            return _authenticated().WithSubscription(subscriptionId);
         }
 
         private static bool IsIdentityAssigned(IVirtualMachineScaleSet scaleSet, IIdentity identity)
