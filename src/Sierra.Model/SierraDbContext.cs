@@ -17,6 +17,8 @@
 
         public DbSet<ResourceGroup> ResourceGroups { get; set; }
 
+        public DbSet<ManagedIdentity> ManagededIdentities { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(ConnectionString);
@@ -45,6 +47,7 @@
                 .HasForeignKey(t => t.TenantCode);
 
             modelBuilder.Entity<ManagedIdentity>()
+                .ToTable("ManagedIdentity")
                 .HasOne<Tenant>()
                 .WithMany(t => t.ManagedIdentities)
                 .HasForeignKey(t => t.TenantCode);
