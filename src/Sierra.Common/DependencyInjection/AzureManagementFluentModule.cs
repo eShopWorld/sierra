@@ -1,5 +1,8 @@
 ﻿namespace Sierra.Common.DependencyInjection
 {
+    using System.Net.Http.Headers;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Autofac;
     using Microsoft.Azure.Management.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
@@ -12,12 +15,11 @@
     {
         protected override void Load(ContainerBuilder builder)
         {
-            // TODO: How to cache authentication token?
             builder.Register(c =>
             {
-                var token = new AzureServiceTokenProvider()
-                    .GetAccessTokenAsync("https://management.core.windows.net/", string.Empty).Result;
-                var tokenCredentials = new TokenCredentials(token);
+                var tokenProvider = new AzureServiceTokenProvider();
+                var tokenProviderAdapter = new AzureServiceTokenProviderAdapter(tokenProvider);
+                var tokenCredentials = new TokenCredentials(tokenProviderAdapter);
 
                 var client = RestClient.Configure()
                     .WithEnvironment(AzureEnvironment.AzureGlobalCloud)
@@ -29,6 +31,23 @@
                 // TODO: per subscription cache or a pool could be used here
                 return Azure.Authenticate(client, string.Empty);
             });
+        }
+
+        private class AzureServiceTokenProviderAdapter : ITokenProvider
+        {
+            private const string Bearer = "Bearer";
+            private readonly AzureServiceTokenProvider _azureTokenProvider;
+
+            public AzureServiceTokenProviderAdapter(AzureServiceTokenProvider azureTokenProvider)
+            {
+                _azureTokenProvider = azureTokenProvider;
+            }
+
+            public async Task<AuthenticationHeaderValue> GetAuthenticationHeaderAsync(CancellationToken cancellationToken)
+            {
+                var token = await _azureTokenProvider.GetAccessTokenAsync("https://management.core.windows.net/", string.Empty);
+                return new AuthenticationHeaderValue(Bearer, token);
+            }
         }
     }
 }
