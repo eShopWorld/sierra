@@ -117,10 +117,16 @@ public class TenantL3TestFixture : IDisposable
     // ReSharper disable once InconsistentNaming
     private async Task<string> ObtainSTSAccessToken()
     {
-        var discovery = await DiscoveryClient.GetAsync(TestConfig.STSAuthority);
-        var client = new TokenClient(discovery.TokenEndpoint, TestConfig.STSClientId, TestConfig.STSClientSecret);
-
-        var tokenResponse = await client.RequestClientCredentialsAsync(TestConfig.STSScope);
+        var httpClient = new HttpClient();
+        var discovery = await httpClient.GetDiscoveryDocumentAsync(TestConfig.STSAuthority);
+        var options = new TokenClientOptions
+        {
+            Address = discovery.TokenEndpoint,
+            ClientId = TestConfig.STSClientId,
+            ClientSecret = TestConfig.STSClientSecret,
+        };
+        var client = new TokenClient(httpClient, options);
+        var tokenResponse = await client.RequestClientCredentialsTokenAsync(TestConfig.STSScope);
         return tokenResponse.AccessToken;
     }
 }
