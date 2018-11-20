@@ -39,9 +39,9 @@
                 .HasForeignKey(t => t.TenantCode)
                 .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
 
-            modelBuilder.Entity<VstsReleaseDefinition>()
+            modelBuilder.Entity<ResourceGroup>()
                 .HasOne<Tenant>()
-                .WithMany(t => t.ReleaseDefinitions)
+                .WithMany(t => t.ResourceGroups)
                 .HasForeignKey(t => t.TenantCode);
 
             modelBuilder.Entity<ManagedIdentity>()
