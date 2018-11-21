@@ -1,4 +1,8 @@
-﻿namespace Sierra.Actor
+﻿using System;
+using System.Text;
+using Microsoft.EntityFrameworkCore;
+
+namespace Sierra.Actor
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -140,6 +144,10 @@
         /// <returns>The async <see cref="Task"/> wrapper.</returns>
         public override async Task Remove(Tenant tenant)
         {
+            try
+            {
+
+
             tenant = await _dbContext.LoadCompleteTenantAsync(tenant.Code);
             if (tenant == null)
                 return;
@@ -162,6 +170,16 @@
 
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var en in e.Entries)
+                {
+                    sb.Append($"{en.Entity.ToString()}:{en.State} ");
+                    throw new ApplicationException(sb.ToString());
+                }
+            }
         }
 
         private static IEnumerable<string> GetAllEnvironments()
