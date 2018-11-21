@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
@@ -22,7 +23,8 @@ public class TenantActorTests
     [Fact, IsLayer2]
     public async Task AddTest()
     {
-        var cl = new HttpClient();
+        var cl = new HttpClient { Timeout = TimeSpan.FromSeconds(200) };
+
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var dbContext = scope.Resolve<SierraDbContext>();
@@ -41,10 +43,10 @@ public class TenantActorTests
         }
     }
 
-    [Fact(Skip = "trial"), IsLayer2]
+    [Fact, IsLayer2]
     public async Task RemoveTest()
     {
-        var cl = new HttpClient();
+        var cl = new HttpClient{Timeout = TimeSpan.FromSeconds(200)};
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var dbContext = scope.Resolve<SierraDbContext>();
