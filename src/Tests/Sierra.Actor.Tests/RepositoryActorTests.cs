@@ -39,9 +39,9 @@ public class RepositoryActorTests
     [Fact, IsLayer2]
     public async Task AddForkTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
-        {           
+        {
+            var cl = scope.Resolve<HttpClient>();
             try
             {
                 var forkCreated = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Add", TestFork);
@@ -62,9 +62,9 @@ public class RepositoryActorTests
     [Fact, IsLayer2]
     public async Task AddStandardTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Add", TestStandard);
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var vstsClient = scope.Resolve<GitHttpClient>();
@@ -77,9 +77,9 @@ public class RepositoryActorTests
     [Fact, IsLayer2]
     public async Task StandardRepoNotRemovedTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Remove", TestStandard);
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var vstsClient = scope.Resolve<GitHttpClient>();
@@ -92,9 +92,9 @@ public class RepositoryActorTests
     [Fact, IsLayer2]
     public async Task RemoveTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
-        {          
+        {
+            var cl = scope.Resolve<HttpClient>();
             try
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Add", TestFork);

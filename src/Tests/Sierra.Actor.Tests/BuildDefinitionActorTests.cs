@@ -33,9 +33,9 @@ public class BuildDefinitionActorTests
     [Fact, IsLayer2]
     public async Task AddTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
-        {          
+        {
+            var cl = scope.Resolve<HttpClient>();
             try
             {
                 VstsBuildDefinition resp = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "BuildDefinition", "Add", TestBuildDefinition);                
@@ -58,10 +58,9 @@ public class BuildDefinitionActorTests
     [Fact, IsLayer2]
     public async Task RemoveTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
-
+            var cl = scope.Resolve<HttpClient>();
             try
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "BuildDefinition", "Add", TestBuildDefinition);

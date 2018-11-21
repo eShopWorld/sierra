@@ -14,10 +14,8 @@
         public DbSet<SourceCodeRepository> SourceCodeRepositories { get; set; }
         public DbSet<VstsBuildDefinition> BuildDefinitions { get; set; }
         public DbSet<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
-
         public DbSet<ResourceGroup> ResourceGroups { get; set; }
-
-        public DbSet<ManagedIdentity> ManagededIdentities { get; set; }
+        public DbSet<ManagedIdentity> ManagedIdentities { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -47,7 +45,6 @@
                 .HasForeignKey(t => t.TenantCode);
 
             modelBuilder.Entity<ManagedIdentity>()
-                .ToTable("ManagedIdentity")
                 .HasOne<Tenant>()
                 .WithMany(t => t.ManagedIdentities)
                 .HasForeignKey(t => t.TenantCode);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using Autofac;
 using Eshopworld.DevOps;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
@@ -34,6 +35,7 @@ public class ActorTestsFixture : IDisposable
         builder.RegisterModule(new AzureManagementFluentModule());
         builder.Register(c => new SierraDbContext
             { ConnectionString = c.Resolve<IConfigurationRoot>()["SierraDbConnectionString"] });
+        builder.Register(c => new HttpClient {Timeout = TimeSpan.FromSeconds(200)});
 
         builder.Register(c =>
         {

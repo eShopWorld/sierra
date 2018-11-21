@@ -42,9 +42,9 @@ public class ResourceGroupActorTests
     [InlineData(false)]
     public async Task AddTest(bool resourceGroupExists)
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
-        { 
+        {
+            var cl = scope.Resolve<HttpClient>();
             var azure = InitAzure(scope);
             await PrepareResourceGroup(resourceGroupExists, azure);
             try
@@ -76,9 +76,9 @@ public class ResourceGroupActorTests
     [InlineData(false)]
     public async Task RemoveTests(bool resourceGroupExists)
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var azure = InitAzure(scope);
             await PrepareResourceGroup(resourceGroupExists, azure);
 
