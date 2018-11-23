@@ -53,9 +53,9 @@ public class ManagedIdentityActorTests
     [InlineData(OperationPhase.IdentityAssigned)]
     public async Task AddTest(OperationPhase operationPhase)
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var azure = InitAzure(scope);
             var resourceGroup = await EnsureResourceGroupExists(azure, TestResourceGroupName, Region.EuropeNorth);
             var scaleSet = await GetScaleSet(azure);
@@ -94,9 +94,9 @@ public class ManagedIdentityActorTests
     [InlineData(OperationPhase.IdentityAssigned)]
     public async Task RemoveTests(OperationPhase operationPhase)
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var azure = InitAzure(scope);
             var resourceGroup = await EnsureResourceGroupExists(azure, TestResourceGroupName, Region.EuropeNorth);
             var scaleSet = await GetScaleSet(azure);

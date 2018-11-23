@@ -14,8 +14,8 @@
         public DbSet<SourceCodeRepository> SourceCodeRepositories { get; set; }
         public DbSet<VstsBuildDefinition> BuildDefinitions { get; set; }
         public DbSet<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
-
         public DbSet<ResourceGroup> ResourceGroups { get; set; }
+        public DbSet<ManagedIdentity> ManagedIdentities { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,9 +39,9 @@
                 .HasForeignKey(t => t.TenantCode)
                 .OnDelete(DeleteBehavior.Restrict); //this is required to avoid delete cascade loop 
 
-            modelBuilder.Entity<VstsReleaseDefinition>()
+            modelBuilder.Entity<ResourceGroup>()
                 .HasOne<Tenant>()
-                .WithMany(t => t.ReleaseDefinitions)
+                .WithMany(t => t.ResourceGroups)
                 .HasForeignKey(t => t.TenantCode);
 
             modelBuilder.Entity<ManagedIdentity>()
@@ -61,6 +61,8 @@
                 .Include(t=>t.SourceRepos)
                 .Include(t=>t.BuildDefinitions)
                 .Include(t=>t.ReleaseDefinitions)
+                .Include(t=>t.ResourceGroups)
+                .Include(t=>t.ManagedIdentities)
                     .FirstOrDefaultAsync(t => t.Code == tenantCode);
         }
     }
