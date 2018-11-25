@@ -107,7 +107,13 @@
             var tenantSubString = $"{model.TenantCode}#{11111}"; //TODO: link to port management
             var varValue = pipeline.Variables[variableName].Value;
             if (!varValue.Contains(tenantSubString))
-                varValue += $"{TenantPipelineVariableSeparator}{tenantSubString}";
+            {
+                //append definition for this tenant
+                if (varValue.Length != 0)
+                    varValue += TenantPipelineVariableSeparator;
+
+                varValue += tenantSubString;
+            }
 
             pipeline.Variables[variableName].Value = varValue;
 
