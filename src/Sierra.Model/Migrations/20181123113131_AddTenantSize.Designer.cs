@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sierra.Model;
 
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    partial class SierraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181123113131_AddTenantSize")]
+    partial class AddTenantSize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,20 +154,17 @@ namespace Sierra.Model.Migrations
 
                     b.Property<Guid>("BuildDefinitionId");
 
-                    b.Property<bool>("RingBased");
-
                     b.Property<int>("State");
 
                     b.Property<string>("TenantCode")
                         .IsRequired();
 
-                    b.Property<int>("TenantSize");
-
                     b.Property<int>("VstsReleaseDefinitionId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuildDefinitionId");
+                    b.HasIndex("BuildDefinitionId")
+                        .IsUnique();
 
                     b.HasIndex("TenantCode");
 
@@ -212,8 +211,8 @@ namespace Sierra.Model.Migrations
             modelBuilder.Entity("Sierra.Model.VstsReleaseDefinition", b =>
                 {
                     b.HasOne("Sierra.Model.VstsBuildDefinition", "BuildDefinition")
-                        .WithMany("ReleaseDefinitions")
-                        .HasForeignKey("BuildDefinitionId")
+                        .WithOne("ReleaseDefinition")
+                        .HasForeignKey("Sierra.Model.VstsReleaseDefinition", "BuildDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sierra.Model.Tenant")

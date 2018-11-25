@@ -17,6 +17,10 @@
         public string Name { get; set; }
 
         [DataMember]
+        [Required]
+        public int TenantSize { get; set; } //TODO: this should really be enum (but do not want to reference devops one at the moment)
+
+        [DataMember]
         public List<SourceCodeRepository> SourceRepos { get; set; }
 
         /// <summary>
@@ -54,6 +58,7 @@
         /// project new state onto the current instance
         /// </summary>
         /// <param name="newState">new intended state</param>
+        /// <param name="environments">list of supported environments</param>
         /// <param name="prodEnvName">name of the production environment</param>
         public void Update(Tenant newState, IEnumerable<string> environments, string prodEnvName = "PROD")
         {
@@ -61,6 +66,7 @@
                 return;
 
             Name = newState.Name;
+            TenantSize = newState.TenantSize;
 
             var newStateForks = newState.SourceRepos.Select(r => new SourceCodeRepository(r.SourceRepositoryName, Code, r.ProjectType, r.Fork)).ToList();
 
@@ -74,11 +80,15 @@
                     SourceRepos.Add(f);
                     var bd = new VstsBuildDefinition(f, Code);
                     BuildDefinitions.Add(bd);
-                    var rd = new VstsReleaseDefinition(bd, Code);
-                    if (!f.Fork)
-                        rd.SkipEnvironments = new[] {prodEnvName}; //for canary, no PROD env in non prod release pipeline
 
-                    ReleaseDefinitions.Add(rd);
+                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false ) {SkipEnvironments = !f.Fork ? new[] { prodEnvName } : new string[]{} }; //for canary, no PROD env in non prod release pipeline
+                    //ReleaseDefinitions.Add(standardPipeline);
+
+                    if (f.Fork) return;
+
+                    //also initiate ring pipeline (if not fork)
+                    var ringPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, true);
+                    ReleaseDefinitions.Add(ringPipeline);
                 });
 
             SourceRepos
@@ -89,7 +99,7 @@
                     f.State = EntityStateEnum.ToBeDeleted;
                     var bd = BuildDefinitions.Single(b => Equals(b.SourceCode, f));
                     bd.State = EntityStateEnum.ToBeDeleted;
-                    bd.ReleaseDefinition.State = EntityStateEnum.ToBeDeleted;
+                    bd.ReleaseDefinitions.ForEach(d => d.State = EntityStateEnum.ToBeDeleted);
                 });
 
             var environmentList = environments.ToList();

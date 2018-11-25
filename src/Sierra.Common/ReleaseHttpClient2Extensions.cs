@@ -25,9 +25,12 @@
                 (await client.GetReleaseDefinitionsAsync(targetProject, definition.Name, isExactNameMatch: true))
                 .FirstOrDefault();
 
+            //TODO: the original intention was to update if the definition exists, however various issues were experienced when this was attempted
+            // e.g. complaining that there were no stages in the pipeline (VS402875) 
+
             if (vstsDef != null)
             {
-                await client.DeleteReleaseDefinitionIfFExists(targetProject, vstsDef.Name);
+                await client.DeleteReleaseDefinitionAsync(targetProject, definition.Id);
             }
 
             //create new

@@ -91,12 +91,14 @@
                 .Select(d =>
                     GetActor<IReleaseDefinitionActor>(d.ToString()).Add(d)
                         .ContinueWith((t) => d.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             await Task.WhenAll(dbTenant.ReleaseDefinitions
                 .Where(d => d.State == EntityStateEnum.ToBeDeleted)
                 .Select(d =>
                     GetActor<IReleaseDefinitionActor>(d.ToString()).Remove(d)
                         .ContinueWith((t) => _dbContext.Entry(d).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             // #5b If there are no forks, put the tenant into a ring on the global master release definition
             // #6 Create the tenant Azure AD application for test and prod
@@ -108,12 +110,14 @@
                 .Select(rg =>
                     GetActor<IResourceGroupActor>(rg.ToString()).Add(rg)
                         .ContinueWith((t) => rg.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             await Task.WhenAll(dbTenant.ResourceGroups
                 .Where(rg => rg.State == EntityStateEnum.ToBeDeleted)
                 .Select(rg =>
                     GetActor<IResourceGroupActor>(rg.ToString()).Remove(rg)
                         .ContinueWith((t) => _dbContext.Entry(rg).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             // Sync Azure user assigned managed identities
             await Task.WhenAll(dbTenant.ManagedIdentities
@@ -121,15 +125,15 @@
                 .Select(mi =>
                     GetActor<IManagedIdentityActor>(mi.ToString()).Add(mi)
                         .ContinueWith((t) => mi.Update(t.Result), TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             await Task.WhenAll(dbTenant.ManagedIdentities
                 .Where(mi => mi.State == EntityStateEnum.ToBeDeleted)
                 .Select(mi =>
                     GetActor<IManagedIdentityActor>(mi.ToString()).Remove(mi)
                         .ContinueWith((t) => _dbContext.Entry(mi).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
-
-            //final state persistence
             await _dbContext.SaveChangesAsync();
+
             return dbTenant;
         }
 

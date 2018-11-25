@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20181123112643_AddTenantSize.cs" />
+    <Compile Remove="Migrations\20181123125933_AddRingFlagToReleaseDefinition.cs" />
+    <Compile Remove="Migrations\20181123143831_ReleaseDefinitionChangesForProdRing.cs" />
+    <Compile Remove="Migrations\20181123144314_aaa.cs" />
+    <Compile Remove="Migrations\20181123145302_aaa.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.0-beta1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0-preview3-35497" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="2.0.0-preview1-final" />

@@ -15,7 +15,18 @@ public class TenantTests
     {
         var fork = new SourceCodeRepository
         {
-            SourceRepositoryName = "AlreadyThere", State = EntityStateEnum.Created, TenantCode = "TenantA"
+            SourceRepositoryName = "AlreadyThere", State = EntityStateEnum.Created, TenantCode = "TenantA", Fork = true
+        };
+
+   
+        var relDefA = new VstsReleaseDefinition { TenantCode = "TenantA", State = EntityStateEnum.Created };
+       
+        var buildDefA = new VstsBuildDefinition
+        {
+            SourceCode = fork,
+            TenantCode = "TenantA",
+            ReleaseDefinitions = new[] { relDefA }.ToList(),
+            State = EntityStateEnum.Created
         };
         var currentTenant = new Tenant
         {
@@ -24,19 +35,20 @@ public class TenantTests
             SourceRepos = new List<SourceCodeRepository>(new[] {fork}),
             BuildDefinitions = new List<VstsBuildDefinition>(new[]
             {
-                new VstsBuildDefinition
-                {
-                    SourceCode = fork, TenantCode = "TenantA", State = EntityStateEnum.Created
-                }
-            })
+                buildDefA
+            }),
+            ReleaseDefinitions = new List<VstsReleaseDefinition>()
+            {
+                relDefA
+            }
         };
 
         var tenantRequest = new Tenant
         {
             SourceRepos = new List<SourceCodeRepository>(new[]
             {
-                new SourceCodeRepository {SourceRepositoryName = "A"},
-                new SourceCodeRepository {SourceRepositoryName = "AlreadyThere"}
+                new SourceCodeRepository {SourceRepositoryName = "A", Fork = true},
+                fork
             })
         };
 
@@ -249,14 +261,14 @@ public class TenantTests
         {
             SourceCode = forkRepoA,
             TenantCode = "TenantA",
-            ReleaseDefinition = relDefA,
+            ReleaseDefinitions = new []{relDefA}.ToList(),
             State = EntityStateEnum.Created
         };
         var buildDefB = new VstsBuildDefinition
         {
             SourceCode = forkRepoB,
             TenantCode = "TenantA",
-            ReleaseDefinition = relDefB,
+            ReleaseDefinitions = new []{relDefB}.ToList(),
             State = EntityStateEnum.Created
         };
 
@@ -315,7 +327,7 @@ public class TenantTests
         {
             SourceCode = forkRepoA,
             TenantCode = "TenantA",
-            ReleaseDefinition = relDefA,
+            ReleaseDefinitions = new[] {relDefA}.ToList(),
             State = EntityStateEnum.Created
         };
 
@@ -356,11 +368,15 @@ public class TenantTests
         //check the same for release definition
         var newBuildDef = currentTenant.BuildDefinitions.First(r => r.SourceCode.Equals(newRepo));
 
-        currentTenant.ReleaseDefinitions.Should().HaveCount(2);
+        currentTenant.ReleaseDefinitions.Should().HaveCount(3);
         currentTenant.ReleaseDefinitions.Should()
             .ContainSingle(r => r.BuildDefinition.Equals(buildDefA) && r.State == EntityStateEnum.ToBeDeleted);
         currentTenant.ReleaseDefinitions.Should()
-            .ContainSingle(r => r.BuildDefinition.Equals(newBuildDef) && r.State == EntityStateEnum.NotCreated);
+            .ContainSingle(r =>
+                r.BuildDefinition.Equals(newBuildDef) && r.State == EntityStateEnum.NotCreated && !r.RingBased);
+        currentTenant.ReleaseDefinitions.Should()
+            .ContainSingle(r =>
+                r.BuildDefinition.Equals(newBuildDef) && r.State == EntityStateEnum.NotCreated && r.RingBased);
     }
 
     [Fact, IsUnit]

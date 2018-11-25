@@ -37,6 +37,8 @@
         private const string VstsSfDeployTaskId = "c6650aa0-185b-11e6-a47d-df93e7a34c64";
         private const string VstsSfDeployTaskConnectionNameInput = "serviceConnectionName";
 
+        private const char TenantPipelineVariableSeparator = ';';
+
         /// <summary>
         /// Initializes a new instance of ReleaseDefinitionActor
         /// </summary>
@@ -64,16 +66,84 @@
         public override async Task<VstsReleaseDefinition> Add(VstsReleaseDefinition model)
         {
             var templateConfig = model.BuildDefinition.SourceCode.ProjectType == ProjectTypeEnum.WebApi
-                ? _vstsConfiguration.WebApiReleaseDefinitionTemplate
-                : _vstsConfiguration.WebUIReleaseDefinitionTemplate;
+                ? model.RingBased ? _vstsConfiguration.WebApiRingReleaseDefinitionConfig: _vstsConfiguration.WebApiReleaseDefinitionTemplate
+                : model.RingBased ? _vstsConfiguration.WebUIRingReleaseDefinitionConfig: _vstsConfiguration.WebUIReleaseDefinitionTemplate;
+           
 
-            //load sf endpoints
-            var connectionEndpoints =
-                await _taskAgentHttpClient.GetServiceEndpointsAsync(_vstsConfiguration.VstsTargetProjectId);
+            //create (or locate)
+            var clone = await ClonePipeline(model, templateConfig);
+
+            //customize
+            if (!model.RingBased)
+                await CustomizeNonRingPipeline(model, clone);
+            else
+                CustomizeRingPipeline(model, clone);
+
+            //persist (or update)
+            
+            var vstsDef =
+                await _releaseHttpClient.CreateOrResetDefinition(clone, _vstsConfiguration.VstsTargetProjectId);
+
+            model.UpdateWithVstsReleaseDefinition(vstsDef.Id);
+            
+            _bigBrother.Publish(new ReleaseDefinitionCreated {DefinitionName = model.ToString()});
+
+            return model;
+        }
+
+        private void CustomizeRingPipeline(VstsReleaseDefinition model, ReleaseDefinition pipeline)
+        {
+            //check if the tenant is embedded in variables, otherwise add it
+            TenantSizeEnum ts = (TenantSizeEnum) model.TenantSize;
+            if (!(typeof(TenantSizeEnum).IsEnumDefined(ts)))
+                throw new Exception($"Unexpected {model.TenantCode} tenant size - {model.TenantSize}");
+            
+            //locate the right variable
+            var variableName = $"{ts.ToString()}Tenants";
+
+            if (!pipeline.Variables.ContainsKey(variableName))
+                throw new Exception($"Ring template #{pipeline.Id} does not contain expected variable {variableName}");
+
+            var tenantSubString = $"{model.TenantCode}#{11111}"; //TODO: link to port management
+            var varValue = pipeline.Variables[variableName].Value;
+            if (!varValue.Contains(tenantSubString))
+                varValue += $"{TenantPipelineVariableSeparator}{tenantSubString}";
+
+            pipeline.Variables[variableName].Value = varValue;
+
+            //also re-point all stages to correct artifact
+            foreach (var e in pipeline.Environments)
+            {
+                foreach (var p in e.DeployPhases)
+                {
+                    var envInput = (AgentDeploymentInput) p.GetDeploymentInput();
+                    var downloadInput = envInput.ArtifactsDownloadInput.DownloadInputs.FirstOrDefault();
+                    if (downloadInput == null)
+                        throw new Exception($"Ring template #{pipeline.Id}, environment {e.Name} does not have expected download input");
+
+                    downloadInput.Alias = model.BuildDefinition.ToString();
+                }
+            }
+        }
+
+        private async Task<ReleaseDefinition> ClonePipeline(VstsReleaseDefinition model, PipelineDefinitionConfig templateDefinition)
+        {
+            if (model.RingBased)
+            {
+                //if ring based, it may already exists (since shared by tenants), try to load it
+                var definition = (await _releaseHttpClient.GetReleaseDefinitionsAsync(
+                        _vstsConfiguration.VstsTargetProjectId,
+                        model.ToString(), isExactNameMatch: true))
+                    .FirstOrDefault();
+
+                if (definition != null)
+                    return await _releaseHttpClient.GetReleaseDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
+                        definition.Id);
+            }
 
             //load template
             var template = await _releaseHttpClient.GetReleaseDefinitionRevision(_vstsConfiguration.VstsTargetProjectId,
-                templateConfig.DefinitionId, templateConfig.RevisionId);
+                templateDefinition.DefinitionId, templateDefinition.RevisionId);
 
             //customize the template
             template.Name = model.ToString();
@@ -84,18 +154,28 @@
             var def = firstArtifact.DefinitionReference["definition"];
             def.Id = Convert.ToString(model.BuildDefinition.VstsBuildDefinitionId, CultureInfo.InvariantCulture);
             def.Name = model.BuildDefinition.ToString();
+            return template;
+        }
 
-            var sourceTrigger = (ArtifactSourceTrigger) template.Triggers.First();
+        private async Task CustomizeNonRingPipeline(VstsReleaseDefinition model, ReleaseDefinition pipeline)
+        {
+            //load sf endpoints
+            var connectionEndpoints =
+                await _taskAgentHttpClient.GetServiceEndpointsAsync(_vstsConfiguration.VstsTargetProjectId);
+
+            //set up source trigger
+            var sourceTrigger = (ArtifactSourceTrigger) pipeline.Triggers.First();
             sourceTrigger.ArtifactAlias = model.BuildDefinition.ToString();
+
             var clonedEnvStages = new List<ReleaseDefinitionEnvironment>();
 
             var rank = 1;
 
             //relink to target build definition
-            foreach (var e in template.Environments)
+            foreach (var e in pipeline.Environments)
             {
-                if (model.SkipEnvironments!=null && model.SkipEnvironments.Contains(e.Name, StringComparer.OrdinalIgnoreCase))
-                {                    
+                if (model.SkipEnvironments != null && model.SkipEnvironments.Contains(e.Name, StringComparer.OrdinalIgnoreCase))
+                {
                     continue;
                 }
 
@@ -125,7 +205,7 @@
 
                     if (sfDeployStep == null)
                         throw new Exception(
-                            $"Release template {template.Name} does not contain expected Task {VstsSfDeployTaskId} for {e.Name} environment");
+                            $"Release template #{pipeline.Id} does not contain expected Task {VstsSfDeployTaskId} for {e.Name} environment");
 
                     var expectedConnectionName =
                         $"esw-{r.ToRegionCode().ToLowerInvariant()}-fabric-{e.Name.ToLowerInvariant()}";
@@ -143,7 +223,7 @@
 
                     if (sfUpdaterStep == null)
                         throw new Exception(
-                            $"Release template {template.Name} does not contain expected Task {VstsSfUpdateTaskId} for {e.Name} environment");
+                            $"Release template {pipeline.Name} does not contain expected Task {VstsSfUpdateTaskId} for {e.Name} environment");
 
                     sfUpdaterStep.Inputs[VstsSfUpdateTaskRegionInput] = r.ToRegionName();
 
@@ -152,19 +232,11 @@
                 }
             }
 
-            template.Environments = clonedEnvStages;
+            pipeline.Environments = clonedEnvStages;
 
             //set tenant specific variables
-            template.Variables["TenantCode"].Value = model.TenantCode;
-            template.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
-
-            var vstsDef =
-                await _releaseHttpClient.CreateOrResetDefinition(template, _vstsConfiguration.VstsTargetProjectId);
-            model.UpdateWithVstsReleaseDefinition(vstsDef.Id);
-
-            _bigBrother.Publish(new ReleaseDefinitionCreated {DefinitionName = model.ToString()});
-
-            return model;
+            pipeline.Variables["TenantCode"].Value = model.TenantCode;
+            pipeline.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
         }
 
         /// <summary>
