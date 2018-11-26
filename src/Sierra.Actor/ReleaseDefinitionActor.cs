@@ -93,18 +93,12 @@
 
         private void CustomizeRingPipeline(VstsReleaseDefinition model, ReleaseDefinition pipeline)
         {
-            //check if the tenant is embedded in variables, otherwise add it
-            TenantSizeEnum ts = (TenantSizeEnum) model.TenantSize;
-            if (!(typeof(TenantSizeEnum).IsEnumDefined(ts)))
-                throw new Exception($"Unexpected {model.TenantCode} tenant size - {model.TenantSize}");
-            
-            //locate the right variable
-            var variableName = $"{ts.ToString()}Tenants";
+            var variableName = GetTenantSizePipelineVariableName(model.TenantSize);
 
             if (!pipeline.Variables.ContainsKey(variableName))
                 throw new Exception($"Ring template #{pipeline.Id} does not contain expected variable {variableName}");
 
-            var tenantSubString = $"{model.TenantCode}#{11111}"; //TODO: link to port management
+            var tenantSubString = GetTenantPipelineVariableDefinition(model.TenantCode, 11111); //TODO: link to port management
             var varValue = pipeline.Variables[variableName].Value;
             if (!varValue.Contains(tenantSubString))
             {
@@ -132,19 +126,33 @@
             }
         }
 
+        private static string GetTenantSizePipelineVariableName(int tenantSize)
+        {
+            //check if the tenant is embedded in variables, otherwise add it
+            TenantSizeEnum ts = (TenantSizeEnum) tenantSize;
+            if (!(typeof(TenantSizeEnum).IsEnumDefined(ts)))
+                throw new Exception($"Unexpected  tenant size - {tenantSize}");
+
+            //locate the right variable
+            var variableName = $"{ts.ToString()}Tenants";
+            return variableName;
+        }
+
+        private string GetTenantPipelineVariableDefinition(string tenantCode, int port)
+        {
+            return $"{tenantCode}#{port}"; //TODO: link to port management
+        }
+
         private async Task<ReleaseDefinition> ClonePipeline(VstsReleaseDefinition model, PipelineDefinitionConfig templateDefinition)
         {
-            if (model.RingBased)
+            if (model.RingBased) //it may already exist for other tenants in the ring
             {
-                //if ring based, it may already exists (since shared by tenants), try to load it
-                var definition = (await _releaseHttpClient.GetReleaseDefinitionsAsync(
-                        _vstsConfiguration.VstsTargetProjectId,
-                        model.ToString(), isExactNameMatch: true))
-                    .FirstOrDefault();
+                var definition =
+                    await _releaseHttpClient.LoadDefinitionByNameIfExists(_vstsConfiguration.VstsTargetProjectId,
+                        model.ToString());
 
                 if (definition != null)
-                    return await _releaseHttpClient.GetReleaseDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
-                        definition.Id);
+                    return definition;
             }
 
             //load template
@@ -245,6 +253,33 @@
             pipeline.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
         }
 
+        private async Task<ReleaseDefinition> RemoveTenantFromRingPipeline(VstsReleaseDefinition model)
+        {
+            var definition = await _releaseHttpClient.GetReleaseDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
+                model.VstsReleaseDefinitionId);
+
+            var varName = GetTenantSizePipelineVariableName(model.TenantSize);
+            if (!definition.Variables.ContainsKey(varName))
+                throw new Exception($"Definition #{definition.Name} does not contain expected variable {varName}");
+
+            var tenantSubString =
+                GetTenantPipelineVariableDefinition(model.TenantCode, 11111); //TODO: link to port management
+
+            var varValue = definition.Variables[varName].Value;
+            varValue = varValue.Replace(tenantSubString, string.Empty);
+            varValue = varValue.Replace($"{TenantPipelineVariableSeparator}{TenantPipelineVariableSeparator}",
+                $"{TenantPipelineVariableSeparator}");
+
+            definition.Variables[varName].Value = varValue;
+
+            return definition;
+        }
+
+        private bool IsRingPipelineTenantless(ReleaseDefinition definition)
+        {
+            return definition.Variables.All(t => string.IsNullOrWhiteSpace(t.Value.Value));
+        }
+
         /// <summary>
         /// removes existing release definition
         /// </summary>
@@ -252,6 +287,19 @@
         /// <returns>task instance</returns>
         public override async Task Remove(VstsReleaseDefinition model)
         {
+            if (model.RingBased)
+            {
+                var definition = await RemoveTenantFromRingPipeline(model);
+                
+                //is the pipeline now empty? if so, actually delete
+                if (!IsRingPipelineTenantless(definition))
+                {
+                    await _releaseHttpClient.CreateOrResetDefinition(definition, _vstsConfiguration.VstsTargetProjectId);
+                    _bigBrother.Publish(new ReleaseDefinitionUpdated {DefinitionName = model.ToString()});
+                    return;
+                }
+            }
+
             await _releaseHttpClient.DeleteReleaseDefinitionIfFExists(_vstsConfiguration.VstsTargetProjectId,
                 model.ToString());
 

@@ -81,8 +81,9 @@
                     var bd = new VstsBuildDefinition(f, Code);
                     BuildDefinitions.Add(bd);
 
-                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false ) {SkipEnvironments = !f.Fork ? new[] { prodEnvName } : new string[]{} }; //for canary, no PROD env in non prod release pipeline
-                    //ReleaseDefinitions.Add(standardPipeline);
+                    //for canary, no PROD env in non prod release pipeline
+                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false ) {SkipEnvironments = !f.Fork ? new[] { prodEnvName } : new string[]{} }; 
+                    ReleaseDefinitions.Add(standardPipeline);
 
                     if (f.Fork) return;
 

@@ -25,13 +25,8 @@
                 (await client.GetReleaseDefinitionsAsync(targetProject, definition.Name, isExactNameMatch: true))
                 .FirstOrDefault();
 
-            //TODO: the original intention was to update if the definition exists, however various issues were experienced when this was attempted
-            // e.g. complaining that there were no stages in the pipeline (VS402875) 
-
-            if (vstsDef != null)
-            {
-                await client.DeleteReleaseDefinitionAsync(targetProject, definition.Id);
-            }
+            if (vstsDef != null)               
+                return await client.UpdateReleaseDefinitionAsync(definition, targetProject);                           
 
             //create new
             return await client.CreateReleaseDefinitionAsync(definition, targetProject);
@@ -73,6 +68,32 @@
             ReleaseDefinition rd;
             if ((rd = ((await client.GetReleaseDefinitionsAsync(targetProject, definitionName, isExactNameMatch:true)).FirstOrDefault())) != null)
                 await client.DeleteReleaseDefinitionAsync(targetProject, rd.Id, forceDelete: true);
+        }
+
+        /// <summary>
+        /// load definition by name if it exists
+        ///
+        /// note that it does not seem to be possible to list with full definition expand
+        /// as this is not loading substructures consistently and causes errors on save
+        /// </summary>
+        /// <param name="client">extension method entry-point</param>
+        /// <param name="targetProject">target project</param>
+        /// <param name="definitionName">definition name to load</param>
+        /// <returns></returns>
+        public static async Task<ReleaseDefinition> LoadDefinitionByNameIfExists(this ReleaseHttpClient2 client, string targetProject,
+            string definitionName)
+        {
+            //if ring based, it may already exists (since shared by tenants), try to load it
+            var definition = (await client.GetReleaseDefinitionsAsync(
+                    targetProject,
+                    definitionName, isExactNameMatch: true))
+                .FirstOrDefault();
+
+            if (definition != null)
+                return await client.GetReleaseDefinitionAsync(targetProject,
+                    definition.Id);
+
+            return null;
         }
     }
 }

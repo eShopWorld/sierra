@@ -149,20 +149,29 @@
                 return;
 
             await Task.WhenAll(
-                tenant.SourceRepos.Select(f => GetActor<IRepositoryActor>(f.ToString()).Remove(f)
-                    .ContinueWith(t => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+                tenant.ReleaseDefinitions.Select(rd => GetActor<IReleaseDefinitionActor>(rd.ToString()).Remove(rd)
+                    .ContinueWith(t => _dbContext.Entry(rd).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             await Task.WhenAll(
                 tenant.BuildDefinitions.Select(bd => GetActor<IBuildDefinitionActor>(bd.ToString()).Remove(bd)
                     .ContinueWith(t => _dbContext.Entry(bd).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
+
+            await Task.WhenAll(
+                tenant.SourceRepos.Select(f => GetActor<IRepositoryActor>(f.ToString()).Remove(f)
+                    .ContinueWith(t => _dbContext.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             await Task.WhenAll(
                 tenant.ResourceGroups.Select(rg => GetActor<IResourceGroupActor>(rg.ToString()).Remove(rg)
                     .ContinueWith(t => _dbContext.Entry(rg).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             await Task.WhenAll(
                 tenant.ManagedIdentities.Select(mi => GetActor<IManagedIdentityActor>(mi.ToString()).Remove(mi)
                     .ContinueWith(t => _dbContext.Entry(mi).State = Microsoft.EntityFrameworkCore.EntityState.Deleted, TaskContinuationOptions.NotOnFaulted)));
+            await _dbContext.SaveChangesAsync();
 
             _dbContext.Remove(tenant);
             await _dbContext.SaveChangesAsync();
