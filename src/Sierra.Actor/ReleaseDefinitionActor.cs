@@ -66,8 +66,8 @@
         public override async Task<VstsReleaseDefinition> Add(VstsReleaseDefinition model)
         {
             var templateConfig = model.BuildDefinition.SourceCode.ProjectType == ProjectTypeEnum.WebApi
-                ? model.RingBased ? _vstsConfiguration.WebApiRingReleaseDefinitionConfig: _vstsConfiguration.WebApiReleaseDefinitionTemplate
-                : model.RingBased ? _vstsConfiguration.WebUIRingReleaseDefinitionConfig: _vstsConfiguration.WebUIReleaseDefinitionTemplate;
+                ? model.RingBased ? _vstsConfiguration.WebApiRingReleaseDefinitionTemplate: _vstsConfiguration.WebApiReleaseDefinitionTemplate
+                : model.RingBased ? _vstsConfiguration.WebUIRingReleaseDefinitionTemplate: _vstsConfiguration.WebUIReleaseDefinitionTemplate;
            
 
             //create (or locate)
@@ -253,23 +253,26 @@
             pipeline.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
         }
 
-        private async Task<ReleaseDefinition> RemoveTenantFromRingPipeline(VstsReleaseDefinition model)
+        private async Task<ReleaseDefinition> RemoveTenantFromRingPipeline(string targetProject, string definitionName, string tenantCode, int tenantSize)
         {
-            var definition = await _releaseHttpClient.GetReleaseDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
-                model.VstsReleaseDefinitionId);
+            var definition = await _releaseHttpClient.LoadDefinitionByNameIfExists(targetProject,
+                definitionName);
 
-            var varName = GetTenantSizePipelineVariableName(model.TenantSize);
+            if (definition == null)
+                throw new Exception($"Vsts Project {targetProject} does not contain release pipeline {definitionName}");
+
+            var varName = GetTenantSizePipelineVariableName(tenantSize);
             if (!definition.Variables.ContainsKey(varName))
                 throw new Exception($"Definition #{definition.Name} does not contain expected variable {varName}");
 
             var tenantSubString =
-                GetTenantPipelineVariableDefinition(model.TenantCode, 11111); //TODO: link to port management
+                GetTenantPipelineVariableDefinition(tenantCode, 11111); //TODO: link to port management
 
             var varValue = definition.Variables[varName].Value;
             varValue = varValue.Replace(tenantSubString, string.Empty);
             varValue = varValue.Replace($"{TenantPipelineVariableSeparator}{TenantPipelineVariableSeparator}",
                 $"{TenantPipelineVariableSeparator}");
-
+            varValue = varValue.Trim(TenantPipelineVariableSeparator);
             definition.Variables[varName].Value = varValue;
 
             return definition;
@@ -289,7 +292,7 @@
         {
             if (model.RingBased)
             {
-                var definition = await RemoveTenantFromRingPipeline(model);
+                var definition = await RemoveTenantFromRingPipeline(_vstsConfiguration.VstsTargetProjectId, model.ToString(), model.TenantCode, model.TenantSize);
                 
                 //is the pipeline now empty? if so, actually delete
                 if (!IsRingPipelineTenantless(definition))

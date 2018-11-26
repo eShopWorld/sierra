@@ -80,7 +80,7 @@ public class TenantTests
     }
 
     [Fact, IsUnit]
-    public void Update_AddRepo()
+    public void Update_AddStandardComponentRepo()
     {
         var currentTenant = new Tenant
         {
@@ -106,34 +106,19 @@ public class TenantTests
                 d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
                 d.SourceCode.SourceRepositoryName == "RepoB");
         //release definition checks
+        currentTenant.ReleaseDefinitions.Should().HaveCount(2);
+        //1 non ring and 1 ring
         currentTenant.ReleaseDefinitions.Should()
-            .OnlyContain(d =>
+            .ContainSingle(d =>
                 d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
+                d.BuildDefinition.SourceCode.SourceRepositoryName == "RepoB" && !d.RingBased &&
+                d.SkipEnvironments.Count() == 1 && d.SkipEnvironments.All(s =>
+                    s==EnvironmentNames.PROD));
+
+        currentTenant.ReleaseDefinitions.Should()
+            .ContainSingle(d =>
+                d.RingBased && d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
                 d.BuildDefinition.SourceCode.SourceRepositoryName == "RepoB");
-    }
-
-
-    [Fact, IsUnit]
-    public void Update_CheckCanarySkipsPRODForRelease()
-    {
-        var currentTenant = new Tenant
-        {
-            Code = "TenantA",
-            Name = "oldName",
-            SourceRepos = new List<SourceCodeRepository>()
-        };
-
-        var tenantRequest = new Tenant
-        {
-            SourceRepos =
-                new List<SourceCodeRepository>(new[] { new SourceCodeRepository { SourceRepositoryName = "RepoB", Fork =  false} })
-        };
-
-        currentTenant.Update(tenantRequest, GetEnvironments());
-
-        //release definition checks
-        currentTenant.ReleaseDefinitions.First().SkipEnvironments.Should()
-            .OnlyContain(d => EnvironmentNames.PROD.Equals(d, StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact, IsUnit]
