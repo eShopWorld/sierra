@@ -24,9 +24,9 @@ public class ReleaseDefinitionActorTests
     [Fact, IsLayer2]
     public async Task AddForkTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var releaseClient = scope.Resolve<ReleaseHttpClient2>();
 
@@ -70,9 +70,9 @@ public class ReleaseDefinitionActorTests
     [Fact, IsLayer2]
     public async Task AddStandardTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var releaseClient = scope.Resolve<ReleaseHttpClient2>();
 
@@ -119,9 +119,9 @@ public class ReleaseDefinitionActorTests
     [Fact, IsLayer2]
     public async Task RemoveForkTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var releaseClient = scope.Resolve<ReleaseHttpClient2>();
 

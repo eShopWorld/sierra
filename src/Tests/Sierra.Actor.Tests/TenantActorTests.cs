@@ -21,22 +21,22 @@ public class TenantActorTests
 
     [Fact, IsLayer2]
     public async Task AddTest()
-    {
-        var cl = new HttpClient();
+    {       
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var dbContext = scope.Resolve<SierraDbContext>();
 
             try
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "Tenant", "Add",
-                    new Tenant {Code = L2TenantCode, Name = "Tenant Name"});
+                    new Tenant {Code = L2TenantCode, Name = "Tenant Name"}, actorId: L2TenantCode);
                 dbContext.Tenants.Should().ContainSingle(t => t.Code == L2TenantCode && t.Name== "Tenant Name");
             }
             finally
             {
                  await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "Tenant", "Remove",
-                    new Tenant {Code = L2TenantCode});
+                    new Tenant {Code = L2TenantCode}, actorId: L2TenantCode);
             }
         }
     }
@@ -45,20 +45,20 @@ public class TenantActorTests
     [Fact, IsLayer2]
     public async Task RemoveTest()
     {
-        var cl = new HttpClient();
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
+            var cl = scope.Resolve<HttpClient>();
             var dbContext = scope.Resolve<SierraDbContext>();
 
             try
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "Tenant", "Add",
-                    new Tenant { Code = L2TenantCode, Name = "Tenant Name" });
+                    new Tenant { Code = L2TenantCode, Name = "Tenant Name" }, actorId: L2TenantCode);
             }
             finally
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "Tenant", "Remove",
-                    new Tenant { Code = L2TenantCode });
+                    new Tenant { Code = L2TenantCode }, actorId:L2TenantCode);
                 dbContext.Tenants.Should().NotContain(t => t.Code == L2TenantCode);
             }
         }
