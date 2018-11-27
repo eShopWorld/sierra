@@ -1,7 +1,9 @@
 ﻿namespace Sierra.Actor
 {
+    using System;
     using System.Threading.Tasks;
     using Autofac.Features.Indexed;
+    using Common;
     using Common.Events;
     using Eshopworld.Core;
     using Interfaces;
@@ -32,7 +34,12 @@
 
         public override async Task<ResourceGroup> Add(ResourceGroup model)
         {
-            var azure = _azureFactory[string.Intern(model.EnvironmentName)];
+            if (!EnvironmentNamesHelper.TryParse(model.EnvironmentName, out var environmentName))
+            {
+                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
+            }
+
+            var azure = _azureFactory[environmentName];
             IResourceGroup resourceGroup;
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {

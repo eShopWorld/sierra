@@ -32,16 +32,7 @@
                 return Azure.Authenticate(client, string.Empty);
             });
 
-            var allEnvironments = new[]
-            {
-                EnvironmentNames.CI,
-                EnvironmentNames.DEVELOPMENT,
-                EnvironmentNames.PREP,
-                EnvironmentNames.PROD,
-                EnvironmentNames.SAND,
-                EnvironmentNames.TEST,
-            };
-            foreach (var env in allEnvironments)
+            foreach (var env in EnvironmentNamesHelper.All)
             {
                 var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(env);
                 builder.Register(c =>

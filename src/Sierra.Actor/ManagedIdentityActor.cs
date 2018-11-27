@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Autofac.Features.Indexed;
+    using Common;
     using Common.Events;
     using Eshopworld.Core;
     using Interfaces;
@@ -31,12 +32,17 @@
 
         public override async Task<ManagedIdentity> Add(ManagedIdentity model)
         {
+            if (!EnvironmentNamesHelper.TryParse(model.EnvironmentName, out var environmentName))
+            {
+                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
+            }
+
             // TODO: remove this custom error logging when a more generic solution is available
             var stage = "initialization";
             string subscriptionId = null;
             try
             {
-                var azure = _azureFactory[string.Intern(model.EnvironmentName)];
+                var azure = _azureFactory[environmentName];
                 subscriptionId = azure.SubscriptionId;
 
                 stage = "resourceGroupValidation";
