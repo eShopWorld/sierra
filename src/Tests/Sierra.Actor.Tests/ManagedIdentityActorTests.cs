@@ -51,7 +51,7 @@ public class ManagedIdentityActorTests
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var cl = scope.Resolve<HttpClient>();
-            var azure = scope.ResolveKeyed<IAzure>(string.Intern(EswDevOpsSdk.GetEnvironmentName()));
+            var azure = scope.ResolveKeyed<IAzure>(EswDevOpsSdk.GetEnvironment());
             var resourceGroup = await EnsureResourceGroupExists(azure, TestResourceGroupName, Region.EuropeNorth);
             var scaleSet = await GetScaleSet(azure);
             await Prepare(azure, operationPhase, resourceGroup, scaleSet, IdentityName);
@@ -92,7 +92,7 @@ public class ManagedIdentityActorTests
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var cl = scope.Resolve<HttpClient>();
-            var azure = scope.ResolveKeyed<IAzure>(string.Intern(EswDevOpsSdk.GetEnvironmentName()));
+            var azure = scope.ResolveKeyed<IAzure>(EswDevOpsSdk.GetEnvironment());
             var resourceGroup = await EnsureResourceGroupExists(azure, TestResourceGroupName, Region.EuropeNorth);
             var scaleSet = await GetScaleSet(azure);
             await Prepare(azure, operationPhase, resourceGroup, scaleSet, IdentityName);

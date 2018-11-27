@@ -42,7 +42,7 @@ public class ResourceGroupActorTests
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var cl = scope.Resolve<HttpClient>();
-            var azure = scope.ResolveKeyed<IAzure>(string.Intern(EswDevOpsSdk.GetEnvironmentName()));
+            var azure = scope.ResolveKeyed<IAzure>(EswDevOpsSdk.GetEnvironment());
             await PrepareResourceGroup(resourceGroupExists, azure);
             try
             {
@@ -76,7 +76,7 @@ public class ResourceGroupActorTests
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var cl = scope.Resolve<HttpClient>();
-            var azure = scope.ResolveKeyed<IAzure>(string.Intern(EswDevOpsSdk.GetEnvironmentName()));
+            var azure = scope.ResolveKeyed<IAzure>(EswDevOpsSdk.GetEnvironment());
             await PrepareResourceGroup(resourceGroupExists, azure);
 
             try
