@@ -225,9 +225,7 @@ public class ReleaseDefinitionActorTests
                 resp1.VstsReleaseDefinitionId.Should().NotBe(default);
 
                 //second tenant
-                var resp2 = await cl.PostJsonToActor(Fixture.TestMiddlewareUri,
-                    "ReleaseDefinition", "Add",
-                    releaseDefinition2);
+                var resp2 = await cl.PostJsonToActor(Fixture.TestMiddlewareUri,"ReleaseDefinition", "Add", releaseDefinition2);
                 resp2.State.Should().Be(EntityStateEnum.Created);
                 resp2.VstsReleaseDefinitionId.Should().NotBe(default);
 
@@ -243,13 +241,10 @@ public class ReleaseDefinitionActorTests
             }
             finally
             {
-                await cl.PostJsonToActor(Fixture.TestMiddlewareUri,
-                    "ReleaseDefinition", "Remove",
-                    releaseDefinition1);
+                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ReleaseDefinition", "Remove", releaseDefinition1);
                 //check tenant definition gone
 
-                var vstsRel = await releaseClient.GetReleaseDefinitionAsync(vstsConfig.VstsTargetProjectId,
-                    pipelineId);
+                var vstsRel = await releaseClient.GetReleaseDefinitionAsync(vstsConfig.VstsTargetProjectId, pipelineId);
                 vstsRel.Variables["SmallTenants"].Value.Should().Be("L2TNT2#11111");
 
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri,

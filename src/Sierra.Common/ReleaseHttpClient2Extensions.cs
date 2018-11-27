@@ -19,14 +19,15 @@
         /// <param name="definition">definition to process</param>
         /// <param name="targetProject">target vsts project id</param>
         /// <returns>vsts release definition model</returns>
-        public static async Task<ReleaseDefinition> CreateOrResetDefinition(this ReleaseHttpClient2 client, ReleaseDefinition definition, string targetProject)
+        public static async Task<ReleaseDefinition> CreateOrResetDefinition(this ReleaseHttpClient2 client,
+            ReleaseDefinition definition, string targetProject)
         {
             var vstsDef =
                 (await client.GetReleaseDefinitionsAsync(targetProject, definition.Name, isExactNameMatch: true))
                 .FirstOrDefault();
 
-            if (vstsDef != null)               
-                return await client.UpdateReleaseDefinitionAsync(definition, targetProject);                           
+            if (vstsDef != null)
+                return await client.UpdateReleaseDefinitionAsync(definition, targetProject);
 
             //create new
             return await client.CreateReleaseDefinitionAsync(definition, targetProject);
@@ -42,7 +43,8 @@
         /// <param name="definitionId">id of the requested definition</param>
         /// <param name="revisionId">requested revision</param>
         /// <returns>definition model</returns>
-        public static async Task<ReleaseDefinition> GetReleaseDefinitionRevision(this ReleaseHttpClient2 client, string targetProject, int definitionId,
+        public static async Task<ReleaseDefinition> GetReleaseDefinitionRevision(this ReleaseHttpClient2 client,
+            string targetProject, int definitionId,
             int revisionId)
         {
             using (var defStream =
@@ -53,7 +55,7 @@
                     return JsonSerializer.CreateDefault()
                         .Deserialize<ReleaseDefinition>(textReader);
                 }
-            }                
+            }
         }
 
         /// <summary>
@@ -63,10 +65,12 @@
         /// <param name="targetProject">vsts target project id</param>
         /// <param name="definitionName">definition name</param>
         /// <returns>task instance</returns>
-        public static async Task DeleteReleaseDefinitionIfFExists(this ReleaseHttpClient2 client, string targetProject, string definitionName)
+        public static async Task DeleteReleaseDefinitionIfFExists(this ReleaseHttpClient2 client, string targetProject,
+            string definitionName)
         {
             ReleaseDefinition rd;
-            if ((rd = ((await client.GetReleaseDefinitionsAsync(targetProject, definitionName, isExactNameMatch:true)).FirstOrDefault())) != null)
+            if ((rd = ((await client.GetReleaseDefinitionsAsync(targetProject, definitionName, isExactNameMatch: true))
+                    .FirstOrDefault())) != null)
                 await client.DeleteReleaseDefinitionAsync(targetProject, rd.Id, forceDelete: true);
         }
 
@@ -80,13 +84,12 @@
         /// <param name="targetProject">target project</param>
         /// <param name="definitionName">definition name to load</param>
         /// <returns></returns>
-        public static async Task<ReleaseDefinition> LoadDefinitionByNameIfExists(this ReleaseHttpClient2 client, string targetProject,
+        public static async Task<ReleaseDefinition> LoadDefinitionByNameIfExists(this ReleaseHttpClient2 client,
+            string targetProject,
             string definitionName)
         {
             //if ring based, it may already exists (since shared by tenants), try to load it
-            var definition = (await client.GetReleaseDefinitionsAsync(
-                    targetProject,
-                    definitionName, isExactNameMatch: true))
+            var definition = (await client.GetReleaseDefinitionsAsync(targetProject, definitionName, isExactNameMatch: true))
                 .FirstOrDefault();
 
             if (definition != null)
