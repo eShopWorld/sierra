@@ -1,5 +1,6 @@
 ﻿namespace Sierra.Common.DependencyInjection
 {
+    using System;
     using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
@@ -20,7 +21,12 @@
             {
                 var tokenProvider = new AzureServiceTokenProvider();
                 var tokenProviderAdapter = new AzureServiceTokenProviderAdapter(tokenProvider);
-                var tokenCredentials = new TokenCredentials(tokenProviderAdapter);
+                return new TokenCredentials(tokenProviderAdapter);
+            });
+
+            builder.Register(c =>
+            {
+                var tokenCredentials = c.Resolve<TokenCredentials>();
 
                 var client = RestClient.Configure()
                     .WithEnvironment(AzureEnvironment.AzureGlobalCloud)
@@ -32,14 +38,14 @@
                 return Azure.Authenticate(client, string.Empty);
             });
 
-            foreach (var env in EnvironmentNamesHelper.All)
+            foreach (DeploymentEnvironment env in Enum.GetValues(typeof(DeploymentEnvironment)))
             {
                 var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(env);
                 builder.Register(c =>
                 {
                     var authenticated = c.Resolve<Azure.IAuthenticated>();
                     return authenticated.WithSubscription(subscriptionId);
-                }).Keyed<IAzure>(string.Intern(env)).InstancePerLifetimeScope();
+                }).Keyed<IAzure>(env).InstancePerLifetimeScope();
             }
         }
 

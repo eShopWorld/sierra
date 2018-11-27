@@ -32,7 +32,7 @@ public class ActorTestsFixture : IDisposable
     {
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", EnvironmentNames.DEVELOPMENT);
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", DeploymentEnvironment.Development.ToString());
         }
 
         var builder = new ContainerBuilder();

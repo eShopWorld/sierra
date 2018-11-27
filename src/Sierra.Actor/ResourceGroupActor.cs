@@ -3,9 +3,9 @@
     using System;
     using System.Threading.Tasks;
     using Autofac.Features.Indexed;
-    using Common;
     using Common.Events;
     using Eshopworld.Core;
+    using Eshopworld.DevOps;
     using Interfaces;
     using Microsoft.Azure.Management.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
@@ -21,11 +21,11 @@
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class ResourceGroupActor : SierraActor<ResourceGroup>, IResourceGroupActor
     {
-        private readonly IIndex<string, IAzure> _azureFactory;
+        private readonly IIndex<DeploymentEnvironment, IAzure> _azureFactory;
         private readonly IBigBrother _bigBrother;
 
         public ResourceGroupActor(ActorService actorService, ActorId actorId,
-            IIndex<string, IAzure> azureFactory, IBigBrother bigBrother)
+            IIndex<DeploymentEnvironment, IAzure> azureFactory, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
             _azureFactory = azureFactory;
@@ -34,12 +34,12 @@
 
         public override async Task<ResourceGroup> Add(ResourceGroup model)
         {
-            if (!EnvironmentNamesHelper.TryParse(model.EnvironmentName, out var environmentName))
+            if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
             {
                 throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
             }
 
-            var azure = _azureFactory[environmentName];
+            var azure = _azureFactory[environment];
             IResourceGroup resourceGroup;
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
@@ -68,7 +68,12 @@
 
         public override async Task Remove(ResourceGroup model)
         {
-            var azure = _azureFactory[string.Intern(model.EnvironmentName)];
+            if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
+            {
+                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
+            }
+
+            var azure = _azureFactory[environment];
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
                 await azure.ResourceGroups

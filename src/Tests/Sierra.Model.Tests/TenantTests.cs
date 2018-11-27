@@ -121,7 +121,7 @@ public class TenantTests
 
         //release definition checks
         currentTenant.ReleaseDefinitions.First().SkipEnvironments.Should()
-            .OnlyContain(d => EnvironmentNames.PROD.Equals(d, StringComparison.OrdinalIgnoreCase));
+            .OnlyContain(d => DeploymentEnvironment.Prod.ToString().Equals(d, StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact, IsUnit]

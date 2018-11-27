@@ -48,7 +48,7 @@
                 _dbContext.Tenants.Add(dbTenant);
             }
 
-            dbTenant.Update(tenant, GetAllEnvironments(), EnvironmentNames.PROD);
+            dbTenant.Update(tenant, GetAllEnvironments(), DeploymentEnvironment.Prod.ToString().ToUpperInvariant());
             //persist "ToBeDeleted"+"ToBeCreated" records
             await _dbContext.SaveChangesAsync();
 
@@ -168,12 +168,12 @@
         {
             return new[]
             {
-                EnvironmentNames.TEST,
-                EnvironmentNames.CI,
-                EnvironmentNames.SAND,
-                EnvironmentNames.PREP,
-                EnvironmentNames.PROD
-            };
+                DeploymentEnvironment.Test,
+                DeploymentEnvironment.CI,
+                DeploymentEnvironment.Sand,
+                DeploymentEnvironment.Prep,
+                DeploymentEnvironment.Prod
+            }.Select(x => x.ToString().ToUpperInvariant());
         }
     }
 }

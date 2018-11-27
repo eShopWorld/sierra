@@ -101,7 +101,13 @@
 
                 ReleaseDefinitionEnvironment predecessor = null;
 
-                foreach (var r in EswDevOpsSdk.GetRegionSequence(e.Name, default))
+                if (!Enum.TryParse<DeploymentEnvironment>(e.Name, true, out var environment))
+                {
+                    throw new Exception(
+                        $"The name {e.Name} of release definition environment is not a valid deployment environment name.");
+                }
+
+                foreach (var r in EswDevOpsSdk.GetRegionSequence(environment, default))
                 {
                     var regionEnv = e.DeepClone();
                     var phase = regionEnv.DeployPhases.First();

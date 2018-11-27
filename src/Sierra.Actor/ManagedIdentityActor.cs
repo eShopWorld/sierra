@@ -4,9 +4,9 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Autofac.Features.Indexed;
-    using Common;
     using Common.Events;
     using Eshopworld.Core;
+    using Eshopworld.DevOps;
     using Interfaces;
     using Microsoft.Azure.Management.Compute.Fluent;
     using Microsoft.Azure.Management.Compute.Fluent.Models;
@@ -19,11 +19,11 @@
     [StatePersistence(StatePersistence.Volatile)]
     public class ManagedIdentityActor : SierraActor<ManagedIdentity>, IManagedIdentityActor
     {
-        private readonly IIndex<string, IAzure> _azureFactory;
+        private readonly IIndex<DeploymentEnvironment, IAzure> _azureFactory;
         private readonly IBigBrother _bigBrother;
 
         public ManagedIdentityActor(ActorService actorService, ActorId actorId,
-            IIndex<string, IAzure> azureFactory, IBigBrother bigBrother)
+            IIndex<DeploymentEnvironment, IAzure> azureFactory, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
             _azureFactory = azureFactory;
@@ -32,17 +32,17 @@
 
         public override async Task<ManagedIdentity> Add(ManagedIdentity model)
         {
-            if (!EnvironmentNamesHelper.TryParse(model.EnvironmentName, out var environmentName))
-            {
-                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
-            }
-
             // TODO: remove this custom error logging when a more generic solution is available
             var stage = "initialization";
             string subscriptionId = null;
             try
             {
-                var azure = _azureFactory[environmentName];
+                if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
+                {
+                    throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
+                }
+
+                var azure = _azureFactory[environment];
                 subscriptionId = azure.SubscriptionId;
 
                 stage = "resourceGroupValidation";
@@ -104,7 +104,12 @@
             string subscriptionId = null;
             try
             {
-                var azure = _azureFactory[string.Intern(model.EnvironmentName)];
+                if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
+                {
+                    throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
+                }
+
+                var azure = _azureFactory[environment];
                 subscriptionId = azure.SubscriptionId;
 
                 stage = "resourceGroupValidation";
