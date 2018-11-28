@@ -53,7 +53,7 @@ public class ReleaseDefinitionActorTests
                     "ReleaseDefinition", "Add",
                     releaseDefinition);
                 resp.State.Should().Be(EntityStateEnum.Created);
-                resp.VstsReleaseDefinitionId.Should().NotBe(default);
+                resp.VstsReleaseDefinitionId.Should().NotBe(default(int));
                 var vstsRel = await releaseClient.GetReleaseDefinitionAsync(vstsConfig.VstsTargetProjectId,
                         resp.VstsReleaseDefinitionId);
                 vstsRel.Should().NotBeNull();
@@ -101,7 +101,7 @@ public class ReleaseDefinitionActorTests
                     "ReleaseDefinition", "Add",
                     releaseDefinition);
                 resp.State.Should().Be(EntityStateEnum.Created);
-                resp.VstsReleaseDefinitionId.Should().NotBe(default);
+                resp.VstsReleaseDefinitionId.Should().NotBe(default(int));
                 var vstsRel = await releaseClient.GetReleaseDefinitionAsync(vstsConfig.VstsTargetProjectId,
                     resp.VstsReleaseDefinitionId);
                 vstsRel.Should().NotBeNull();
@@ -151,7 +151,7 @@ public class ReleaseDefinitionActorTests
                     "ReleaseDefinition", "Add",
                     releaseDefinition);
                 resp.State.Should().Be(EntityStateEnum.Created);
-                resp.VstsReleaseDefinitionId.Should().NotBe(default);
+                resp.VstsReleaseDefinitionId.Should().NotBe(default(int));
                 var vstsRel = await releaseClient.GetReleaseDefinitionAsync(vstsConfig.VstsTargetProjectId,
                     resp.VstsReleaseDefinitionId);
                 vstsRel.Should().NotBeNull(); 
@@ -218,16 +218,17 @@ public class ReleaseDefinitionActorTests
             try
             {
                 //first tenant
-                var resp1= await cl.PostJsonToActor(Fixture.TestMiddlewareUri,
+                var resp1 = await cl.PostJsonToActor(Fixture.TestMiddlewareUri,
                     "ReleaseDefinition", "Add",
                     releaseDefinition1);
                 resp1.State.Should().Be(EntityStateEnum.Created);
-                resp1.VstsReleaseDefinitionId.Should().NotBe(default);
+                resp1.VstsReleaseDefinitionId.Should().NotBe(default(int));
 
                 //second tenant
-                var resp2 = await cl.PostJsonToActor(Fixture.TestMiddlewareUri,"ReleaseDefinition", "Add", releaseDefinition2);
+                var resp2 = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ReleaseDefinition", "Add",
+                    releaseDefinition2);
                 resp2.State.Should().Be(EntityStateEnum.Created);
-                resp2.VstsReleaseDefinitionId.Should().NotBe(default);
+                resp2.VstsReleaseDefinitionId.Should().NotBe(default(int));
 
                 //checks
                 resp1.VstsReleaseDefinitionId.Should().Be(resp2.VstsReleaseDefinitionId); //sharing the ring
@@ -236,9 +237,9 @@ public class ReleaseDefinitionActorTests
                     resp1.VstsReleaseDefinitionId);
                 vstsRel.Should().NotBeNull();
                 //check variable containing definition
-                vstsRel.Variables["SmallTenants"].Value.Should().Be("L2TNT2#11111;L2TNT#11111");
+                vstsRel.Variables["SmallTenants"].Value.Should().ContainAll("L2TNT2#11111", "L2TNT#11111");
                 pipelineId = resp1.VstsReleaseDefinitionId;
-            }
+            }         
             finally
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ReleaseDefinition", "Remove", releaseDefinition1);
