@@ -1,4 +1,6 @@
-﻿namespace Sierra.Model
+﻿using Eshopworld.DevOps;
+
+namespace Sierra.Model
 {
     using System;
     using System.ComponentModel.DataAnnotations;
@@ -15,8 +17,7 @@
         public string TenantCode { get; set; }
 
         [DataMember]
-        [MaxLength(10), Required]
-        public string EnvironmentName { get; set; }
+        public DeploymentEnvironment Environment { get; set; }
 
         [DataMember]
         [MaxLength(50), Required]
@@ -39,7 +40,7 @@
         /// <returns>desired name</returns>
         public override string ToString()
         {
-            return $"{IdentityName}/{EnvironmentName}";
+            return $"{IdentityName}/{Environment}";
         }
 
         /// <summary>

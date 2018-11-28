@@ -1,4 +1,6 @@
-﻿namespace Sierra.Model
+﻿using Eshopworld.DevOps;
+
+namespace Sierra.Model
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -15,6 +17,10 @@
         [DataMember]
         [Required, MaxLength(100)]
         public string Name { get; set; }
+
+        [DataMember]
+        [Required]
+        public TenantSize TenantSize { get; set; }
 
         [DataMember]
         public List<SourceCodeRepository> SourceRepos { get; set; }
@@ -54,13 +60,14 @@
         /// project new state onto the current instance
         /// </summary>
         /// <param name="newState">new intended state</param>
-        /// <param name="prodEnvName">name of the production environment</param>
-        public void Update(Tenant newState, IEnumerable<string> environments, string prodEnvName = "PROD")
+        /// <param name="environments">list of environments to provision to</param>
+        public void Update(Tenant newState, IEnumerable<DeploymentEnvironment> environments)
         {
             if (newState == null)
                 return;
 
             Name = newState.Name;
+            TenantSize = newState.TenantSize;
 
             var newStateForks = newState.SourceRepos.Select(r => new SourceCodeRepository(r.SourceRepositoryName, Code, r.ProjectType, r.Fork)).ToList();
 
@@ -74,11 +81,16 @@
                     SourceRepos.Add(f);
                     var bd = new VstsBuildDefinition(f, Code);
                     BuildDefinitions.Add(bd);
-                    var rd = new VstsReleaseDefinition(bd, Code);
-                    if (!f.Fork)
-                        rd.SkipEnvironments = new[] {prodEnvName}; //for canary, no PROD env in non prod release pipeline
 
-                    ReleaseDefinitions.Add(rd);
+                    //for canary, no PROD env in non prod release pipeline
+                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false ) {SkipEnvironments = !f.Fork ? new[] { DeploymentEnvironment.Prod } : new DeploymentEnvironment[]{} }; 
+                    ReleaseDefinitions.Add(standardPipeline);
+
+                    if (f.Fork) return;
+
+                    //also initiate ring pipeline (if not fork)
+                    var ringPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, true);
+                    ReleaseDefinitions.Add(ringPipeline);
                 });
 
             SourceRepos
@@ -89,7 +101,7 @@
                     f.State = EntityStateEnum.ToBeDeleted;
                     var bd = BuildDefinitions.Single(b => Equals(b.SourceCode, f));
                     bd.State = EntityStateEnum.ToBeDeleted;
-                    bd.ReleaseDefinition.State = EntityStateEnum.ToBeDeleted;
+                    bd.ReleaseDefinitions.ForEach(d => d.State = EntityStateEnum.ToBeDeleted);
                 });
 
             var environmentList = environments.ToList();
@@ -110,7 +122,7 @@
                     ManagedIdentities.Add(new ManagedIdentity
                     {
                         TenantCode = Code,
-                        EnvironmentName = environmentName,
+                        Environment = environmentName,
                         IdentityName = $"{Code}-{environmentName}",
                         ResourceGroupName = $"checkout-{Code}-{environmentName}",
                     });

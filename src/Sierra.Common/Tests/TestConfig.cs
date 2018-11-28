@@ -14,6 +14,6 @@
 
         public string RegionName { get; set; }
 
-        public string SubscriptionName { get; set; }
+        public string Environment { get; set; }
     }
 }

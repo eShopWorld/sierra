@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Eshopworld.DevOps;
 
 namespace Sierra.Model
 {
@@ -27,6 +28,9 @@ namespace Sierra.Model
         public string TenantCode { get; set; }
 
         [DataMember]
+        public TenantSize TenantSize { get; set; } 
+
+        [DataMember]
         public EntityStateEnum State { get; set; }
 
         [DataMember]
@@ -34,17 +38,23 @@ namespace Sierra.Model
 
         [NotMapped]
         [DataMember]
-        public IEnumerable<string> SkipEnvironments { get; set; }
+        public IEnumerable<DeploymentEnvironment> SkipEnvironments { get; set; }
+
+        [DataMember]
+        public bool RingBased { get; set; }
 
         public VstsReleaseDefinition()
         {
             
         }
 
-        public VstsReleaseDefinition(VstsBuildDefinition buildDefinition, string tenantCode)
+        public VstsReleaseDefinition(VstsBuildDefinition buildDefinition, string tenantCode, TenantSize tenantSize, bool ringBased)
         {
             BuildDefinition = buildDefinition;
             TenantCode = tenantCode;
+            TenantSize = tenantSize;
+            RingBased = ringBased;
+
             State = EntityStateEnum.NotCreated;
         }
 
@@ -63,7 +73,11 @@ namespace Sierra.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{BuildDefinition.SourceCode}ReleaseDefinition";
+            var repoLink = BuildDefinition.SourceCode.ToString();
+            if (BuildDefinition.SourceCode.Fork)
+                return $"{repoLink}ReleaseDefinition";
+
+            return RingBased ? $"{repoLink}RingReleaseDefinition" : $"{repoLink}{TenantCode}NonProdReleaseDefinition";
         }
 
         /// <inheritdoc />

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
@@ -15,7 +14,18 @@ public class TenantTests
     {
         var fork = new SourceCodeRepository
         {
-            SourceRepositoryName = "AlreadyThere", State = EntityStateEnum.Created, TenantCode = "TenantA"
+            SourceRepositoryName = "AlreadyThere", State = EntityStateEnum.Created, TenantCode = "TenantA", Fork = true
+        };
+
+   
+        var relDefA = new VstsReleaseDefinition { TenantCode = "TenantA", State = EntityStateEnum.Created };
+       
+        var buildDefA = new VstsBuildDefinition
+        {
+            SourceCode = fork,
+            TenantCode = "TenantA",
+            ReleaseDefinitions = new[] { relDefA }.ToList(),
+            State = EntityStateEnum.Created
         };
         var currentTenant = new Tenant
         {
@@ -24,19 +34,20 @@ public class TenantTests
             SourceRepos = new List<SourceCodeRepository>(new[] {fork}),
             BuildDefinitions = new List<VstsBuildDefinition>(new[]
             {
-                new VstsBuildDefinition
-                {
-                    SourceCode = fork, TenantCode = "TenantA", State = EntityStateEnum.Created
-                }
-            })
+                buildDefA
+            }),
+            ReleaseDefinitions = new List<VstsReleaseDefinition>()
+            {
+                relDefA
+            }
         };
 
         var tenantRequest = new Tenant
         {
             SourceRepos = new List<SourceCodeRepository>(new[]
             {
-                new SourceCodeRepository {SourceRepositoryName = "A"},
-                new SourceCodeRepository {SourceRepositoryName = "AlreadyThere"}
+                new SourceCodeRepository {SourceRepositoryName = "A", Fork = true},
+                fork
             })
         };
 
@@ -68,7 +79,7 @@ public class TenantTests
     }
 
     [Fact, IsUnit]
-    public void Update_AddRepo()
+    public void Update_AddStandardComponentRepo()
     {
         var currentTenant = new Tenant
         {
@@ -94,34 +105,19 @@ public class TenantTests
                 d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
                 d.SourceCode.SourceRepositoryName == "RepoB");
         //release definition checks
+        currentTenant.ReleaseDefinitions.Should().HaveCount(2);
+        //1 non ring and 1 ring
         currentTenant.ReleaseDefinitions.Should()
-            .OnlyContain(d =>
+            .ContainSingle(d =>
                 d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
+                d.BuildDefinition.SourceCode.SourceRepositoryName == "RepoB" && !d.RingBased &&
+                d.SkipEnvironments.Count() == 1 && d.SkipEnvironments.All(s =>
+                    s==DeploymentEnvironment.Prod));
+
+        currentTenant.ReleaseDefinitions.Should()
+            .ContainSingle(d =>
+                d.RingBased && d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
                 d.BuildDefinition.SourceCode.SourceRepositoryName == "RepoB");
-    }
-
-
-    [Fact, IsUnit]
-    public void Update_CheckCanarySkipsPRODForRelease()
-    {
-        var currentTenant = new Tenant
-        {
-            Code = "TenantA",
-            Name = "oldName",
-            SourceRepos = new List<SourceCodeRepository>()
-        };
-
-        var tenantRequest = new Tenant
-        {
-            SourceRepos =
-                new List<SourceCodeRepository>(new[] { new SourceCodeRepository { SourceRepositoryName = "RepoB", Fork =  false} })
-        };
-
-        currentTenant.Update(tenantRequest, GetEnvironments());
-
-        //release definition checks
-        currentTenant.ReleaseDefinitions.First().SkipEnvironments.Should()
-            .OnlyContain(d => EnvironmentNames.PROD.Equals(d, StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact, IsUnit]
@@ -249,14 +245,14 @@ public class TenantTests
         {
             SourceCode = forkRepoA,
             TenantCode = "TenantA",
-            ReleaseDefinition = relDefA,
+            ReleaseDefinitions = new []{relDefA}.ToList(),
             State = EntityStateEnum.Created
         };
         var buildDefB = new VstsBuildDefinition
         {
             SourceCode = forkRepoB,
             TenantCode = "TenantA",
-            ReleaseDefinition = relDefB,
+            ReleaseDefinitions = new []{relDefB}.ToList(),
             State = EntityStateEnum.Created
         };
 
@@ -315,7 +311,7 @@ public class TenantTests
         {
             SourceCode = forkRepoA,
             TenantCode = "TenantA",
-            ReleaseDefinition = relDefA,
+            ReleaseDefinitions = new[] {relDefA}.ToList(),
             State = EntityStateEnum.Created
         };
 
@@ -356,11 +352,15 @@ public class TenantTests
         //check the same for release definition
         var newBuildDef = currentTenant.BuildDefinitions.First(r => r.SourceCode.Equals(newRepo));
 
-        currentTenant.ReleaseDefinitions.Should().HaveCount(2);
+        currentTenant.ReleaseDefinitions.Should().HaveCount(3);
         currentTenant.ReleaseDefinitions.Should()
             .ContainSingle(r => r.BuildDefinition.Equals(buildDefA) && r.State == EntityStateEnum.ToBeDeleted);
         currentTenant.ReleaseDefinitions.Should()
-            .ContainSingle(r => r.BuildDefinition.Equals(newBuildDef) && r.State == EntityStateEnum.NotCreated);
+            .ContainSingle(r =>
+                r.BuildDefinition.Equals(newBuildDef) && r.State == EntityStateEnum.NotCreated && !r.RingBased);
+        currentTenant.ReleaseDefinitions.Should()
+            .ContainSingle(r =>
+                r.BuildDefinition.Equals(newBuildDef) && r.State == EntityStateEnum.NotCreated && r.RingBased);
     }
 
     [Fact, IsUnit]
@@ -379,7 +379,6 @@ public class TenantTests
 
         currentTenant.ResourceGroups.Should().HaveCount(2);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.Name != null);
-        currentTenant.ResourceGroups.Should().OnlyContain(x => x.EnvironmentName != null);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.ResourceId == null);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.TenantCode == tenantRequest.Code);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.State == EntityStateEnum.NotCreated);
@@ -402,14 +401,13 @@ public class TenantTests
 
         currentTenant.ManagedIdentities.Should().HaveCount(2);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.IdentityName != null);
-        currentTenant.ManagedIdentities.Should().OnlyContain(x => x.EnvironmentName != null);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.IdentityId == null);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.TenantCode == tenantRequest.Code);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.State == EntityStateEnum.NotCreated);
     }
 
-    private static IEnumerable<string> GetEnvironments()
+    private static IEnumerable<DeploymentEnvironment> GetEnvironments()
     {
-        return new[] { "ENV1", "ENV2" };
+        return new[] { DeploymentEnvironment.CI, DeploymentEnvironment.Development };
     }
 }

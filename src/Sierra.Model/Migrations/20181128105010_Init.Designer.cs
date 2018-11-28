@@ -10,14 +10,14 @@ using Sierra.Model;
 namespace Sierra.Model.Migrations
 {
     [DbContext(typeof(SierraDbContext))]
-    [Migration("20181112104137_ManagedIdentityModel")]
-    partial class ManagedIdentityModel
+    [Migration("20181128105010_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.0-preview2-35157")
+                .HasAnnotation("ProductVersion", "2.2.0-preview3-35497")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -26,9 +26,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("EnvironmentName")
-                        .IsRequired()
-                        .HasMaxLength(10);
+                    b.Property<int>("Environment");
 
                     b.Property<string>("IdentityId")
                         .HasMaxLength(500);
@@ -51,7 +49,7 @@ namespace Sierra.Model.Migrations
 
                     b.HasIndex("TenantCode");
 
-                    b.ToTable("ManagedIdentity");
+                    b.ToTable("ManagedIdentities");
                 });
 
             modelBuilder.Entity("Sierra.Model.ResourceGroup", b =>
@@ -59,8 +57,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("EnvironmentName")
-                        .IsRequired();
+                    b.Property<int>("Environment");
 
                     b.Property<string>("Name")
                         .IsRequired();
@@ -117,6 +114,8 @@ namespace Sierra.Model.Migrations
                         .IsRequired()
                         .HasMaxLength(100);
 
+                    b.Property<int>("TenantSize");
+
                     b.HasKey("Code");
 
                     b.ToTable("Tenants");
@@ -152,17 +151,20 @@ namespace Sierra.Model.Migrations
 
                     b.Property<Guid>("BuildDefinitionId");
 
+                    b.Property<bool>("RingBased");
+
                     b.Property<int>("State");
 
                     b.Property<string>("TenantCode")
                         .IsRequired();
 
+                    b.Property<int>("TenantSize");
+
                     b.Property<int>("VstsReleaseDefinitionId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuildDefinitionId")
-                        .IsUnique();
+                    b.HasIndex("BuildDefinitionId");
 
                     b.HasIndex("TenantCode");
 
@@ -209,8 +211,8 @@ namespace Sierra.Model.Migrations
             modelBuilder.Entity("Sierra.Model.VstsReleaseDefinition", b =>
                 {
                     b.HasOne("Sierra.Model.VstsBuildDefinition", "BuildDefinition")
-                        .WithOne("ReleaseDefinition")
-                        .HasForeignKey("Sierra.Model.VstsReleaseDefinition", "BuildDefinitionId")
+                        .WithMany("ReleaseDefinitions")
+                        .HasForeignKey("BuildDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sierra.Model.Tenant")

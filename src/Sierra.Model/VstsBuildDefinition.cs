@@ -1,6 +1,7 @@
 ﻿namespace Sierra.Model
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
 
@@ -27,7 +28,7 @@
         public SourceCodeRepository SourceCode { get; set; }
         
         [Required]
-        public VstsReleaseDefinition ReleaseDefinition { get; set; }
+        public List<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
         [DataMember]
         [Required] 

@@ -43,7 +43,7 @@ public class ManagedIdentityActorTests
         {
             ResourceGroupName = TestResourceGroupName,
             IdentityName = IdentityName,
-            EnvironmentName = Fixture.EnvironmentName,
+            Environment = Fixture.Environment,
         };
     }
 

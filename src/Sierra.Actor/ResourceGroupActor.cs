@@ -33,7 +33,7 @@
 
         public override async Task<ResourceGroup> Add(ResourceGroup model)
         {
-            var azure = BuildAzureClient(model.EnvironmentName);
+            var azure = BuildAzureClient(model.Environment);
             IResourceGroup resourceGroup;
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
@@ -48,7 +48,7 @@
 
                 _bigBrother.Publish(new ResourceGroupCreated
                 {
-                    EnvironmentName = model.EnvironmentName,
+                    EnvironmentName = model.Environment.ToString(),
                     RegionName = resourceGroup.RegionName,
                     ResourceId = resourceGroup.Id,
                     ResourceGroupName = resourceGroup.Name,
@@ -62,7 +62,7 @@
 
         public override async Task Remove(ResourceGroup model)
         {
-            var azure = BuildAzureClient(model.EnvironmentName);
+            var azure = BuildAzureClient(model.Environment);
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
                 await azure.ResourceGroups
@@ -70,15 +70,15 @@
 
                 _bigBrother.Publish(new ResourceGroupDeleted
                 {
-                    EnvironmentName = model.EnvironmentName,
+                    EnvironmentName = model.Environment.ToString(),
                     ResourceGroupName = model.Name
                 });
             }
         }
 
-        private IAzure BuildAzureClient(string environmentName)
+        private IAzure BuildAzureClient(DeploymentEnvironment environment)
         {
-            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
+            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environment);
             return _authenticated().WithSubscription(subscriptionId);
         }
     }
