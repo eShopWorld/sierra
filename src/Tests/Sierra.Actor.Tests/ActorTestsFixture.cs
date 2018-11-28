@@ -21,7 +21,7 @@ public class ActorTestsFixture : IDisposable
 {
     public readonly IContainer Container;
 
-    public string EnvironmentName { get; private set; }
+    public DeploymentEnvironment Environment { get; private set; }
 
     public string TestMiddlewareUri { get; private set; }
 
@@ -56,9 +56,9 @@ public class ActorTestsFixture : IDisposable
                 ? Region.EuropeNorth
                 : Region.Create(testConfig.RegionName);
 
-            EnvironmentName = testConfig.SubscriptionName;
-            // TODO: replace the literal value with some other method of obtaining this value (e.g DevOpsSdk)
-            DeploymentSubscriptionId = "0b50e185-2e2a-4e1c-bf2f-ead0b80e0b79";  // sierra integration
+            Environment = Enum.Parse<DeploymentEnvironment>(testConfig.Environment, true);
+
+            DeploymentSubscriptionId = EswDevOpsSdk.SierraIntegrationSubscriptionId;
 
             return testConfig;
         });

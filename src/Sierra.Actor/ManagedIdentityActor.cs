@@ -9,12 +9,10 @@
     using Eshopworld.DevOps;
     using Interfaces;
     using Microsoft.Azure.Management.Compute.Fluent;
-    using Microsoft.Azure.Management.Compute.Fluent.Models;
     using Microsoft.Azure.Management.Fluent;
-    using Microsoft.Azure.Management.Msi.Fluent;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Sierra.Model;
+    using Model;
 
     [StatePersistence(StatePersistence.Volatile)]
     public class ManagedIdentityActor : SierraActor<ManagedIdentity>, IManagedIdentityActor
@@ -72,7 +70,7 @@
                     GetActor<IScaleSetIdentityActor>(ScaleSetIdentityActor.ActorIdPrefix + scaleSet.Id)
                         .Add(new ScaleSetIdentity
                         {
-                            EnvironmentName = model.EnvironmentName,
+                            Environment = model.Environment,
                             ManagedIdentityId = identity.Id,
                         });
                 
@@ -89,7 +87,7 @@
                 {
                     Stage = stage,
                     SubscriptionId = subscriptionId,
-                    EnvironmentName = model.EnvironmentName,
+                    EnvironmentName = model.Environment.ToString(),
                     IdentityName = model.IdentityName,
                     ResourceGroupName = model.ResourceGroupName,
                 };
@@ -134,7 +132,7 @@
                     GetActor<IScaleSetIdentityActor>(ScaleSetIdentityActor.ActorIdPrefix + scaleSet.Id)
                         .Remove(new ScaleSetIdentity
                         {
-                            EnvironmentName = model.EnvironmentName,
+                            Environment = model.Environment,
                             ManagedIdentityId = identity.Id,
                         });
 
@@ -151,24 +149,13 @@
                 {
                     Stage = stage,
                     SubscriptionId = subscriptionId,
-                    EnvironmentName = model.EnvironmentName,
+                    EnvironmentName = model.Environment.ToString(),
                     IdentityName = model.IdentityName,
                     ResourceGroupName = model.ResourceGroupName,
                 };
                 _bigBrother.Publish(errorEvent);
                 throw;
             }
-        }
-
-        private static bool IsIdentityAssigned(IVirtualMachineScaleSet scaleSet, IIdentity identity)
-        {
-            var isAssigned = scaleSet.ManagedServiceIdentityType == ResourceIdentityType.SystemAssignedUserAssigned
-                              || scaleSet.ManagedServiceIdentityType == ResourceIdentityType.UserAssigned;
-
-            if (!isAssigned) return false;
-
-            return scaleSet.UserAssignedManagedServiceIdentityIds != null
-                   && scaleSet.UserAssignedManagedServiceIdentityIds.Contains(identity.Id);
         }
     }
 }

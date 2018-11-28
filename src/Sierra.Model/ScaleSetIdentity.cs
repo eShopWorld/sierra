@@ -1,4 +1,6 @@
-﻿namespace Sierra.Model
+﻿using Eshopworld.DevOps;
+
+namespace Sierra.Model
 {
     using System.Runtime.Serialization;
 
@@ -6,7 +8,7 @@
     public class ScaleSetIdentity
     {
         [DataMember]
-        public string EnvironmentName { get; set; }
+        public DeploymentEnvironment Environment { get; set; }
 
         [DataMember]
         public string ManagedIdentityId { get; set; }

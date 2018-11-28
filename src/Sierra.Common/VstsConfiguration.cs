@@ -19,6 +19,11 @@
 
         // ReSharper disable once InconsistentNaming
         public PipelineDefinitionConfig WebUIReleaseDefinitionTemplate { get; set; }
+
+        public PipelineDefinitionConfig WebApiRingReleaseDefinitionTemplate { get; set; }
+
+        // ReSharper disable once InconsistentNaming
+        public PipelineDefinitionConfig WebUIRingReleaseDefinitionTemplate { get; set; }
     }
 
     public class PipelineDefinitionConfig

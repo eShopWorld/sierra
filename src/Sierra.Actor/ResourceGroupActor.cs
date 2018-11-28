@@ -54,7 +54,7 @@
 
                 _bigBrother.Publish(new ResourceGroupCreated
                 {
-                    EnvironmentName = model.EnvironmentName,
+                    EnvironmentName = model.Environment.ToString(),
                     RegionName = resourceGroup.RegionName,
                     ResourceId = resourceGroup.Id,
                     ResourceGroupName = resourceGroup.Name,
@@ -81,7 +81,7 @@
 
                 _bigBrother.Publish(new ResourceGroupDeleted
                 {
-                    EnvironmentName = model.EnvironmentName,
+                    EnvironmentName = model.Environment.ToString(),
                     ResourceGroupName = model.Name
                 });
             }

@@ -24,9 +24,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("EnvironmentName")
-                        .IsRequired()
-                        .HasMaxLength(10);
+                    b.Property<int>("Environment");
 
                     b.Property<string>("IdentityId")
                         .HasMaxLength(500);
@@ -57,8 +55,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("EnvironmentName")
-                        .IsRequired();
+                    b.Property<int>("Environment");
 
                     b.Property<string>("Name")
                         .IsRequired();
@@ -115,6 +112,8 @@ namespace Sierra.Model.Migrations
                         .IsRequired()
                         .HasMaxLength(100);
 
+                    b.Property<int>("TenantSize");
+
                     b.HasKey("Code");
 
                     b.ToTable("Tenants");
@@ -150,17 +149,20 @@ namespace Sierra.Model.Migrations
 
                     b.Property<Guid>("BuildDefinitionId");
 
+                    b.Property<bool>("RingBased");
+
                     b.Property<int>("State");
 
                     b.Property<string>("TenantCode")
                         .IsRequired();
 
+                    b.Property<int>("TenantSize");
+
                     b.Property<int>("VstsReleaseDefinitionId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuildDefinitionId")
-                        .IsUnique();
+                    b.HasIndex("BuildDefinitionId");
 
                     b.HasIndex("TenantCode");
 
@@ -207,8 +209,8 @@ namespace Sierra.Model.Migrations
             modelBuilder.Entity("Sierra.Model.VstsReleaseDefinition", b =>
                 {
                     b.HasOne("Sierra.Model.VstsBuildDefinition", "BuildDefinition")
-                        .WithOne("ReleaseDefinition")
-                        .HasForeignKey("Sierra.Model.VstsReleaseDefinition", "BuildDefinitionId")
+                        .WithMany("ReleaseDefinitions")
+                        .HasForeignKey("BuildDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Sierra.Model.Tenant")

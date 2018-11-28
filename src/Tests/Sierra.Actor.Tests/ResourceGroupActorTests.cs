@@ -30,7 +30,7 @@ public class ResourceGroupActorTests
         return new ResourceGroup
         {
             Name = TestResourceGroupName,
-            EnvironmentName = Fixture.EnvironmentName,
+            Environment = Fixture.Environment,
         };
     }
 
