@@ -35,12 +35,7 @@
             string subscriptionId = null;
             try
             {
-                if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
-                {
-                    throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
-                }
-
-                var azure = _azureFactory[environment];
+                var azure = _azureFactory[model.Environment];
                 subscriptionId = azure.SubscriptionId;
 
                 stage = "resourceGroupValidation";
@@ -102,12 +97,7 @@
             string subscriptionId = null;
             try
             {
-                if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
-                {
-                    throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
-                }
-
-                var azure = _azureFactory[environment];
+                var azure = _azureFactory[model.Environment];
                 subscriptionId = azure.SubscriptionId;
 
                 stage = "resourceGroupValidation";

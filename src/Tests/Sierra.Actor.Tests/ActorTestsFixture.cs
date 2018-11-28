@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using Autofac;
-using Autofac.Features.Indexed;
 using Eshopworld.DevOps;
-using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.Configuration;
 using Sierra.Common.DependencyInjection;
@@ -31,9 +29,9 @@ public class ActorTestsFixture : IDisposable
 
     public ActorTestsFixture()
     {
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+        if (string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", DeploymentEnvironment.Development.ToString());
+            System.Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", DeploymentEnvironment.Development.ToString());
         }
 
         var builder = new ContainerBuilder();

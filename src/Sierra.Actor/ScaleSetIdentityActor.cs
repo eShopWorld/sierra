@@ -45,12 +45,7 @@
 
         public override async Task<ScaleSetIdentity> Add(ScaleSetIdentity model)
         {
-            if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
-            {
-                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
-            }
-
-            var azure = _azureFactory[environment];
+            var azure = _azureFactory[model.Environment];
             var scaleSet = await azure.VirtualMachineScaleSets.GetByIdAsync(_scaleSetId);
             var identity = await azure.Identities.GetByIdAsync(model.ManagedIdentityId);
 
@@ -63,12 +58,7 @@
 
         public override async Task Remove(ScaleSetIdentity model)
         {
-            if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
-            {
-                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
-            }
-
-            var azure = _azureFactory[environment];
+            var azure = _azureFactory[model.Environment];
             var scaleSet = await azure.VirtualMachineScaleSets.GetByIdAsync(_scaleSetId);
 
             await scaleSet.Update()

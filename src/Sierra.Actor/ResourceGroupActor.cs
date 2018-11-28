@@ -34,12 +34,7 @@
 
         public override async Task<ResourceGroup> Add(ResourceGroup model)
         {
-            if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
-            {
-                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
-            }
-
-            var azure = _azureFactory[environment];
+            var azure = _azureFactory[model.Environment];
             IResourceGroup resourceGroup;
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
@@ -68,12 +63,7 @@
 
         public override async Task Remove(ResourceGroup model)
         {
-            if (!Enum.TryParse<DeploymentEnvironment>(model.EnvironmentName, out var environment))
-            {
-                throw new ArgumentOutOfRangeException($"The '{model.EnvironmentName}' is not a valid environment name.");
-            }
-
-            var azure = _azureFactory[environment];
+            var azure = _azureFactory[model.Environment];
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
                 await azure.ResourceGroups
