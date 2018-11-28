@@ -1,4 +1,6 @@
-﻿namespace Sierra.Actor
+﻿using System;
+
+namespace Sierra.Actor
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -48,7 +50,7 @@
                 _dbContext.Tenants.Add(dbTenant);
             }
 
-            dbTenant.Update(tenant, GetAllEnvironments());
+            dbTenant.Update(tenant, GetAllExternalEnvironments());
             //persist "ToBeDeleted"+"ToBeCreated" records
             await _dbContext.SaveChangesAsync();
 
@@ -177,16 +179,10 @@
             await _dbContext.SaveChangesAsync();
         }
 
-        private static IEnumerable<string> GetAllEnvironments()
+        private static IEnumerable<DeploymentEnvironment> GetAllExternalEnvironments()
         {
-            return new[]
-            {
-                EnvironmentNames.TEST,
-                EnvironmentNames.CI,
-                EnvironmentNames.SAND,
-                EnvironmentNames.PREP,
-                EnvironmentNames.PROD
-            };
+            return Enum.GetValues(typeof(DeploymentEnvironment)).Cast<DeploymentEnvironment>()
+                .Where(i => i != DeploymentEnvironment.Development);
         }
     }
 }

@@ -44,7 +44,7 @@
 
         public override async Task<ScaleSetIdentity> Add(ScaleSetIdentity model)
         {
-            var azure = BuildAzureClient(model.EnvironmentName);
+            var azure = BuildAzureClient(model.Environment);
 
             var scaleSet = await azure.VirtualMachineScaleSets.GetByIdAsync(_scaleSetId);
             var identity = await azure.Identities.GetByIdAsync(model.ManagedIdentityId);
@@ -58,7 +58,7 @@
 
         public override async Task Remove(ScaleSetIdentity model)
         {
-            var azure = BuildAzureClient(model.EnvironmentName);
+            var azure = BuildAzureClient(model.Environment);
 
             var scaleSet = await azure.VirtualMachineScaleSets.GetByIdAsync(_scaleSetId);
 
@@ -67,9 +67,9 @@
                 .ApplyAsync();
         }
 
-        private IAzure BuildAzureClient(string environmentName)
+        private IAzure BuildAzureClient(DeploymentEnvironment environment)
         {
-            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environmentName);
+            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environment);
             return _authenticated().WithSubscription(subscriptionId);
         }
     }

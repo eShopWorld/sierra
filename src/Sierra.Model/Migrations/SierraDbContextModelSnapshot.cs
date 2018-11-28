@@ -24,9 +24,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("EnvironmentName")
-                        .IsRequired()
-                        .HasMaxLength(10);
+                    b.Property<int>("Environment");
 
                     b.Property<string>("IdentityId")
                         .HasMaxLength(500);
@@ -57,8 +55,7 @@ namespace Sierra.Model.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("EnvironmentName")
-                        .IsRequired();
+                    b.Property<int>("Environment");
 
                     b.Property<string>("Name")
                         .IsRequired();

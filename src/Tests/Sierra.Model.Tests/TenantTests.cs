@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
@@ -113,7 +112,7 @@ public class TenantTests
                 d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
                 d.BuildDefinition.SourceCode.SourceRepositoryName == "RepoB" && !d.RingBased &&
                 d.SkipEnvironments.Count() == 1 && d.SkipEnvironments.All(s =>
-                    s==EnvironmentNames.PROD));
+                    s==DeploymentEnvironment.Prod));
 
         currentTenant.ReleaseDefinitions.Should()
             .ContainSingle(d =>
@@ -380,7 +379,6 @@ public class TenantTests
 
         currentTenant.ResourceGroups.Should().HaveCount(2);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.Name != null);
-        currentTenant.ResourceGroups.Should().OnlyContain(x => x.EnvironmentName != null);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.ResourceId == null);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.TenantCode == tenantRequest.Code);
         currentTenant.ResourceGroups.Should().OnlyContain(x => x.State == EntityStateEnum.NotCreated);
@@ -403,14 +401,13 @@ public class TenantTests
 
         currentTenant.ManagedIdentities.Should().HaveCount(2);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.IdentityName != null);
-        currentTenant.ManagedIdentities.Should().OnlyContain(x => x.EnvironmentName != null);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.IdentityId == null);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.TenantCode == tenantRequest.Code);
         currentTenant.ManagedIdentities.Should().OnlyContain(x => x.State == EntityStateEnum.NotCreated);
     }
 
-    private static IEnumerable<string> GetEnvironments()
+    private static IEnumerable<DeploymentEnvironment> GetEnvironments()
     {
-        return new[] { "ENV1", "ENV2" };
+        return new[] { DeploymentEnvironment.CI, DeploymentEnvironment.Development };
     }
 }

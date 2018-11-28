@@ -91,7 +91,7 @@ public class ReleaseDefinitionActorTests
                     }
                 },
                 TenantCode = "L2TNT",
-                SkipEnvironments = new []{EnvironmentNames.PROD},
+                SkipEnvironments = new []{DeploymentEnvironment.Prod},
                 RingBased = false
             };
 
@@ -106,7 +106,7 @@ public class ReleaseDefinitionActorTests
                     resp.VstsReleaseDefinitionId);
                 vstsRel.Should().NotBeNull();
                 vstsRel.Environments.Should().NotContain(e =>
-                    e.Name.StartsWith(EnvironmentNames.PROD, StringComparison.OrdinalIgnoreCase)); //no PROD check
+                    e.Name.StartsWith(DeploymentEnvironment.Prod.ToString(), StringComparison.OrdinalIgnoreCase)); //no PROD check
             }
             finally
             {
@@ -141,7 +141,7 @@ public class ReleaseDefinitionActorTests
                     }
                 },
                 TenantCode = "L2TNT",
-                TenantSize = (int) TenantSizeEnum.Small,
+                TenantSize =  TenantSize.Small,
                 RingBased = true
             };
 
@@ -191,7 +191,7 @@ public class ReleaseDefinitionActorTests
                     }
                 },
                 TenantCode = "L2TNT",
-                TenantSize = (int)TenantSizeEnum.Small,
+                TenantSize = TenantSize.Small,
                 RingBased = true
             };
 
@@ -210,7 +210,7 @@ public class ReleaseDefinitionActorTests
                     }
                 },
                 TenantCode = "L2TNT2",
-                TenantSize = (int)TenantSizeEnum.Small,
+                TenantSize = TenantSize.Small,
                 RingBased = true
             };
 

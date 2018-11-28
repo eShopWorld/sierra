@@ -1,4 +1,6 @@
-﻿namespace Sierra.Model
+﻿using Eshopworld.DevOps;
+
+namespace Sierra.Model
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -18,7 +20,7 @@
 
         [DataMember]
         [Required]
-        public int TenantSize { get; set; } //TODO: this should really be enum (but do not want to reference devops one at the moment)
+        public TenantSize TenantSize { get; set; }
 
         [DataMember]
         public List<SourceCodeRepository> SourceRepos { get; set; }
@@ -58,9 +60,8 @@
         /// project new state onto the current instance
         /// </summary>
         /// <param name="newState">new intended state</param>
-        /// <param name="environments">list of supported environments</param>
-        /// <param name="prodEnvName">name of the production environment</param>
-        public void Update(Tenant newState, IEnumerable<string> environments, string prodEnvName = "PROD")
+        /// <param name="environments">list of environments to provision to</param>
+        public void Update(Tenant newState, IEnumerable<DeploymentEnvironment> environments)
         {
             if (newState == null)
                 return;
@@ -82,7 +83,7 @@
                     BuildDefinitions.Add(bd);
 
                     //for canary, no PROD env in non prod release pipeline
-                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false ) {SkipEnvironments = !f.Fork ? new[] { prodEnvName } : new string[]{} }; 
+                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false ) {SkipEnvironments = !f.Fork ? new[] { DeploymentEnvironment.Prod } : new DeploymentEnvironment[]{} }; 
                     ReleaseDefinitions.Add(standardPipeline);
 
                     if (f.Fork) return;
@@ -121,7 +122,7 @@
                     ManagedIdentities.Add(new ManagedIdentity
                     {
                         TenantCode = Code,
-                        EnvironmentName = environmentName,
+                        Environment = environmentName,
                         IdentityName = $"{Code}-{environmentName}",
                         ResourceGroupName = $"checkout-{Code}-{environmentName}",
                     });

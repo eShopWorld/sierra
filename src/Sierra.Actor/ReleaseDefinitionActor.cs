@@ -126,15 +126,10 @@
             }
         }
 
-        private static string GetTenantSizePipelineVariableName(int tenantSize)
-        {
-            //check if the tenant is embedded in variables, otherwise add it
-            TenantSizeEnum ts = (TenantSizeEnum) tenantSize;
-            if (!(typeof(TenantSizeEnum).IsEnumDefined(ts)))
-                throw new Exception($"Unexpected  tenant size - {tenantSize}");
-
+        private static string GetTenantSizePipelineVariableName(TenantSize tenantSize)
+        {           
             //locate the right variable
-            var variableName = $"{ts.ToString()}Tenants";
+            var variableName = $"{tenantSize.ToString()}Tenants";
             return variableName;
         }
 
@@ -188,14 +183,18 @@
             //relink to target build definition
             foreach (var e in pipeline.Environments)
             {
-                if (model.SkipEnvironments != null && model.SkipEnvironments.Contains(e.Name, StringComparer.OrdinalIgnoreCase))
+                DeploymentEnvironment sierraEnvironment;
+                if (!Enum.TryParse(e.Name, true, out sierraEnvironment))
+                    throw new Exception($"Release template #{pipeline.Id} contains unrecognized environment - {e.Name}");
+
+                if (model.SkipEnvironments != null && model.SkipEnvironments.Contains(sierraEnvironment))
                 {
                     continue;
                 }
 
                 ReleaseDefinitionEnvironment predecessor = null;
 
-                foreach (var r in EswDevOpsSdk.GetRegionSequence(e.Name, default))
+                foreach (var r in EswDevOpsSdk.GetRegionSequence(sierraEnvironment, default))
                 {
                     var regionEnv = e.DeepClone();
                     var phase = regionEnv.DeployPhases.First();
@@ -253,7 +252,7 @@
             pipeline.Variables["PortNumber"].Value = "11111"; //TODO: link to port management
         }
 
-        private async Task<ReleaseDefinition> RemoveTenantFromRingPipeline(string targetProject, string definitionName, string tenantCode, int tenantSize)
+        private async Task<ReleaseDefinition> RemoveTenantFromRingPipeline(string targetProject, string definitionName, string tenantCode, TenantSize tenantSize)
         {
             var definition = await _releaseHttpClient.LoadDefinitionByNameIfExists(targetProject,
                 definitionName);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Eshopworld.DevOps;
 
 namespace Sierra.Model
 {
@@ -26,9 +27,8 @@ namespace Sierra.Model
         [Required]
         public string TenantCode { get; set; }
 
-        //TODO: should be enum but again (as in tenant) do not wish to ref devops package, also do not want to link back to tenant entity since it would introduce loop (would have to preserve wcf reference mode)
         [DataMember]
-        public int TenantSize { get; set; } 
+        public TenantSize TenantSize { get; set; } 
 
         [DataMember]
         public EntityStateEnum State { get; set; }
@@ -38,7 +38,7 @@ namespace Sierra.Model
 
         [NotMapped]
         [DataMember]
-        public IEnumerable<string> SkipEnvironments { get; set; }
+        public IEnumerable<DeploymentEnvironment> SkipEnvironments { get; set; }
 
         [DataMember]
         public bool RingBased { get; set; }
@@ -48,7 +48,7 @@ namespace Sierra.Model
             
         }
 
-        public VstsReleaseDefinition(VstsBuildDefinition buildDefinition, string tenantCode, int tenantSize, bool ringBased)
+        public VstsReleaseDefinition(VstsBuildDefinition buildDefinition, string tenantCode, TenantSize tenantSize, bool ringBased)
         {
             BuildDefinition = buildDefinition;
             TenantCode = tenantCode;

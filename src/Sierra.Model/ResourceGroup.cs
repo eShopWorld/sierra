@@ -1,4 +1,6 @@
-﻿namespace Sierra.Model
+﻿using Eshopworld.DevOps;
+
+namespace Sierra.Model
 {
     using System;
     using System.ComponentModel.DataAnnotations;
@@ -14,10 +16,10 @@
         {
         }
 
-        public ResourceGroup(string tenantCode, string environmentName, string name)
+        public ResourceGroup(string tenantCode, DeploymentEnvironment environment, string name)
         {
             TenantCode = tenantCode;
-            EnvironmentName = environmentName;
+            Environment = environment;
             Name = name;
         }
 
@@ -27,8 +29,8 @@
         [Required, MaxLength(6), DataMember]
         public string TenantCode { get; set; }
 
-        [Required, DataMember]
-        public string EnvironmentName { get; set; }
+        [DataMember]
+        public DeploymentEnvironment Environment { get; set; }
 
         [Required, DataMember]
         public string Name { get; set; }
@@ -45,7 +47,7 @@
         /// <returns>desired name</returns>
         public override string ToString()
         {
-            return $"{Name}/{EnvironmentName}/{TenantCode}";
+            return $"{Name}/{Environment}/{TenantCode}";
         }
 
         /// <summary>
