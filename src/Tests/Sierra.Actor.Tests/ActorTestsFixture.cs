@@ -2,6 +2,7 @@
 using System.Net.Http;
 using Autofac;
 using Eshopworld.DevOps;
+using FluentAssertions;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.Configuration;
 using Sierra.Common.DependencyInjection;
@@ -29,9 +30,11 @@ public class ActorTestsFixture : IDisposable
 
     public ActorTestsFixture()
     {
-        if (string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable(EswDevOpsSdk.EnvironmentEnvVariable)))
+        if (string.IsNullOrWhiteSpace(EswDevOpsSdk.GetEnvironmentName()))
         {
-            System.Environment.SetEnvironmentVariable(EswDevOpsSdk.EnvironmentEnvVariable, DeploymentEnvironment.Development.ToString());
+            var defaultTestExecutionEnvironment = DeploymentEnvironment.Development.ToString();
+            System.Environment.SetEnvironmentVariable(EswDevOpsSdk.EnvironmentEnvVariable, defaultTestExecutionEnvironment);
+            EswDevOpsSdk.GetEnvironmentName().Should().Be(defaultTestExecutionEnvironment);
         }
 
         var builder = new ContainerBuilder();
