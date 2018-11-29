@@ -1,6 +1,11 @@
 ﻿namespace Sierra.Common.DependencyInjection
 {
+    using System;
+    using System.Net.Http.Headers;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Autofac;
+    using Eshopworld.DevOps;
     using Microsoft.Azure.Management.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
@@ -12,12 +17,16 @@
     {
         protected override void Load(ContainerBuilder builder)
         {
-            // TODO: How to cache authentication token?
             builder.Register(c =>
             {
-                var token = new AzureServiceTokenProvider()
-                    .GetAccessTokenAsync("https://management.core.windows.net/", string.Empty).Result;
-                var tokenCredentials = new TokenCredentials(token);
+                var tokenProvider = new AzureServiceTokenProvider();
+                var tokenProviderAdapter = new AzureServiceTokenProviderAdapter(tokenProvider);
+                return new TokenCredentials(tokenProviderAdapter);
+            });
+
+            builder.Register(c =>
+            {
+                var tokenCredentials = c.Resolve<TokenCredentials>();
 
                 var client = RestClient.Configure()
                     .WithEnvironment(AzureEnvironment.AzureGlobalCloud)
@@ -26,9 +35,35 @@
                         AzureEnvironment.AzureGlobalCloud))
                     .Build();
 
-                // TODO: per subscription cache or a pool could be used here
                 return Azure.Authenticate(client, string.Empty);
             });
+
+            foreach (DeploymentEnvironment env in Enum.GetValues(typeof(DeploymentEnvironment)))
+            {
+                var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(env);
+                builder.Register(c =>
+                {
+                    var authenticated = c.Resolve<Azure.IAuthenticated>();
+                    return authenticated.WithSubscription(subscriptionId);
+                }).Keyed<IAzure>(env).InstancePerLifetimeScope();
+            }
+        }
+
+        private class AzureServiceTokenProviderAdapter : ITokenProvider
+        {
+            private const string Bearer = "Bearer";
+            private readonly AzureServiceTokenProvider _azureTokenProvider;
+
+            public AzureServiceTokenProviderAdapter(AzureServiceTokenProvider azureTokenProvider)
+            {
+                _azureTokenProvider = azureTokenProvider;
+            }
+
+            public async Task<AuthenticationHeaderValue> GetAuthenticationHeaderAsync(CancellationToken cancellationToken)
+            {
+                var token = await _azureTokenProvider.GetAccessTokenAsync("https://management.core.windows.net/", string.Empty);
+                return new AuthenticationHeaderValue(Bearer, token);
+            }
         }
     }
 }

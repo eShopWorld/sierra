@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
+using Eshopworld.DevOps;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
 using Microsoft.Azure.Management.Compute.Fluent;
@@ -31,12 +32,6 @@ public class ManagedIdentityActorTests
         Fixture = fixture;
     }
 
-    private IAzure InitAzure(ILifetimeScope scope)
-    {
-        var azureAuth = scope.Resolve<Azure.IAuthenticated>();
-        return azureAuth.WithSubscription(Fixture.DeploymentSubscriptionId);
-    }
-
     private ManagedIdentity CreateMangedIdentityAssignment()
     {
         return new ManagedIdentity
@@ -56,7 +51,7 @@ public class ManagedIdentityActorTests
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var cl = scope.Resolve<HttpClient>();
-            var azure = InitAzure(scope);
+            var azure = scope.ResolveKeyed<IAzure>(EswDevOpsSdk.GetEnvironment());
             var resourceGroup = await EnsureResourceGroupExists(azure, TestResourceGroupName, Region.EuropeNorth);
             var scaleSet = await GetScaleSet(azure);
             await Prepare(azure, operationPhase, resourceGroup, scaleSet, IdentityName);
@@ -97,7 +92,7 @@ public class ManagedIdentityActorTests
         using (var scope = Fixture.Container.BeginLifetimeScope())
         {
             var cl = scope.Resolve<HttpClient>();
-            var azure = InitAzure(scope);
+            var azure = scope.ResolveKeyed<IAzure>(EswDevOpsSdk.GetEnvironment());
             var resourceGroup = await EnsureResourceGroupExists(azure, TestResourceGroupName, Region.EuropeNorth);
             var scaleSet = await GetScaleSet(azure);
             await Prepare(azure, operationPhase, resourceGroup, scaleSet, IdentityName);

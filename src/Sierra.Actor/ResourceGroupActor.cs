@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Autofac.Features.Indexed;
     using Common.Events;
     using Eshopworld.Core;
     using Eshopworld.DevOps;
@@ -20,20 +21,20 @@
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class ResourceGroupActor : SierraActor<ResourceGroup>, IResourceGroupActor
     {
-        private readonly Func<Azure.IAuthenticated> _authenticated;
+        private readonly IIndex<DeploymentEnvironment, IAzure> _azureFactory;
         private readonly IBigBrother _bigBrother;
 
         public ResourceGroupActor(ActorService actorService, ActorId actorId,
-            Func<Azure.IAuthenticated> authenticated, IBigBrother bigBrother)
+            IIndex<DeploymentEnvironment, IAzure> azureFactory, IBigBrother bigBrother)
             : base(actorService, actorId)
         {
-            _authenticated = authenticated;
+            _azureFactory = azureFactory;
             _bigBrother = bigBrother;
         }
 
         public override async Task<ResourceGroup> Add(ResourceGroup model)
         {
-            var azure = BuildAzureClient(model.Environment);
+            var azure = _azureFactory[model.Environment];
             IResourceGroup resourceGroup;
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
@@ -62,7 +63,7 @@
 
         public override async Task Remove(ResourceGroup model)
         {
-            var azure = BuildAzureClient(model.Environment);
+            var azure = _azureFactory[model.Environment];
             if (await azure.ResourceGroups.ContainAsync(model.Name))
             {
                 await azure.ResourceGroups
@@ -74,12 +75,6 @@
                     ResourceGroupName = model.Name
                 });
             }
-        }
-
-        private IAzure BuildAzureClient(DeploymentEnvironment environment)
-        {
-            var subscriptionId = EswDevOpsSdk.GetSierraDeploymentSubscriptionId(environment);
-            return _authenticated().WithSubscription(subscriptionId);
         }
     }
 }

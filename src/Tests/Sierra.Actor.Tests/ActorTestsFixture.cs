@@ -2,6 +2,7 @@
 using System.Net.Http;
 using Autofac;
 using Eshopworld.DevOps;
+using FluentAssertions;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.Configuration;
 using Sierra.Common.DependencyInjection;
@@ -29,6 +30,13 @@ public class ActorTestsFixture : IDisposable
 
     public ActorTestsFixture()
     {
+        if (string.IsNullOrWhiteSpace(EswDevOpsSdk.GetEnvironmentName()))
+        {
+            var defaultTestExecutionEnvironment = DeploymentEnvironment.Development.ToString();
+            System.Environment.SetEnvironmentVariable(EswDevOpsSdk.EnvironmentEnvVariable, defaultTestExecutionEnvironment);
+            EswDevOpsSdk.GetEnvironmentName().Should().Be(defaultTestExecutionEnvironment);
+        }
+
         var builder = new ContainerBuilder();
         builder.RegisterModule(new CoreModule(true));
         builder.RegisterModule(new VstsModule());
@@ -43,7 +51,7 @@ public class ActorTestsFixture : IDisposable
 
             var config = EswDevOpsSdk.BuildConfiguration(true);
             config.GetSection("TestConfig").Bind(testConfig);
-            
+
             TestMiddlewareUri = $"{testConfig.ApiUrl}test";
             TestRegion = string.IsNullOrEmpty(testConfig.RegionName)
                 ? Region.EuropeNorth
@@ -54,7 +62,7 @@ public class ActorTestsFixture : IDisposable
             DeploymentSubscriptionId = EswDevOpsSdk.SierraIntegrationSubscriptionId;
 
             return testConfig;
-        });       
+        });
 
         Container = builder.Build();
         //trigger set up
