@@ -29,9 +29,9 @@ public class ActorTestsFixture : IDisposable
 
     public ActorTestsFixture()
     {
-        if (string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+        if (string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable(EswDevOpsSdk.EnvironmentEnvVariable)))
         {
-            System.Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", DeploymentEnvironment.Development.ToString());
+            System.Environment.SetEnvironmentVariable(EswDevOpsSdk.EnvironmentEnvVariable, DeploymentEnvironment.Development.ToString());
         }
 
         var builder = new ContainerBuilder();
