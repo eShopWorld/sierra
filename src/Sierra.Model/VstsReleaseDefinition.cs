@@ -28,7 +28,7 @@ namespace Sierra.Model
         public string TenantCode { get; set; }
 
         [DataMember]
-        public TenantSize TenantSize { get; set; } 
+        public TenantSize TenantSize { get; set; }
 
         [DataMember]
         public EntityStateEnum State { get; set; }
@@ -45,7 +45,7 @@ namespace Sierra.Model
 
         public VstsReleaseDefinition()
         {
-            
+
         }
 
         public VstsReleaseDefinition(VstsBuildDefinition buildDefinition, string tenantCode, TenantSize tenantSize, bool ringBased)

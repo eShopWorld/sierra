@@ -46,9 +46,9 @@
                                         services.AddSingleton(serviceContext);
                                     })
                                 .UseContentRoot(Directory.GetCurrentDirectory())
-                                .UseStartup<Startup>()                               
+                                .UseStartup<Startup>()
                                 .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
-                                .UseUrls(url)               
+                                .UseUrls(url)
                                 .Build();
                         }))
             };

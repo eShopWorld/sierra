@@ -16,7 +16,7 @@
         {
         }
 
-        public SourceCodeRepository(string sourceRepoName, string tenantCode, ProjectTypeEnum projectType, bool fork=false)
+        public SourceCodeRepository(string sourceRepoName, string tenantCode, ProjectTypeEnum projectType, bool fork = false)
         {
             SourceRepositoryName = sourceRepoName;
             TenantCode = tenantCode;
@@ -64,7 +64,7 @@
         public override string ToString()
         {
             return Fork ? $"{SourceRepositoryName}{RepoTenantDelimiter}{TenantCode}" : SourceRepositoryName; //TODO: consider name clashes here (different projects?)
-        }        
+        }
 
         /// <summary>
         /// custom equality compare

@@ -10,6 +10,6 @@
         /// <summary>
         /// pipeline name
         /// </summary>
-        public string DefinitionName { get; set; }       
+        public string DefinitionName { get; set; }
     }
 }

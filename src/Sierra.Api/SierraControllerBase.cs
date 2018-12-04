@@ -1,12 +1,12 @@
 ﻿namespace Sierra.Api
 {
+    using System;
+    using System.Fabric;
     using Eshopworld.Core;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Client;
-    using System;
-    using System.Fabric;
 
     /// <summary>
     /// base class for some controller base logic
@@ -36,9 +36,9 @@
         /// <typeparam name="T">desired interface</typeparam>
         /// <param name="serviceName">name of the service</param>
         /// <returns>proxy instance</returns>
-        internal  T GetActorRef<T>(string serviceName) where T : IActor
+        internal T GetActorRef<T>(string serviceName) where T : IActor
         {
-            var actorUri = new Uri($"{StatelessServiceContext.CodePackageActivationContext.ApplicationName}/{serviceName}");                 
+            var actorUri = new Uri($"{StatelessServiceContext.CodePackageActivationContext.ApplicationName}/{serviceName}");
 
             return ActorProxy.Create<T>(ActorId.CreateRandom(), actorUri);
         }

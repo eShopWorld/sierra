@@ -39,7 +39,7 @@
         {
             var templateDefinition = model.SourceCode.ProjectType == ProjectTypeEnum.WebApi
                 ? _vstsConfiguration.WebApiBuildDefinitionTemplate
-                : _vstsConfiguration.WebUIBuildDefinitionTemplate;       
+                : _vstsConfiguration.WebUIBuildDefinitionTemplate;
 
             //load template
             var template = await _buildHttpClient.GetDefinitionAsync(_vstsConfiguration.VstsTargetProjectId,
@@ -56,7 +56,7 @@
             //update model
             model.UpdateWithVstsDefinition(vstsDefinition.Id);
 
-            _bigBrother.Publish(new BuildDefinitionCreated {DefinitionName = vstsDefinition.Name});
+            _bigBrother.Publish(new BuildDefinitionCreated { DefinitionName = vstsDefinition.Name });
 
             return model;
         }
@@ -68,7 +68,7 @@
 
             await _buildHttpClient.DeleteDefinitionIfExists(_vstsConfiguration.VstsTargetProjectId, name);
 
-            _bigBrother.Publish(new BuildDefinitionDeleted {DefinitionName = name});
+            _bigBrother.Publish(new BuildDefinitionDeleted { DefinitionName = name });
         }
     }
 }

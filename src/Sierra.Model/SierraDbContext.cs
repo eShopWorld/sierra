@@ -58,11 +58,11 @@
         public async Task<Tenant> LoadCompleteTenantAsync(string tenantCode)
         {
             return await Tenants
-                .Include(t=>t.SourceRepos)
-                .Include(t=>t.BuildDefinitions)
-                .Include(t=>t.ReleaseDefinitions)
-                .Include(t=>t.ResourceGroups)
-                .Include(t=>t.ManagedIdentities)
+                .Include(t => t.SourceRepos)
+                .Include(t => t.BuildDefinitions)
+                .Include(t => t.ReleaseDefinitions)
+                .Include(t => t.ResourceGroups)
+                .Include(t => t.ManagedIdentities)
                     .FirstOrDefaultAsync(t => t.Code == tenantCode);
         }
     }

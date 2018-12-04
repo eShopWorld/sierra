@@ -23,7 +23,7 @@ public class BuildDefinitionActorTests
         SourceRepositoryName = "ForkIntTestSourceRepo",
         RepoVstsId = Guid.Parse("2c71775d-25a9-4e16-b880-9880cc8b9f1c")
     }, "L2TNT");
-    
+
 
     public BuildDefinitionActorTests(ActorTestsFixture fixture)
     {
@@ -38,12 +38,12 @@ public class BuildDefinitionActorTests
             var cl = scope.Resolve<HttpClient>();
             try
             {
-                VstsBuildDefinition resp = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "BuildDefinition", "Add", TestBuildDefinition);                
-                
+                VstsBuildDefinition resp = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "BuildDefinition", "Add", TestBuildDefinition);
+
                 var vstsConfig = scope.Resolve<VstsConfiguration>();
                 var buildClient = scope.Resolve<BuildHttpClient>();
 
-                var buildDefinition = await 
+                var buildDefinition = await
                     buildClient.GetDefinitionAsync(vstsConfig.VstsTargetProjectId, resp.VstsBuildDefinitionId);
 
                 buildDefinition.Should().NotBeNull();
@@ -74,7 +74,7 @@ public class BuildDefinitionActorTests
                 var buildDefinition = await
                     buildClient.GetDefinitionsAsync2(project: vstsConfig.VstsTargetProjectId);
 
-                buildDefinition.Should().NotContain(d => d.Name== TestBuildDefinition.ToString());
+                buildDefinition.Should().NotContain(d => d.Name == TestBuildDefinition.ToString());
             }
         }
 

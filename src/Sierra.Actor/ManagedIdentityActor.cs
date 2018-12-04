@@ -68,7 +68,7 @@
                             Environment = model.Environment,
                             ManagedIdentityId = identity.Id,
                         });
-                
+
                 var scaleSetAssignmentTasks = scaleSets.Select(AssignIdentityToScaleSet);
 
                 await Task.WhenAll(scaleSetAssignmentTasks);

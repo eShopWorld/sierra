@@ -21,7 +21,7 @@ public static class HttpClientTestExtensions
     /// <param name="actorId">The id of an actor. If null a new random id will be used.</param>
     /// <returns>response message</returns>
     public static async Task<T> PostJsonToActor<T>(this HttpClient cl, string baseUri, string actorName,
-        string method, T payload, bool checkResponseCode = true, string actorId = null) 
+        string method, T payload, bool checkResponseCode = true, string actorId = null)
         where T : class
     {
         string query = null;

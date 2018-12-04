@@ -1,23 +1,23 @@
 ﻿namespace Sierra.Actor
 {
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Eshopworld.DevOps;
-    using Interfaces;
-    using Model;
-    using Common;
-    using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Clients;
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Threading.Tasks;
+    using Common;
+    using Common.Events;
+    using Eshopworld.Core;
+    using Eshopworld.DevOps;
+    using Interfaces;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.TeamFoundation.DistributedTask.WebApi;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi;
+    using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Clients;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Contracts;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Contracts.Conditions;
-    using Eshopworld.Core;
-    using System.Collections.Generic;
-    using Microsoft.TeamFoundation.DistributedTask.WebApi;
-    using Common.Events;
+    using Model;
 
     /// <summary>
     /// this actor manages release definitions for a given tenant
@@ -66,9 +66,9 @@
         public override async Task<VstsReleaseDefinition> Add(VstsReleaseDefinition model)
         {
             var templateConfig = model.BuildDefinition.SourceCode.ProjectType == ProjectTypeEnum.WebApi
-                ? model.RingBased ? _vstsConfiguration.WebApiRingReleaseDefinitionTemplate: _vstsConfiguration.WebApiReleaseDefinitionTemplate
-                : model.RingBased ? _vstsConfiguration.WebUIRingReleaseDefinitionTemplate: _vstsConfiguration.WebUIReleaseDefinitionTemplate;
-           
+                ? model.RingBased ? _vstsConfiguration.WebApiRingReleaseDefinitionTemplate : _vstsConfiguration.WebApiReleaseDefinitionTemplate
+                : model.RingBased ? _vstsConfiguration.WebUIRingReleaseDefinitionTemplate : _vstsConfiguration.WebUIReleaseDefinitionTemplate;
+
 
             //create (or locate)
             var clone = await ClonePipeline(model, templateConfig);
@@ -80,13 +80,13 @@
                 CustomizeRingPipeline(model, clone);
 
             //persist (or update)
-            
+
             var vstsDef =
                 await _releaseHttpClient.CreateOrResetDefinition(clone, _vstsConfiguration.VstsTargetProjectId);
 
             model.UpdateWithVstsReleaseDefinition(vstsDef.Id);
-            
-            _bigBrother.Publish(new ReleaseDefinitionCreated {DefinitionName = model.ToString()});
+
+            _bigBrother.Publish(new ReleaseDefinitionCreated { DefinitionName = model.ToString() });
 
             return model;
         }
@@ -116,7 +116,7 @@
             {
                 foreach (var p in e.DeployPhases)
                 {
-                    var envInput = (AgentDeploymentInput) p.GetDeploymentInput();
+                    var envInput = (AgentDeploymentInput)p.GetDeploymentInput();
                     var downloadInput = envInput.ArtifactsDownloadInput.DownloadInputs.FirstOrDefault();
                     if (downloadInput == null)
                         throw new Exception($"Ring template #{pipeline.Id}, environment {e.Name} does not have expected download input");
@@ -127,7 +127,7 @@
         }
 
         private static string GetTenantSizePipelineVariableName(TenantSize tenantSize)
-        {           
+        {
             //locate the right variable
             var variableName = $"{tenantSize.ToString()}Tenants";
             return variableName;
@@ -173,7 +173,7 @@
                 await _taskAgentHttpClient.GetServiceEndpointsAsync(_vstsConfiguration.VstsTargetProjectId);
 
             //set up source trigger
-            var sourceTrigger = (ArtifactSourceTrigger) pipeline.Triggers.First();
+            var sourceTrigger = (ArtifactSourceTrigger)pipeline.Triggers.First();
             sourceTrigger.ArtifactAlias = model.BuildDefinition.ToString();
 
             var clonedEnvStages = new List<ReleaseDefinitionEnvironment>();
@@ -183,8 +183,7 @@
             //relink to target build definition
             foreach (var e in pipeline.Environments)
             {
-                DeploymentEnvironment sierraEnvironment;
-                if (!Enum.TryParse(e.Name, true, out sierraEnvironment))
+                if (!Enum.TryParse(e.Name, true, out DeploymentEnvironment sierraEnvironment))
                     throw new Exception($"Release template #{pipeline.Id} contains unrecognized environment - {e.Name}");
 
                 if (model.SkipEnvironments != null && model.SkipEnvironments.Contains(sierraEnvironment))
@@ -198,7 +197,7 @@
                 {
                     var regionEnv = e.DeepClone();
                     var phase = regionEnv.DeployPhases.First();
-                    var envInput = (AgentDeploymentInput) phase.GetDeploymentInput();
+                    var envInput = (AgentDeploymentInput)phase.GetDeploymentInput();
                     envInput.ArtifactsDownloadInput.DownloadInputs.First().Alias = model.BuildDefinition.ToString();
 
                     regionEnv.Name = $"{e.Name} - {r}";
@@ -292,12 +291,12 @@
             if (model.RingBased)
             {
                 var definition = await RemoveTenantFromRingPipeline(_vstsConfiguration.VstsTargetProjectId, model.ToString(), model.TenantCode, model.TenantSize);
-                
+
                 //is the pipeline now empty? if so, actually delete
                 if (!IsRingPipelineTenantless(definition))
                 {
                     await _releaseHttpClient.CreateOrResetDefinition(definition, _vstsConfiguration.VstsTargetProjectId);
-                    _bigBrother.Publish(new ReleaseDefinitionUpdated {DefinitionName = model.ToString()});
+                    _bigBrother.Publish(new ReleaseDefinitionUpdated { DefinitionName = model.ToString() });
                     return;
                 }
             }
@@ -305,7 +304,7 @@
             await _releaseHttpClient.DeleteReleaseDefinitionIfFExists(_vstsConfiguration.VstsTargetProjectId,
                 model.ToString());
 
-            _bigBrother.Publish(new ReleaseDefinitionDeleted {DefinitionName = model.ToString()});
+            _bigBrother.Publish(new ReleaseDefinitionDeleted { DefinitionName = model.ToString() });
         }
     }
 }

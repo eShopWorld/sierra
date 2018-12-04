@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Eshopworld.DevOps;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
 using Sierra.Model;
-using Eshopworld.DevOps;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -14,12 +14,15 @@ public class TenantTests
     {
         var fork = new SourceCodeRepository
         {
-            SourceRepositoryName = "AlreadyThere", State = EntityStateEnum.Created, TenantCode = "TenantA", Fork = true
+            SourceRepositoryName = "AlreadyThere",
+            State = EntityStateEnum.Created,
+            TenantCode = "TenantA",
+            Fork = true
         };
 
-   
+
         var relDefA = new VstsReleaseDefinition { TenantCode = "TenantA", State = EntityStateEnum.Created };
-       
+
         var buildDefA = new VstsBuildDefinition
         {
             SourceCode = fork,
@@ -31,7 +34,7 @@ public class TenantTests
         {
             Code = "TenantA",
             Name = "oldName",
-            SourceRepos = new List<SourceCodeRepository>(new[] {fork}),
+            SourceRepos = new List<SourceCodeRepository>(new[] { fork }),
             BuildDefinitions = new List<VstsBuildDefinition>(new[]
             {
                 buildDefA
@@ -83,13 +86,15 @@ public class TenantTests
     {
         var currentTenant = new Tenant
         {
-            Code = "TenantA", Name = "oldName", SourceRepos = new List<SourceCodeRepository>()
+            Code = "TenantA",
+            Name = "oldName",
+            SourceRepos = new List<SourceCodeRepository>()
         };
 
         var tenantRequest = new Tenant
         {
             SourceRepos =
-                new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = "RepoB"}})
+                new List<SourceCodeRepository>(new[] { new SourceCodeRepository { SourceRepositoryName = "RepoB" } })
         };
 
         currentTenant.Update(tenantRequest, GetEnvironments());
@@ -112,7 +117,7 @@ public class TenantTests
                 d.State == EntityStateEnum.NotCreated && d.TenantCode == "TenantA" &&
                 d.BuildDefinition.SourceCode.SourceRepositoryName == "RepoB" && !d.RingBased &&
                 d.SkipEnvironments.Count() == 1 && d.SkipEnvironments.All(s =>
-                    s==DeploymentEnvironment.Prod));
+                    s == DeploymentEnvironment.Prod));
 
         currentTenant.ReleaseDefinitions.Should()
             .ContainSingle(d =>
@@ -159,13 +164,15 @@ public class TenantTests
     {
         var forkRepoA = new SourceCodeRepository
         {
-            SourceRepositoryName = "RepoA", State = EntityStateEnum.ToBeDeleted, TenantCode = "TenantA"
+            SourceRepositoryName = "RepoA",
+            State = EntityStateEnum.ToBeDeleted,
+            TenantCode = "TenantA"
         };
         var currentTenant = new Tenant
         {
             Code = "TenantA",
             Name = "oldName",
-            SourceRepos = new List<SourceCodeRepository>(new[] {forkRepoA}),
+            SourceRepos = new List<SourceCodeRepository>(new[] { forkRepoA }),
             BuildDefinitions = new List<VstsBuildDefinition>(new[]
             {
                 new VstsBuildDefinition
@@ -197,13 +204,15 @@ public class TenantTests
     {
         var forkRepoA = new SourceCodeRepository
         {
-            SourceRepositoryName = "RepoA", State = EntityStateEnum.Created, TenantCode = "TenantA"
+            SourceRepositoryName = "RepoA",
+            State = EntityStateEnum.Created,
+            TenantCode = "TenantA"
         };
         var currentTenant = new Tenant
         {
             Code = "TenantA",
             Name = "oldName",
-            SourceRepos = new List<SourceCodeRepository>(new[] {forkRepoA}),
+            SourceRepos = new List<SourceCodeRepository>(new[] { forkRepoA }),
             BuildDefinitions = new List<VstsBuildDefinition>(new[]
             {
                 new VstsBuildDefinition
@@ -233,26 +242,30 @@ public class TenantTests
     {
         var forkRepoA = new SourceCodeRepository
         {
-            State = EntityStateEnum.Created, SourceRepositoryName = "RepoA", TenantCode = "TenantA"
+            State = EntityStateEnum.Created,
+            SourceRepositoryName = "RepoA",
+            TenantCode = "TenantA"
         };
         var forkRepoB = new SourceCodeRepository
         {
-            State = EntityStateEnum.Created, SourceRepositoryName = "RepoB", TenantCode = "TenantA"
+            State = EntityStateEnum.Created,
+            SourceRepositoryName = "RepoB",
+            TenantCode = "TenantA"
         };
-        var relDefA = new VstsReleaseDefinition {TenantCode = "TenantA", State = EntityStateEnum.Created};
-        var relDefB = new VstsReleaseDefinition {TenantCode = "TenantB", State = EntityStateEnum.Created};
+        var relDefA = new VstsReleaseDefinition { TenantCode = "TenantA", State = EntityStateEnum.Created };
+        var relDefB = new VstsReleaseDefinition { TenantCode = "TenantB", State = EntityStateEnum.Created };
         var buildDefA = new VstsBuildDefinition
         {
             SourceCode = forkRepoA,
             TenantCode = "TenantA",
-            ReleaseDefinitions = new []{relDefA}.ToList(),
+            ReleaseDefinitions = new[] { relDefA }.ToList(),
             State = EntityStateEnum.Created
         };
         var buildDefB = new VstsBuildDefinition
         {
             SourceCode = forkRepoB,
             TenantCode = "TenantA",
-            ReleaseDefinitions = new []{relDefB}.ToList(),
+            ReleaseDefinitions = new[] { relDefB }.ToList(),
             State = EntityStateEnum.Created
         };
 
@@ -263,15 +276,15 @@ public class TenantTests
         {
             Code = "TenantA",
             Name = "oldName",
-            SourceRepos = new List<SourceCodeRepository>(new[] {forkRepoA, forkRepoB}),
-            BuildDefinitions = new List<VstsBuildDefinition>(new[] {buildDefA, buildDefB}),
-            ReleaseDefinitions = new List<VstsReleaseDefinition>(new[] {relDefA, relDefB})
+            SourceRepos = new List<SourceCodeRepository>(new[] { forkRepoA, forkRepoB }),
+            BuildDefinitions = new List<VstsBuildDefinition>(new[] { buildDefA, buildDefB }),
+            ReleaseDefinitions = new List<VstsReleaseDefinition>(new[] { relDefA, relDefB })
         };
 
         var tenantRequest = new Tenant
         {
             SourceRepos =
-                new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = "RepoA"}})
+                new List<SourceCodeRepository>(new[] { new SourceCodeRepository { SourceRepositoryName = "RepoA" } })
         };
 
         currentTenant.Update(tenantRequest, GetEnvironments());
@@ -311,7 +324,7 @@ public class TenantTests
         {
             SourceCode = forkRepoA,
             TenantCode = "TenantA",
-            ReleaseDefinitions = new[] {relDefA}.ToList(),
+            ReleaseDefinitions = new[] { relDefA }.ToList(),
             State = EntityStateEnum.Created
         };
 
@@ -321,7 +334,7 @@ public class TenantTests
         {
             Code = "TenantA",
             Name = "oldName",
-            SourceRepos = new List<SourceCodeRepository>(new[] {forkRepoA}),
+            SourceRepos = new List<SourceCodeRepository>(new[] { forkRepoA }),
             BuildDefinitions = new List<VstsBuildDefinition>(new[] { buildDefA }),
             ReleaseDefinitions = new List<VstsReleaseDefinition>(new[] { relDefA })
         };
@@ -348,7 +361,7 @@ public class TenantTests
             b.SourceCode.Equals(forkRepoA) && b.State == EntityStateEnum.ToBeDeleted);
         currentTenant.BuildDefinitions.Should().ContainSingle(b =>
             b.SourceCode.Equals(newRepo) && b.State == EntityStateEnum.NotCreated);
-        
+
         //check the same for release definition
         var newBuildDef = currentTenant.BuildDefinitions.First(r => r.SourceCode.Equals(newRepo));
 

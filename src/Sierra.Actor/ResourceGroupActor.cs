@@ -1,6 +1,5 @@
 ﻿namespace Sierra.Actor
 {
-    using System;
     using System.Threading.Tasks;
     using Autofac.Features.Indexed;
     using Common.Events;

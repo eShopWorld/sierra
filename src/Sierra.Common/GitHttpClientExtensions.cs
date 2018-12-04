@@ -51,7 +51,7 @@
         /// <param name="sourceCodeRepository">fork definition</param>
         /// <returns>The async <see cref="Task{GitRepository}"/> wrapper with pre-existing or new repo</returns>
         internal static async Task<GitRepository> CreateForkIfNotExists(this GitHttpClient client, string vstsCollectionId, string vstsTargetProjectId, SourceCodeRepository sourceCodeRepository)
-        {            
+        {
             var sourceRepo = await client.LoadGitRepositoryIfExists(sourceCodeRepository.SourceRepositoryName);
 
             if (sourceRepo == null)
@@ -90,5 +90,5 @@
         {
             return (await client.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == name);
         }
-    }        
+    }
 }

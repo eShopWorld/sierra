@@ -1,8 +1,8 @@
 ﻿namespace Sierra.Common
 {
-    using Microsoft.TeamFoundation.Build.WebApi;
-    using System.Threading.Tasks;
     using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.TeamFoundation.Build.WebApi;
 
     /// <summary>
     /// contains Sierra extensions for <see cref="BuildHttpClient"/>
@@ -19,7 +19,7 @@
         /// <param name="targetProjectId">target project to scope search for</param>
         /// <returns>definition instance</returns>
         public static async Task<BuildDefinition> CreateOrUpdateDefinition(this BuildHttpClient buildClient, BuildDefinition definition, string targetProjectId)
-        {    
+        {
             //check whether fork build definition already exists
             var vstsBuildDefinition = (await buildClient.GetFullDefinitionsAsync(targetProjectId, name: definition.Name)).FirstOrDefault();
 

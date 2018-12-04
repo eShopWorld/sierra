@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Autofac;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
@@ -5,9 +8,6 @@ using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Sierra.Common;
 using Sierra.Common.Tests;
 using Sierra.Model;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 [Collection(nameof(CommonContainerCollection))]
@@ -58,7 +58,7 @@ public class GitHttpClientExtensionsTests
             (await sut.GetRepositoriesAsync()).FirstOrDefault(r => r.Name == $"ForkIntTestSourceRepo-{suffix}").Should().BeNull();
         }
     }
-    
+
     [Fact, IsLayer1]
     public async Task LoadGitRepositoryIfExists()
     {

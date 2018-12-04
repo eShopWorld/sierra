@@ -11,7 +11,7 @@
     [Collection(nameof(CommonContainerCollection))]
     public class BuildHttpClientExtensionsTests
     {
-        private readonly CommonContainerFixture _containerFixture;            
+        private readonly CommonContainerFixture _containerFixture;
 
         public BuildHttpClientExtensionsTests(CommonContainerFixture container)
         {
@@ -37,7 +37,7 @@
 
                 var result = await buildHttpClient.CreateOrUpdateDefinition(template, vstsConfig.VstsTargetProjectId);
                 result.Should().NotBeNull();
-                
+
                 //check the list of all pipelines
                 var list = await buildHttpClient.GetFullDefinitionsAsync(project: vstsConfig.VstsTargetProjectId);
                 list.Should().ContainSingle(p => p.Name == pipelineName && p.Repository.Id == repositoryId);

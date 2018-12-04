@@ -4,7 +4,7 @@
     using Microsoft.ServiceFabric.Actors;
     using Model;
 
-    public interface IManagedIdentityActor: IActor
+    public interface IManagedIdentityActor : IActor
     {
         Task<ManagedIdentity> Add(ManagedIdentity assignment);
 
