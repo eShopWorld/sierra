@@ -30,7 +30,7 @@
             _bigBrother = bigBrother;
             if (actorId.Kind != ActorIdKind.String)
             {
-                throw new ArgumentException($"The ScaleSetIdentity actor expects string id but got {actorId}"); 
+                throw new ArgumentException($"The ScaleSetIdentity actor expects string id but got {actorId}");
             }
 
             var id = actorId.GetStringId();

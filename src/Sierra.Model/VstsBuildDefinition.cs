@@ -26,18 +26,18 @@
         [DataMember]
         [Required]
         public SourceCodeRepository SourceCode { get; set; }
-        
+
         [Required]
         public List<VstsReleaseDefinition> ReleaseDefinitions { get; set; }
 
         [DataMember]
-        [Required] 
+        [Required]
         public string TenantCode { get; set; }
 
         [DataMember]
         public int VstsBuildDefinitionId { get; set; }
 
-        [DataMember] 
+        [DataMember]
         public EntityStateEnum State { get; set; }
 
         /// <summary>

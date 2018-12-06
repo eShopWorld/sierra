@@ -1,10 +1,10 @@
 ﻿namespace Sierra.Common
 {
     using System.IO;
-    using System.Threading.Tasks;
-    using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Clients;
     using System.Linq;
+    using System.Threading.Tasks;
     using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi;
+    using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Clients;
     using Newtonsoft.Json;
 
     /// <summary>

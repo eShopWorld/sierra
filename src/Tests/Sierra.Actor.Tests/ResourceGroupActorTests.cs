@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
-using Autofac.Features.Indexed;
 using Eshopworld.DevOps;
 using Eshopworld.Tests.Core;
 using FluentAssertions;

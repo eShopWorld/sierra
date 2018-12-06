@@ -9,7 +9,7 @@ public class SourceCodeRepositoryTests
     [Fact, IsUnit]
     public void ForkRepo_ToStringTest()
     {
-        var sut = new SourceCodeRepository {SourceRepositoryName = "SourceRepoName", TenantCode = "TNT", Fork = true};
+        var sut = new SourceCodeRepository { SourceRepositoryName = "SourceRepoName", TenantCode = "TNT", Fork = true };
         sut.ToString().Should().Be("SourceRepoName-TNT");
     }
 

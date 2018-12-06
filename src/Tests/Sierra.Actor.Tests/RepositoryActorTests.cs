@@ -45,7 +45,7 @@ public class RepositoryActorTests
             try
             {
                 var forkCreated = await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Add", TestFork);
-                
+
                 var vstsClient = scope.Resolve<GitHttpClient>();
                 var repo = await vstsClient.GetRepositoryAsync(forkCreated.RepoVstsId, true, null);
                 repo.Should().NotBeNull();
@@ -54,7 +54,7 @@ public class RepositoryActorTests
             }
             finally
             {
-                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Remove", TestFork);                
+                await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Remove", TestFork);
             }
         }
     }
@@ -68,9 +68,9 @@ public class RepositoryActorTests
             await cl.PostJsonToActor(Fixture.TestMiddlewareUri, ActorName, "Add", TestStandard);
             var vstsConfig = scope.Resolve<VstsConfiguration>();
             var vstsClient = scope.Resolve<GitHttpClient>();
-            var repos = await vstsClient.GetRepositoriesAsync(vstsConfig.VstsTargetProjectId, includeHidden:true);
+            var repos = await vstsClient.GetRepositoriesAsync(vstsConfig.VstsTargetProjectId, includeHidden: true);
             //check no fork was created
-            repos.Should().NotContain(r => r.Name == TestFork.ToString());         
+            repos.Should().NotContain(r => r.Name == TestFork.ToString());
         }
     }
 

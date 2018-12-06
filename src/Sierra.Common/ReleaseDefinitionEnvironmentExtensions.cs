@@ -22,7 +22,7 @@
                 dcs.WriteObject(stream, original);
                 stream.Position = 0;
                 return (ReleaseDefinitionEnvironment)dcs.ReadObject(stream);
-            }         
+            }
         }
     }
 }

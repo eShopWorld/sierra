@@ -1,8 +1,8 @@
 ﻿namespace Sierra.Actor.Interfaces
 {
-    using Model;
-    using Microsoft.ServiceFabric.Actors;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors;
+    using Model;
 
     /// <summary>
     /// fork actor interface

@@ -1,14 +1,14 @@
 ﻿namespace Sierra.Api.Controllers
 {
     using System.Collections.Generic;
-    using Microsoft.AspNetCore.Mvc;
-    using Model;
+    using System.Fabric;
+    using System.Threading.Tasks;
+    using Actor.Interfaces;
+    using Eshopworld.Core;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
-    using Eshopworld.Core;
-    using System.Fabric;
-    using Actor.Interfaces;
-    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Mvc;
+    using Model;
 
     /// <summary>
     /// Manages tenants in the platform.
@@ -34,7 +34,7 @@
         [ProducesResponseType(typeof(IEnumerable<Tenant>), 200)]
         public IEnumerable<Tenant> Get()
         {
-            return new Tenant[] {};
+            return new Tenant[] { };
         }
 
         /// <summary>

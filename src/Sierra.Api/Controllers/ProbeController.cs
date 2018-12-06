@@ -9,14 +9,14 @@
     [Route("/probe")]
     [AllowAnonymous]
     public class ProbeController : Controller
-    {       
+    {
         /// <summary>
         /// probe endpoint
         /// </summary>
         [HttpGet]
         public IActionResult Get()
         {
-            return  Ok();
+            return Ok();
         }
     }
 }

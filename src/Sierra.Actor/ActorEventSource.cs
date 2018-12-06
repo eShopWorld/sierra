@@ -43,7 +43,7 @@ namespace Sierra.Actor
         [NonEvent]
         public void Message(string message, params object[] args)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
                 string finalMessage = string.Format(message, args);
                 Message(finalMessage);
@@ -54,7 +54,7 @@ namespace Sierra.Actor
         [Event(MessageEventId, Level = EventLevel.Informational, Message = "{0}")]
         public void Message(string message)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
                 WriteEvent(MessageEventId, message);
             }
@@ -63,7 +63,7 @@ namespace Sierra.Actor
         [NonEvent]
         public void ActorMessage(Actor actor, string message, params object[] args)
         {
-            if (!this.IsEnabled()
+            if (!IsEnabled()
                 || actor.Id == null
                 || actor.ActorService?.Context?.CodePackageActivationContext == null)
                 return;

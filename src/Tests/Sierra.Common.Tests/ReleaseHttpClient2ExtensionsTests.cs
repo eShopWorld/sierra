@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Sierra.Common;
 using Autofac;
 using Eshopworld.Tests.Core;
 using FluentAssertions;
 using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi;
 using Microsoft.VisualStudio.Services.ReleaseManagement.WebApi.Clients;
+using Sierra.Common;
 using Sierra.Common.Tests;
 using Xunit;
 

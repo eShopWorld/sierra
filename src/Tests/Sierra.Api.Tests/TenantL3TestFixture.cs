@@ -1,15 +1,15 @@
 ﻿using System;
-using Autofac;
-using Microsoft.Extensions.Configuration;
-using Xunit;
-using Eshopworld.DevOps;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Autofac;
+using Eshopworld.DevOps;
 using IdentityModel.Client;
+using Microsoft.Extensions.Configuration;
 using Sierra.Common.DependencyInjection;
 using Sierra.Common.Tests;
 using Sierra.Model;
+using Xunit;
 
 /// <summary>
 /// this fixture serves as a L3 E2E orchestrator
@@ -30,7 +30,7 @@ public class TenantL3TestFixture : IDisposable
     public string TenantCode = "CITNT";
     //preset fork source repository name
     public string ForkSourceRepo = "ForkIntTestSourceRepo";
-    
+
     /// <summary>
     /// upon creation, load the tenant DB record into memory for tests
     /// </summary>
@@ -78,7 +78,7 @@ public class TenantL3TestFixture : IDisposable
             Code = TenantCode,
             Name = $"Tenant{TenantCode}",
             SourceRepos =
-                new List<SourceCodeRepository>(new[] {new SourceCodeRepository {SourceRepositoryName = ForkSourceRepo, Fork = true}})
+                new List<SourceCodeRepository>(new[] { new SourceCodeRepository { SourceRepositoryName = ForkSourceRepo, Fork = true } })
         };
 
         var client = new HttpClient();

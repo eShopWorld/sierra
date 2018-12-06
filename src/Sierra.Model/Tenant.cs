@@ -83,7 +83,7 @@ namespace Sierra.Model
                     BuildDefinitions.Add(bd);
 
                     //for canary, no PROD env in non prod release pipeline
-                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false ) {SkipEnvironments = !f.Fork ? new[] { DeploymentEnvironment.Prod } : new DeploymentEnvironment[]{} }; 
+                    var standardPipeline = new VstsReleaseDefinition(bd, Code, TenantSize, false) { SkipEnvironments = !f.Fork ? new[] { DeploymentEnvironment.Prod } : new DeploymentEnvironment[] { } };
                     ReleaseDefinitions.Add(standardPipeline);
 
                     if (f.Fork) return;

@@ -18,7 +18,7 @@ public class ReleaseDefinitionActorTests
 
     public ReleaseDefinitionActorTests(ActorTestsFixture fixture)
     {
-        Fixture = fixture;        
+        Fixture = fixture;
     }
 
     [Fact, IsLayer2]
@@ -41,7 +41,7 @@ public class ReleaseDefinitionActorTests
                         TenantCode = "L2TNT",
                         ProjectType = ProjectTypeEnum.WebApi,
                         SourceRepositoryName = "ForkIntTestSourceRepo",
-                        Fork = true                        
+                        Fork = true
                     }
                 },
                 TenantCode = "L2TNT"
@@ -91,7 +91,7 @@ public class ReleaseDefinitionActorTests
                     }
                 },
                 TenantCode = "L2TNT",
-                SkipEnvironments = new []{DeploymentEnvironment.Prod},
+                SkipEnvironments = new[] { DeploymentEnvironment.Prod },
                 RingBased = false
             };
 
@@ -141,7 +141,7 @@ public class ReleaseDefinitionActorTests
                     }
                 },
                 TenantCode = "L2TNT",
-                TenantSize =  TenantSize.Small,
+                TenantSize = TenantSize.Small,
                 RingBased = true
             };
 
@@ -154,7 +154,7 @@ public class ReleaseDefinitionActorTests
                 resp.VstsReleaseDefinitionId.Should().NotBe(default(int));
                 var vstsRel = await releaseClient.GetReleaseDefinitionAsync(vstsConfig.VstsTargetProjectId,
                     resp.VstsReleaseDefinitionId);
-                vstsRel.Should().NotBeNull(); 
+                vstsRel.Should().NotBeNull();
                 //check variable containing definition
                 vstsRel.Variables["SmallTenants"].Value.Should().Be("L2TNT#11111");
             }
@@ -214,7 +214,7 @@ public class ReleaseDefinitionActorTests
                 RingBased = true
             };
 
-            var pipelineId=0;
+            var pipelineId = 0;
             try
             {
                 //first tenant
@@ -239,7 +239,7 @@ public class ReleaseDefinitionActorTests
                 //check variable containing definition
                 vstsRel.Variables["SmallTenants"].Value.Should().ContainAll("L2TNT2#11111", "L2TNT#11111");
                 pipelineId = resp1.VstsReleaseDefinitionId;
-            }         
+            }
             finally
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri, "ReleaseDefinition", "Remove", releaseDefinition1);
@@ -278,7 +278,7 @@ public class ReleaseDefinitionActorTests
                         TenantCode = "L2TNT",
                         ProjectType = ProjectTypeEnum.WebApi,
                         SourceRepositoryName = "ForkIntTestSourceRepo",
-                        Fork =  true
+                        Fork = true
                     }
                 },
                 TenantCode = "L2TNT"
@@ -288,7 +288,7 @@ public class ReleaseDefinitionActorTests
             {
                 await cl.PostJsonToActor(Fixture.TestMiddlewareUri,
                     "ReleaseDefinition", "Add",
-                    releaseDefinition);                
+                    releaseDefinition);
             }
             finally
             {

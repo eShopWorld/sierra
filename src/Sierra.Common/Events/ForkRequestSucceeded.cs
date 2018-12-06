@@ -4,7 +4,7 @@
 
     public class ForkRequestSucceeded : TelemetryEvent
     {
-        public string ForkName { get; set; }     
-        
+        public string ForkName { get; set; }
+
     }
 }

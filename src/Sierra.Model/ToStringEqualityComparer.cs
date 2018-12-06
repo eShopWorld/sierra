@@ -6,7 +6,7 @@
     /// <summary>
     /// equality comparer for generic type T based on ToString() implementation
     /// </summary>
-    public class ToStringEqualityComparer<T> : IEqualityComparer<T> where T:class
+    public class ToStringEqualityComparer<T> : IEqualityComparer<T> where T : class
     {
         /// <inheritdoc/>
         public bool Equals(T x, T y)

@@ -13,7 +13,7 @@
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule(new CoreModule(true));
-            builder.RegisterModule(new VstsModule());         
+            builder.RegisterModule(new VstsModule());
             Container = builder.Build();
         }
 
